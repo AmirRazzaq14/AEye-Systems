@@ -5,15 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class RecentActivity {
-    private String type; //exercise, nutrition, measurement
-    private String title;
+    private String type; //workout, nutrition, measurement
     private String info;
-    private String time;
+    private Instant time;
 }
