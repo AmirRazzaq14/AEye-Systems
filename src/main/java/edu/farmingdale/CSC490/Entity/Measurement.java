@@ -14,10 +14,10 @@ import java.time.LocalDate;
 public class Measurement {
     private int measurement_id;
     private int user_id;
-    private int weight_ibs;
-    private int chest_in;
-    private int waist_in;
-    private int arms_in;
-    private int legs_in;
+    private double weight_ibs; //int -> double
+    private double chest_in; //int -> double
+    private double waist_in; // int -> double
+    private double arms_in; // int -> double
+    private double legs_in; //int -> double
     private LocalDate date;
 }

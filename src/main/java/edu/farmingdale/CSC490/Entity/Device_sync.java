@@ -15,8 +15,8 @@ public class Device_sync {
     private int sync_id;
     private int user_id;
     private String device_type;
-    private String device_id;
-    private String sync_data;
+    private String device_id; // from local device ?
+    private String sync_data; // need json format
     private Instant synced_at;
     private boolean sync_status;
 

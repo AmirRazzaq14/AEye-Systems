@@ -12,6 +12,6 @@ import lombok.Builder;
 public class Exercise {
     private int exercise_id;
     private int exercise_name;
-    private int muscle_group;
+    private String muscle_group; // int -> String
     private String notes;
 }

@@ -17,7 +17,7 @@ public class Body_measurement {
     private int analysis_id;
     private int user_id;
     private String body_part;
-    private double length_in; // set as double
+    private double length_in; // int -> double
     private String measurement_type;
     private Instant recorded_at;
 }

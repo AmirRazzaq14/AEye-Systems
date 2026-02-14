@@ -12,6 +12,6 @@ import lombok.Builder;
 public class Workout_plan {
     private int plan_id;
     private int user_id;
-    private int plan_type;
+    private String plan_type; // int -> String(better is Enum)
     private String notes;
 }

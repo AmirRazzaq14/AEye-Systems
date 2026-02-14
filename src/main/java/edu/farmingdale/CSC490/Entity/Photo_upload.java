@@ -14,7 +14,7 @@ import java.time.Instant;
 public class Photo_upload {
     private int photo_id;
     private int user_id;
-    private String photo_url;
+    private String photo_url; // int -> String
     private String photo_type;
     private String file_size;
     private String metadata;

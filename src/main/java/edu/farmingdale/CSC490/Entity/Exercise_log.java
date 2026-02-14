@@ -15,6 +15,6 @@ public class Exercise_log {
     private int exercise_id;
     private int sets_completed;
     private int reps_per_set;
-    private int weight_lbs;
+    private int weight_lbs; // dumbbell?
     private String notes;
 }

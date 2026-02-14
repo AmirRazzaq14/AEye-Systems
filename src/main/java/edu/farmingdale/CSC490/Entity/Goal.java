@@ -15,8 +15,8 @@ public class Goal {
     private int goal_id;
     private int user_id;
     private String goal_type;
-    private double target_weight;
-    private double target_body_fat_percent;
+    private double target_weight; // set as double
+    private double target_body_fat_percent; // set as double
     private LocalDate start_date;
     private LocalDate target_date;
     private String status;
