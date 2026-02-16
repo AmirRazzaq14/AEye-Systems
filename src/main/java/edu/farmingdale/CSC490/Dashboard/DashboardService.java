@@ -63,7 +63,7 @@ public class DashboardService {
     }
 
     //  summary weekly Workout  and shows trend with previous week
-    private Card buildWorkoutCard(int userId) {
+    Card buildWorkoutCard(int userId) {
 
 
         //from monday to today is weekly workout data range
@@ -121,11 +121,10 @@ public class DashboardService {
     private Chart buildActivityChart(int userId) {
         LocalDate today = LocalDate.now();
         LocalDate startWeek = today.with(DayOfWeek.MONDAY);
-        DateRangeDataRequest<Workout_log> dataRequest = new WorkoutStorage();
 
         Map<String, Integer> activityData = new HashMap<>();
 
-        List<Workout_log> currentWeekData = dataRequest.getDataByUserIdAndDateRange(userId, startWeek, today);
+        List<Workout_log> currentWeekData = workoutStorage.getDataByUserIdAndDateRange(userId, startWeek, today);
 
         for (Workout_log workout : currentWeekData) {
             String dayOfWeek = workout.getWorkout_date().getDayOfWeek().toString();
@@ -138,13 +137,9 @@ public class DashboardService {
 
     private Chart buildNutritionChart(int userId) {
 
-        LocalDate today = LocalDate.now();
-        LocalDate startWeek = today.with(DayOfWeek.MONDAY);
-        DateRangeDataRequest<Nutrition_log> dataRequest = new NutritionStorage();
-
         Map<String, Integer> nutritionData = new HashMap<>();
 
-        List<Nutrition_log> currentWeekData = dataRequest.getDataByUserIdAndDateRange(userId, startWeek, today);
+        List<Nutrition_log> currentWeekData = nutritionStorage.getDataByUserIdAndDateRange(userId, startWeek, today);
 
         for (Nutrition_log nutrition : currentWeekData) {
             String dayOfWeek = nutrition.getLog_date().getDayOfWeek().toString();
