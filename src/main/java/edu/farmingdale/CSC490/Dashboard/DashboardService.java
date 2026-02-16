@@ -10,7 +10,6 @@ import edu.farmingdale.CSC490.Storge.*;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +17,31 @@ import java.util.Map;
 
 public class DashboardService {
 
+    private final DateRangeDataRequest<Workout_log> workoutStorage;
+    private final DateRangeDataRequest<Nutrition_log> nutritionStorage;
+    private final DateRangeDataRequest<Goal> goalStorage;
+    private final DateRangeDataRequest<Body_measurement> bodyMeasurementStorage;
 
+    private final LocalDate today = LocalDate.now();
+    private final LocalDate startWeek = today.with(DayOfWeek.MONDAY);
+
+    public DashboardService() {
+        this.workoutStorage = new WorkoutStorage();
+        this.nutritionStorage = new NutritionStorage();
+        this.goalStorage = new GoalStorage();
+        this.bodyMeasurementStorage = new bodyStorage();
+    }
+
+    public DashboardService(
+            DateRangeDataRequest<Workout_log> workoutStorage,
+            DateRangeDataRequest<Nutrition_log> nutritionStorage,
+            DateRangeDataRequest<Goal> goalStorage,
+            DateRangeDataRequest<Body_measurement> bodyMeasurementStorage) {
+        this.workoutStorage = workoutStorage;
+        this.nutritionStorage = nutritionStorage;
+        this.goalStorage = goalStorage;
+        this.bodyMeasurementStorage = bodyMeasurementStorage;
+    }
     public DashboardView buildDashboard(int userId) {
 
         Card workoutCard = buildWorkoutCard(userId);
@@ -42,14 +65,11 @@ public class DashboardService {
     //  summary weekly Workout  and shows trend with previous week
     private Card buildWorkoutCard(int userId) {
 
-        LocalDate today = LocalDate.now();
-        LocalDate startWeek = today.with(DayOfWeek.MONDAY);
-        DateRangeDataRequest<Workout_log> dataRequest = new WorkoutStorage();
 
         //from monday to today is weekly workout data range
-        List<Workout_log> currentWeekData = dataRequest.getDataByUserIdAndDateRange(userId, startWeek, today);
+        List<Workout_log> currentWeekData = workoutStorage.getDataByUserIdAndDateRange(userId, startWeek, today);
         //previous week need minus one week
-        List<Workout_log> previousWeekData = dataRequest
+        List<Workout_log> previousWeekData = workoutStorage
                 .getDataByUserIdAndDateRange(userId, startWeek.minusWeeks(1),
                                                         today.minusDays(1));
 
@@ -61,13 +81,9 @@ public class DashboardService {
     }
 
     private Card buildNutritionCard(int userId) {
-        LocalDate today = LocalDate.now();
-        LocalDate startWeek = today.with(DayOfWeek.MONDAY);
-        DateRangeDataRequest<Nutrition_log> dataRequest = new NutritionStorage();
 
-
-        List<Nutrition_log> currentWeekData = dataRequest.getDataByUserIdAndDateRange(userId, startWeek, today);
-        List<Nutrition_log> previousWeekData = dataRequest
+        List<Nutrition_log> currentWeekData = nutritionStorage.getDataByUserIdAndDateRange(userId, startWeek, today);
+        List<Nutrition_log> previousWeekData = nutritionStorage
                 .getDataByUserIdAndDateRange(userId, startWeek.minusWeeks(1),
                                                         today.minusDays(1));
 
@@ -88,10 +104,9 @@ public class DashboardService {
     private Card buildGoalCard(int userId) {
         LocalDate today = LocalDate.now();
         LocalDate startWeek = today.with(DayOfWeek.MONDAY);
-        DateRangeDataRequest<Goal> dataRequest = new GoalStorage();
 
-        List<Goal> currentWeekData = dataRequest.getDataByUserIdAndDateRange(userId, startWeek, today);
-        List<Goal> previousWeekData = dataRequest
+        List<Goal> currentWeekData = goalStorage.getDataByUserIdAndDateRange(userId, startWeek, today);
+        List<Goal> previousWeekData = goalStorage
                 .getDataByUserIdAndDateRange(userId, startWeek.minusWeeks(1),
                                                         today.minusDays(1));
 
@@ -140,25 +155,23 @@ public class DashboardService {
         return new Chart("Nutrition Tracking", nutritionData);
     }
 
+    //  build recent activity, limit on weekly basis
     private List<RecentActivity> buildRecentActivity(int userId) {
-        LocalDate today = LocalDate.now();
         LocalDate startData = today.minusWeeks(1);
 
         List<RecentActivity> recentActivity = new ArrayList<>();
 
+        // get recent activity from workout, nutrition, body measurement and goal
+        List<Workout_log> currentWeekData = workoutStorage
+                .getDataByUserIdAndDateRange(userId, startData, today);
+        List<Nutrition_log> currentWeekNutritionData = nutritionStorage
+                .getDataByUserIdAndDateRange(userId, startData, today);
+        List<Body_measurement> currentWeekBodyData = bodyMeasurementStorage
+                .getDataByUserIdAndDateRange(userId, startData, today);
+        List<Goal> currentWeekGoalData = goalStorage
+                .getDataByUserIdAndDateRange(userId, startData, today);
 
-        DateRangeDataRequest<Workout_log> WorkoutDataRequest = new WorkoutStorage();
-        List<Workout_log> currentWeekData = WorkoutDataRequest.getDataByUserIdAndDateRange(userId, startData, today);
-
-        DateRangeDataRequest<Nutrition_log> NutritionDataRequest = new NutritionStorage();
-        List<Nutrition_log> currentWeekNutritionData = NutritionDataRequest.getDataByUserIdAndDateRange(userId, startData, today);
-
-        DateRangeDataRequest<Body_measurement> BodyDataRequest = new bodyStorage();
-        List<Body_measurement> currentWeekBodyData = BodyDataRequest.getDataByUserIdAndDateRange(userId, startData, today);
-
-        DateRangeDataRequest<Goal> GoalDataRequest = new GoalStorage();
-        List<Goal> currentWeekGoalData = GoalDataRequest.getDataByUserIdAndDateRange(userId, startData, today);
-
+        //  add to recent activity
         for (Workout_log workout : currentWeekData) {
             String type = "Workout";
             String info = workout.getReps_per_exercise()  + " reps";
