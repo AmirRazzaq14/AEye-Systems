@@ -2,6 +2,7 @@ import requests
 import base64
 import json
 import re
+import sys
 
 def analyze_food(image_path):
     """The simplest food identification, returning structured data"""
@@ -14,77 +15,54 @@ def analyze_food(image_path):
     url = "http://localhost:11434/api/generate"
     prompt = """
         You are a professional nutritionist.
-        Analyze this food image and return the results strictly according to the following format:
+        Analyze this food image and return the results strictly as JSON format:
 
-        Food Name: [Text, such as "Apple", "Tomato", "Chicken Breast"]
-        Food Type: [Text, such as "Fruit", "Vegetable", "Meat"]
-        Estimated Serving Size (grams): [number, such as 150]
-        Calories: [number, if it's a range, take the maximum value, such as 90-150, select 150]
-        Protein (grams): [number, such as 15]
-        Carbohydrates (grams): [number, such as 15]
-        Fat (grams): [number, such as 15]
+        {
+            "foodName": "text, such as Apple, Tomato, Chicken Breast",
+            "foodType": "text, such as Fruit, Vegetable, Meat",
+            "servingSize": number in grams, such as 150,
+            "calories": number, if it's a range, take the maximum value, such as 90-150, select 150,
+            "protein_grams": number in grams, such as 15,
+            "carbs_grams": number in grams, such as 15,
+            "fat_grams": number in grams, such as 15
+        }
 
-        Do not return any other information！！！
+        Return ONLY the JSON object, nothing else. Do not include markdown formatting, backticks, or any other text.
     """
 
-    payload={
+    payload = {
         "model": "llava",
         "prompt": prompt,
         "images": [image_base64],
         "stream": False
     }
-    response = requests.post(url,json = payload)
+    response = requests.post(url, json=payload)
     result = response.json()
 
-    # Parse text responses and create structured data objects
+    # Extract the response text
     response_text = result.get("response", "").strip()
-    structured_data = parse_food_response(response_text)
 
-    return structured_data
-
-def parse_food_response(response_text):
-    """Parse the text returned by the API and convert it into structured data"""
-
-    patterns = {
-        'foodName': r'Food Name:\s*(.+?)(?:\n|\\n|$)',
-        'foodType': r'Food Type:\s*(.+?)(?:\n|\\n|$)',
-        'servingSize': r'Estimated Serving Size \(grams\):\s*(\d+)',
-        'calories': r'Calories:\s*(\d+)',
-        'protein_grams': r'Protein \(grams\):\s*(\d+)',
-        'carbs_grams': r'Carbohydrates \(grams\):\s*(\d+)',
-        'fat_grams': r'Fat \(grams\):\s*(\d+)'
-    }
-
-    result = {}
-
-    # Extract each field using the corresponding pattern
-    for key, pattern in patterns.items():
-        match = re.search(pattern, response_text)
-        if match:
-            value = match.group(1).strip()
-            if key in ['servingSize', 'calories', 'protein_grams', 'carbs_grams', 'fat_grams']:
-                result[key] = value
-            else:
-                result[key] = 0
-
-    # To match the Java class property name, some fields are remapped
-    final_result = {
-        "foodName": result.get('foodName', 'Unknown'),
-        "foodType": result.get('foodType', 'Unknown'),
-        "servingSize": result.get('servingSize', 0),
-        "calories": result.get('calories', 0),
-        "protein_grams": result.get('protein_grams', 0),
-        "carbs_grams": result.get('carbs_grams', 0),
-        "fat_grams": result.get('fat_grams', 0)
-    }
-
-    return final_result
+    # Try to extract JSON from the response
+    # Look for JSON object between curly braces
+    match = re.search(r'\{.*\}', response_text, re.DOTALL)
+    if match:
+        json_str = match.group()
+        try:
+            # Validate that it's proper JSON
+            parsed = json.loads(json_str)
+            return json.dumps(parsed)  # Return clean JSON string
+        except json.JSONDecodeError:
+            # If JSON parsing fails, return the matched string as is
+            return json_str
+    else:
+        # If no JSON object found, return original response
+        return response_text
 
 if __name__ == "__main__":
-    import sys
+    if len(sys.argv) < 2:
+        print("Usage: python ollamaAI.py <image_path>", file=sys.stderr)
+        sys.exit(1)
 
     image_path = sys.argv[1]
     result = analyze_food(image_path)
-
-    # Output JSON, and Java will read this
-    print(json.dumps(result))
+    print(result)

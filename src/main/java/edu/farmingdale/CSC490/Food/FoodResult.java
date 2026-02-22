@@ -1,14 +1,15 @@
 package edu.farmingdale.CSC490.Food;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 @Data
 public class FoodResult {
     private String foodName;
     private String foodType;
-    private double servingSize;
-    private double calories;
-    private double protein_grams;
-    private double carbs_grams;
-    private double fat_grams;
+    private Integer servingSize;
+    private Double calories;
+    private Double protein_grams;
+    private Double carbs_grams;
+    private Double fat_grams;
 }
