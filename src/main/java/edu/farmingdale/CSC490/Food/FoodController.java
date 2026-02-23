@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
@@ -31,7 +34,23 @@ public class FoodController {
                 file.getOriginalFilename()
             );
 
-            
+            //  If no result found, return a default result
+            if(result == null){
+                result = Nutrition_log.builder()
+                    .user_id(1)
+                    .log_id(1)
+                    .log_date(LocalDate.now())
+                    .meal_type("unknown")
+                    .food_name("unknown")
+                    .calories(1000)
+                    .protein_grams(10)
+                    .carbs_grams(10)
+                    .fat_grams(10)
+                    .logged_at(Instant.now())
+                    .build();
+            }
+
+
             return ResponseEntity.ok(result);
             
         } catch (Exception e) {
