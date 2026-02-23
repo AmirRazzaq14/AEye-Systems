@@ -19,8 +19,7 @@ def analyze_food(image_path):
 
         {
             "foodName": "text, such as Apple, Tomato, Chicken Breast",
-            "foodType": "text, such as Fruit, Vegetable, Meat",
-            "servingSize": number in grams, such as 150,
+            "mealType": "text, such as Fruit, Vegetable, Meat",
             "calories": number, if it's a range, take the maximum value, such as 90-150, select 150,
             "protein_grams": number in grams, such as 15,
             "carbs_grams": number in grams, such as 15,

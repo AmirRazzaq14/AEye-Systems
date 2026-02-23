@@ -6,8 +6,7 @@ import lombok.Data;
 @Data
 public class FoodResult {
     private String foodName;
-    private String foodType;
-    private Integer servingSize;
+    private String mealType;
     private Double calories;
     private Double protein_grams;
     private Double carbs_grams;
