@@ -276,10 +276,10 @@
       document.getElementById('carb-label').textContent = `${Math.round(foodData.carbs_grams || 0)}g / 250g`;
       document.getElementById('fat-label').textContent = `${Math.round(foodData.fat_grams || 0)}g / 70g`;
 
-      animateBar('cal-fill', calPercent);
-      animateBar('prot-fill', protPercent);
-      animateBar('carb-fill', carbPercent);
-      animateBar('fat-fill', fatPercent);
+      document.getElementById('cal-fill').style.width = calPercent + '%';
+      document.getElementById('prot-fill').style.width = protPercent + '%';
+      document.getElementById('carb-fill').style.width = carbPercent + '%';
+      document.getElementById('fat-fill').style.width = fatPercent + '%';
     }
 
 
