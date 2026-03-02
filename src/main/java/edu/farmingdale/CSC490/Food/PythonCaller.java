@@ -66,11 +66,13 @@ public class PythonCaller {
 
     private String getJsonFromPython(String imagePath) throws IOException, InterruptedException {
         String projectRoot = System.getProperty("user.dir");
-        String scriptDir = new File(projectRoot, "src/main/java/edu/farmingdale/CSC490/Food").getAbsolutePath();
+        String scriptDir = new File(projectRoot, "src/main/resources/AI").getAbsolutePath();
         String fullImagePath = new File(imagePath).getAbsolutePath();
+        String scriptPath = new File(scriptDir, "ollamaAI.py").getAbsolutePath();
+        String promptPath = new File(scriptDir, "food_analyze_prompt").getAbsolutePath();
 
-        // Construct commands: python ollamaAI.py E:\Code\AEye-Systems\src\main\resources\images\apple.jpg
-        String[] command = {"python", "ollamaAI.py", fullImagePath};
+        // Construct commands to execute the Python script
+        String[] command = {"python", scriptPath, fullImagePath,promptPath};
 
         //System.out.println(Arrays.toString(command));
 
