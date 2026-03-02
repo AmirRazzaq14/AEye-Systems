@@ -7,6 +7,8 @@ import edu.farmingdale.CSC490.Dashboard.Entity.RecentActivity;
 import edu.farmingdale.CSC490.Entity.*;
 import edu.farmingdale.CSC490.Storge.*;
 
+import org.springframework.stereotype.Service;
+
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class DashboardService {
 
     private final DateRangeDataRequest<Workout_log> workoutStorage;
@@ -24,13 +27,6 @@ public class DashboardService {
 
     private final LocalDate today = LocalDate.now();
     private final LocalDate startWeek = today.with(DayOfWeek.MONDAY);
-
-    public DashboardService() {
-        this.workoutStorage = new WorkoutStorage();
-        this.nutritionStorage = new NutritionStorage();
-        this.goalStorage = new GoalStorage();
-        this.bodyMeasurementStorage = new bodyStorage();
-    }
 
     public DashboardService(
             DateRangeDataRequest<Workout_log> workoutStorage,
@@ -42,6 +38,7 @@ public class DashboardService {
         this.goalStorage = goalStorage;
         this.bodyMeasurementStorage = bodyMeasurementStorage;
     }
+
     public DashboardView buildDashboard(int userId) {
 
         Card workoutCard = buildWorkoutCard(userId);
@@ -50,7 +47,6 @@ public class DashboardService {
         Chart activityChart = buildActivityChart(userId);
         Chart nutritionChart = buildNutritionChart(userId);
         List<RecentActivity> recentActivity = buildRecentActivity(userId);
-
 
         return DashboardView.builder()
                 .workoutCard(workoutCard)
@@ -62,16 +58,15 @@ public class DashboardService {
                 .build();
     }
 
-    //  summary weekly Workout  and shows trend with previous week
+    // summary weekly Workout and shows trend with previous week
     Card buildWorkoutCard(int userId) {
 
-
-        //from monday to today is weekly workout data range
+        // from monday to today is weekly workout data range
         List<Workout_log> currentWeekData = workoutStorage.getDataByUserIdAndDateRange(userId, startWeek, today);
-        //previous week need minus one week
+        // previous week need minus one week
         List<Workout_log> previousWeekData = workoutStorage
                 .getDataByUserIdAndDateRange(userId, startWeek.minusWeeks(1),
-                                                        today.minusDays(1));
+                        today.minusDays(1));
 
         int currentWeekWorkouts = currentWeekData.size();
         int previousWeekWorkouts = previousWeekData.size();
@@ -85,8 +80,7 @@ public class DashboardService {
         List<Nutrition_log> currentWeekData = nutritionStorage.getDataByUserIdAndDateRange(userId, startWeek, today);
         List<Nutrition_log> previousWeekData = nutritionStorage
                 .getDataByUserIdAndDateRange(userId, startWeek.minusWeeks(1),
-                                                        today.minusDays(1));
-
+                        today.minusDays(1));
 
         int currentWeekCalories = currentWeekData.stream()
                 .mapToInt(Nutrition_log::getCalories)
@@ -96,7 +90,6 @@ public class DashboardService {
                 .sum();
 
         int trend = currentWeekCalories - previousWeekCalories;
-
 
         return new Card("Calories burned", currentWeekCalories, trend);
     }
@@ -108,7 +101,7 @@ public class DashboardService {
         List<Goal> currentWeekData = goalStorage.getDataByUserIdAndDateRange(userId, startWeek, today);
         List<Goal> previousWeekData = goalStorage
                 .getDataByUserIdAndDateRange(userId, startWeek.minusWeeks(1),
-                                                        today.minusDays(1));
+                        today.minusDays(1));
 
         int currentWeekGoals = currentWeekData.size();
         int previousWeekGoals = previousWeekData.size();
@@ -150,7 +143,7 @@ public class DashboardService {
         return new Chart("Nutrition Tracking", nutritionData);
     }
 
-    //  build recent activity, limit on weekly basis
+    // build recent activity, limit on weekly basis
     private List<RecentActivity> buildRecentActivity(int userId) {
         LocalDate startData = today.minusWeeks(1);
 
@@ -166,41 +159,39 @@ public class DashboardService {
         List<Goal> currentWeekGoalData = goalStorage
                 .getDataByUserIdAndDateRange(userId, startData, today);
 
-        //  add to recent activity
+        // add to recent activity
         for (Workout_log workout : currentWeekData) {
             String type = "Workout";
-            String info = workout.getReps_per_exercise()  + " reps";
+            String info = workout.getReps_per_exercise() + " reps";
             Instant time = workout.getLogged_at();
             recentActivity.add(new RecentActivity(type, info, time));
         }
 
         for (Nutrition_log nutrition : currentWeekNutritionData) {
             String type = "Nutrition";
-            String info = nutrition.getCalories()  + " calories";
+            String info = nutrition.getCalories() + " calories";
             Instant time = nutrition.getLogged_at();
             recentActivity.add(new RecentActivity(type, info, time));
         }
 
-        for (Body_measurement body : currentWeekBodyData){
+        for (Body_measurement body : currentWeekBodyData) {
             String type = "Body Measurement";
             String info = body.getBody_part();
             Instant time = body.getRecorded_at();
             recentActivity.add(new RecentActivity(type, info, time));
         }
 
-        for (Goal goal : currentWeekGoalData){
+        for (Goal goal : currentWeekGoalData) {
             String type = "Goal";
             String info = "status: " + goal.getStatus();
             Instant time = goal.getCreated_at();
             recentActivity.add(new RecentActivity(type, info, time));
         }
 
-        //  sort by time in descending order
+        // sort by time in descending order
         recentActivity.sort((a, b) -> b.getTime().compareTo(a.getTime()));
 
         return recentActivity;
     }
-
-
 
 }
