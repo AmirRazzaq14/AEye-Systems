@@ -1,5 +1,6 @@
-package edu.farmingdale.CSC490.Dashboard;
+package edu.farmingdale.CSC490.Controller;
 
+import edu.farmingdale.CSC490.Dashboard.DashboardService;
 import edu.farmingdale.CSC490.Dashboard.Entity.DashboardView;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
