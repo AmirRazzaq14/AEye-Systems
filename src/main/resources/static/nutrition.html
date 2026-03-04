@@ -226,11 +226,11 @@
       reader.readAsDataURL(file);
     }
 
-    function analyzeImage(file) {
+    function analyzeImage(image) {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('image', image);
 
-      fetch('/api/analyze', {
+      fetch('/api/food/analyze', {
         method: 'POST',
         body: formData
       })
@@ -264,22 +264,32 @@
 
       updateNutritionProgress(foodData);
     }
-
+    let cumulativeNutrition = {
+      calories: 0,
+      protein_grams: 0,
+      carbs_grams: 0,
+      fat_grams: 0
+    };
     function updateNutritionProgress(foodData) {
-      const calPercent = Math.min(100, (foodData.calories || 0) / 2000 * 100);
-      const protPercent = Math.min(100, (foodData.protein_grams || 0) / 150 * 100);
-      const carbPercent = Math.min(100, (foodData.carbs_grams || 0) / 250 * 100);
-      const fatPercent = Math.min(100, (foodData.fat_grams || 0) / 70 * 100);
+        cumulativeNutrition.calories += foodData.calories || 0;
+        cumulativeNutrition.protein_grams += foodData.protein_grams || 0;
+        cumulativeNutrition.carbs_grams += foodData.carbs_grams || 0;
+        cumulativeNutrition.fat_grams += foodData.fat_grams || 0;
 
-      document.getElementById('cal-label').textContent = `${Math.round(foodData.calories || 0)} / 2000 kcal`;
-      document.getElementById('prot-label').textContent = `${Math.round(foodData.protein_grams || 0)}g / 150g`;
-      document.getElementById('carb-label').textContent = `${Math.round(foodData.carbs_grams || 0)}g / 250g`;
-      document.getElementById('fat-label').textContent = `${Math.round(foodData.fat_grams || 0)}g / 70g`;
+        const calPercent = Math.min(100, cumulativeNutrition.calories / 2000 * 100);
+        const protPercent = Math.min(100, cumulativeNutrition.protein_grams / 150 * 100);
+        const carbPercent = Math.min(100, cumulativeNutrition.carbs_grams / 250 * 100);
+        const fatPercent = Math.min(100, cumulativeNutrition.fat_grams / 70 * 100);
 
-      document.getElementById('cal-fill').style.width = calPercent + '%';
-      document.getElementById('prot-fill').style.width = protPercent + '%';
-      document.getElementById('carb-fill').style.width = carbPercent + '%';
-      document.getElementById('fat-fill').style.width = fatPercent + '%';
+        document.getElementById('cal-label').textContent = `${Math.round(cumulativeNutrition.calories)} / 2000 kcal`;
+        document.getElementById('prot-label').textContent = `${Math.round(cumulativeNutrition.protein_grams)}g / 150g`;
+        document.getElementById('carb-label').textContent = `${Math.round(cumulativeNutrition.carbs_grams)}g / 250g`;
+        document.getElementById('fat-label').textContent = `${Math.round(cumulativeNutrition.fat_grams)}g / 70g`;
+
+        document.getElementById('cal-fill').style.width = calPercent + '%';
+        document.getElementById('prot-fill').style.width = protPercent + '%';
+        document.getElementById('carb-fill').style.width = carbPercent + '%';
+        document.getElementById('fat-fill').style.width = fatPercent + '%';
     }
 
 

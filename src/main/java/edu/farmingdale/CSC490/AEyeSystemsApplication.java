@@ -8,5 +8,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 public class AEyeSystemsApplication {
     public static void main(String[] args) {
         SpringApplication.run(AEyeSystemsApplication.class, args);
+        System.out.println("service started on http://localhost:8080/dashboard.html");
     }
 }

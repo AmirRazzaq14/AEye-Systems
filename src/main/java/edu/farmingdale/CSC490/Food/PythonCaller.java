@@ -1,14 +1,21 @@
 package edu.farmingdale.CSC490.Food;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import org.springframework.stereotype.Service;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -18,83 +25,108 @@ import java.time.LocalDate;
 public class PythonCaller {
 
     Gson gson = new Gson();
+    private static final String PYTHON_API_URL = System.getenv("PYTHON_API_URL") != null ? 
+        System.getenv("PYTHON_API_URL") : "http://localhost:8001";
 
     public Nutrition_log analyze(byte[] imageBytes, String originalFilename) {
         try {
-
-            //Save the picture to a temporary file
-            Path tempDir = Files.createTempDirectory("food_analyzer");
-            Path tempFile = tempDir.resolve(originalFilename);
+            // Create a temporary file for the image
+            Path tempFile = Files.createTempFile("image_", "_" + originalFilename);
             Files.write(tempFile, imageBytes);
 
-            // get output from python
-            String imagePath = tempFile.toAbsolutePath().toString();
-            String json = getJsonFromPython(imagePath);
-            System.out.println("Raw response from Python: " + json);
+            try {
+                // Call the Python API service
+                String jsonResponse = callPythonApi(tempFile.toString());
 
-            // Clean up temporary files
-            Files.deleteIfExists(tempFile);
-            Files.deleteIfExists(tempDir);
+                System.out.println("Raw response from Python API: " + jsonResponse);
 
-            // convert Json to FoodResult type
-            FoodResult result = gson.fromJson(json, FoodResult.class);
+                // Check if response is an error message
+                if (jsonResponse.contains("\"error\"")) {
+                    System.out.println("Error from Python API: " + jsonResponse);
+                    return null;
+                }
 
-            if(result == null){
-                System.out.println("No result found.");
-                return null;
+                // Extract the actual result if it's wrapped in a result field
+                String actualJson = jsonResponse;
+                if (jsonResponse.contains("\"result\"")) {
+                    JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
+                    if (jsonObject.has("result")) {
+                        actualJson = jsonObject.getAsJsonObject("result").toString();
+                    }
+                }
+
+                // Convert JSON to FoodResult type
+                FoodResult result = gson.fromJson(actualJson, FoodResult.class);
+
+                if(result == null){
+                    System.out.println("Could not parse result. Response: " + actualJson);
+                    return null;
+                }
+
+                // Convert FoodResult to Nutrition_log
+                return Nutrition_log.builder()
+                        .user_id(1)
+                        .log_id(1)
+                        .log_date(LocalDate.now())
+                        .meal_type(result.getMealType())
+                        .food_name(result.getFoodName())
+                        .calories(result.getCalories().intValue())
+                        .protein_grams(result.getProtein_grams().intValue())
+                        .carbs_grams(result.getCarbs_grams().intValue())
+                        .fat_grams(result.getFat_grams().intValue())
+                        .logged_at(Instant.now())
+                        .build();
+
+            } finally {
+                // Clean up temporary file
+                Files.deleteIfExists(tempFile);
             }
 
-            //  convert FoodResult to Nutrition_log
-            return Nutrition_log.builder()
-                    .user_id(1)
-                    .log_id(1)
-                    .log_date(LocalDate.now())
-                    .meal_type(result.getMealType())
-                    .food_name(result.getFoodName())
-                    .calories(result.getCalories().intValue())
-                    .protein_grams(result.getProtein_grams().intValue())
-                    .carbs_grams(result.getCarbs_grams().intValue())
-                    .fat_grams(result.getFat_grams().intValue())
-                    .logged_at(Instant.now())
-                    .build();
-
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Exception in PythonCaller.analyze: " + e.getMessage());
         }
         return null;
     }
 
-    private String getJsonFromPython(String imagePath) throws IOException, InterruptedException {
-        String projectRoot = System.getProperty("user.dir");
-        String scriptDir = new File(projectRoot, "src/main/resources/AI").getAbsolutePath();
-        String fullImagePath = new File(imagePath).getAbsolutePath();
-        String scriptPath = new File(scriptDir, "ollamaAI.py").getAbsolutePath();
-        String promptPath = new File(scriptDir, "food_analyze_prompt").getAbsolutePath();
+    private String callPythonApi(String imagePath) {
+        RestTemplate restTemplate = new RestTemplate();
 
-        // Construct commands to execute the Python script
-        String[] command = {"python", scriptPath, fullImagePath,promptPath};
+        try {
+            // Create headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        //System.out.println(Arrays.toString(command));
+            // Create form data
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            
+            // Add the image file
+            FileSystemResource imageResource = new FileSystemResource(new File(imagePath));
+            body.add("image", imageResource);
+            
+            // Add the prompt file path
+            String projectRoot = System.getProperty("user.dir");
+            String scriptDir = new File(projectRoot, "src/main/resources/AI").getAbsolutePath();
+            String promptPath = new File(scriptDir, "food_analyze_prompt").getAbsolutePath();
+            body.add("prompt_file", promptPath);
 
-        //Create a process to execute the command and
-        //set the working directory to the directory where the script is located
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.directory(new File(scriptDir));
-        Process process = pb.start();
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        // Read output from Python
-        BufferedReader reader = new BufferedReader(
-            new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8)
-        );
-
-        StringBuilder output = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            output.append(line);
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                PYTHON_API_URL + "/analyze-upload",
+                requestEntity, 
+                String.class
+            );
+            
+            return response.getBody();
+            
+        } catch (ResourceAccessException e) {
+            System.err.println("Error connecting to Python API: " + e.getMessage());
+            return "{\"error\": \"Failed to connect to Python API: " + e.getMessage() + 
+                   ". Please make sure the Python FastAPI server is running at " + PYTHON_API_URL + "\"}";
+        } catch (Exception e) {
+            System.err.println("Error calling Python API: " + e.getMessage());
+            return "{\"error\": \"Failed to connect to Python API: " + e.getMessage() + "\"}";
         }
-
-        process.waitFor();
-
-        return output.toString();
     }
 }
+
