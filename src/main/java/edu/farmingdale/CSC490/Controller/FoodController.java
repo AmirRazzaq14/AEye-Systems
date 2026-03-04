@@ -1,7 +1,6 @@
 package edu.farmingdale.CSC490.Controller;
 
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
-import edu.farmingdale.CSC490.Food.PythonCaller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FoodController {
     
     @Autowired
-    private PythonCaller pythonCaller;
+    private edu.farmingdale.CSC490.Food.PythonCaller PythonCaller;
 
     @PostMapping("/analyze")
     public ResponseEntity<Nutrition_log> analyzeFood(
@@ -27,7 +26,7 @@ public class FoodController {
             }
 
             // Call the Python service for image analysis
-            Nutrition_log result = pythonCaller.analyze(
+            Nutrition_log result = PythonCaller.analyze(
                     image.getBytes(),
                     image.getOriginalFilename()
             );

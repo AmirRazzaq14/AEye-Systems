@@ -15,11 +15,13 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
+
+
+
 
 @Service
 public class PythonCaller {
@@ -34,11 +36,14 @@ public class PythonCaller {
             Path tempFile = Files.createTempFile("image_", "_" + originalFilename);
             Files.write(tempFile, imageBytes);
 
+            String prompt = "food_analyze_prompt";
+            String image = tempFile.toString();
+
             try {
                 // Call the Python API service
-                String jsonResponse = callPythonApi(tempFile.toString());
+                String jsonResponse = callPythonApi(image,prompt);
 
-                System.out.println("Raw response from Python API: " + jsonResponse);
+                //System.out.println("Raw response from Python API: " + jsonResponse);
 
                 // Check if response is an error message
                 if (jsonResponse.contains("\"error\"")) {
@@ -88,7 +93,7 @@ public class PythonCaller {
         return null;
     }
 
-    private String callPythonApi(String imagePath) {
+    private String callPythonApi(String imagePath,  String prompt) {
         RestTemplate restTemplate = new RestTemplate();
 
         try {
@@ -106,8 +111,8 @@ public class PythonCaller {
             // Add the prompt file path
             String projectRoot = System.getProperty("user.dir");
             String scriptDir = new File(projectRoot, "src/main/resources/AI").getAbsolutePath();
-            String promptPath = new File(scriptDir, "food_analyze_prompt").getAbsolutePath();
-            body.add("prompt_file", promptPath);
+            String promptPath = new File(scriptDir, prompt).getAbsolutePath();
+            body.add("prompt", promptPath);
 
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
