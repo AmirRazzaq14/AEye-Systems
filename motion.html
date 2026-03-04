@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WizCoach – Motion</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #7c5cfc; --purple-light: #a78bfa;
+      --blue: #3b82f6;
+      --text: #1a1a2e; --muted: #6b7280;
+      --border: #e5e7eb; --card-bg: #ffffff;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #e8ecf5 0%, #f0eeff 50%, #e8f0ff 100%);
+      min-height: 100vh; color: var(--text);
+    }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 60px; background: white;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+
+    .nav-logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-light));
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 8px rgba(124,92,252,0.3);
+    }
+
+    .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+    .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+
+    .nav-link {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.45rem 1rem; border-radius: 8px;
+      font-size: 0.88rem; font-weight: 500; color: var(--muted);
+      text-decoration: none; border: none; background: none; cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .nav-link:hover { color: var(--text); background: #f3f4f6; }
+    .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
+    .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* PAGE */
+    .page {
+      max-width: 1100px; margin: 2rem auto; padding: 0 2rem;
+      display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--card-bg); border-radius: 20px;
+      padding: 1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    }
+
+    .card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
+
+    /* MOTION CARD */
+    .motion-card { grid-column: 1; }
+
+    .motion-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .motion-header h3 { margin-bottom: 0; }
+
+    .btn-session {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 1.25rem;
+      background: linear-gradient(135deg, var(--blue), #60a5fa);
+      color: white; border: none; border-radius: 10px;
+      font-family: inherit; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; box-shadow: 0 3px 10px rgba(59,130,246,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-session:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(59,130,246,0.5); }
+    .btn-session svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Viewfinder */
+    .viewfinder {
+      background: #111827; border-radius: 14px;
+      min-height: 320px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.75rem; position: relative; overflow: hidden;
+    }
+
+    .viewfinder::before, .viewfinder::after {
+      content: ''; position: absolute;
+      width: 32px; height: 32px;
+      border-color: #4b5563; border-style: solid; z-index: 2;
+    }
+
+    .viewfinder::before { top: 16px; left: 16px; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+    .viewfinder::after  { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+
+    .vf-corner-tr { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border: 2px solid #4b5563; border-left: none; border-bottom: none; border-radius: 0 4px 0 0; z-index: 2; }
+    .vf-corner-bl { position: absolute; bottom: 16px; left: 16px; width: 32px; height: 32px; border: 2px solid #4b5563; border-right: none; border-top: none; border-radius: 0 0 0 4px; z-index: 2; }
+
+    .vf-icon svg { width: 48px; height: 48px; stroke: #4b5563; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .vf-title { font-size: 0.9rem; font-weight: 500; color: #9ca3af; text-align: center; padding: 0 2rem; }
+    .vf-sub   { font-size: 0.78rem; color: #6b7280; }
+
+    /* Scan line */
+    .scan-line {
+      display: none; position: absolute; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+      animation: scanMove 1.8s linear infinite; z-index: 3;
+    }
+
+    @keyframes scanMove { 0% { top: 8%; } 100% { top: 92%; } }
+
+    .viewfinder.scanning .scan-line { display: block; }
+    .viewfinder.scanning .vf-title  { color: #60a5fa; }
+
+    /* Skeleton pose overlay */
+    .pose-overlay {
+      display: none; position: absolute; inset: 0; z-index: 4;
+      pointer-events: none;
+    }
+
+    .viewfinder.scanning .pose-overlay { display: block; }
+
+    #cameraFeed {
+      display: none; width: 100%; height: 100%;
+      object-fit: cover; border-radius: 14px;
+      position: absolute; top: 0; left: 0;
+    }
+
+    /* Stats bar shown during session */
+    .session-stats {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem; margin-top: 1rem;
+    }
+
+    .session-stats.visible { display: grid; }
+
+    .stat-pill {
+      background: #f8f9ff; border-radius: 12px;
+      padding: 0.75rem 1rem; text-align: center;
+      border: 1px solid #e0e7ff;
+    }
+
+    .stat-pill span { display: block; }
+    .stat-pill .pill-val  { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .stat-pill .pill-lbl  { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+
+    /* SIDEBAR */
+    .sidebar {
+      display: flex; flex-direction: column; gap: 1.25rem;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+
+    /* Recent Exercises */
+    .exercise-empty {
+      text-align: center; color: var(--muted);
+      font-size: 0.85rem; font-style: italic; padding: 1.5rem 0;
+    }
+
+    .exercise-item {
+      display: flex; align-items: center; gap: 0.875rem;
+      padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+    }
+
+    .exercise-item:last-child { border-bottom: none; }
+
+    .ex-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #eff6ff; color: var(--blue);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    .ex-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .ex-text { flex: 1; }
+    .ex-text h4 { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .ex-text p  { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+    .ex-time    { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+    /* Tips card */
+    .tips-card {
+      background: linear-gradient(135deg, #3b82f6, #7c5cfc, #a855f7);
+      border-radius: 20px; padding: 1.25rem;
+      box-shadow: 0 4px 20px rgba(124,92,252,0.3);
+    }
+
+    .tips-card h3 { font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.875rem; }
+
+    .tip-item {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      font-size: 0.82rem; color: rgba(255,255,255,0.92);
+      line-height: 1.45; margin-bottom: 0.55rem;
+    }
+
+    .tip-item:last-child { margin-bottom: 0; }
+    .tip-dot { margin-top: 0.35rem; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.7); flex-shrink: 0; }
+
+    /* Help */
+    .help-btn {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      width: 40px; height: 40px; background: #1a1a2e; color: white;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: background 0.2s; text-decoration: none;
+    }
+
+    .help-btn:hover { background: var(--purple); }
+
+    @media (max-width: 760px) {
+      .page { grid-template-columns: 1fr; }
+      nav { padding: 0 1rem; }
+      .nav-logo-name { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="dashboard.html" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </div>
+    <span class="nav-logo-name">WizCoach</span>
+  </a>
+  <div class="nav-links">
+    <a href="dashboard.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a href="motion.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Motion
+    </a>
+    <a href="nutrition.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg>
+      Nutrition
+    </a>
+    <a href="body.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Body
+    </a>
+    <a href="ai-coach.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+      AI Coach
+    </a>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- MOTION CARD -->
+  <div class="card motion-card">
+    <div class="motion-header">
+      <h3>Motion Detection</h3>
+      <button class="btn-session" onclick="toggleSession()">
+        <svg viewBox="0 0 24 24" id="session-icon">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <span id="session-label">Start Session</span>
+      </button>
+    </div>
+
+    <div class="viewfinder" id="viewfinder">
+      <div class="vf-corner-tr"></div>
+      <div class="vf-corner-bl"></div>
+      <div class="scan-line"></div>
+      <video id="cameraFeed" autoplay playsinline></video>
+
+      <!-- SVG skeleton pose overlay -->
+      <svg class="pose-overlay" id="poseOverlay" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+        <g id="skeleton" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.85">
+          <!-- Head -->
+          <circle cx="200" cy="55" r="18" stroke="#60a5fa" fill="rgba(59,130,246,0.1)"/>
+          <!-- Neck -->
+          <line x1="200" y1="73" x2="200" y2="95"/>
+          <!-- Shoulders -->
+          <line x1="200" y1="95" x2="145" y2="115"/>
+          <line x1="200" y1="95" x2="255" y2="115"/>
+          <!-- Spine -->
+          <line x1="200" y1="95" x2="200" y2="185"/>
+          <!-- Upper arms -->
+          <line x1="145" y1="115" x2="115" y2="160"/>
+          <line x1="255" y1="115" x2="285" y2="160"/>
+          <!-- Lower arms -->
+          <line x1="115" y1="160" x2="100" y2="210"/>
+          <line x1="285" y1="160" x2="300" y2="210"/>
+          <!-- Hips -->
+          <line x1="200" y1="185" x2="165" y2="195"/>
+          <line x1="200" y1="185" x2="235" y2="195"/>
+          <!-- Upper legs -->
+          <line x1="165" y1="195" x2="158" y2="255"/>
+          <line x1="235" y1="195" x2="242" y2="255"/>
+          <!-- Lower legs -->
+          <line x1="158" y1="255" x2="155" y2="305"/>
+          <line x1="242" y1="255" x2="245" y2="305"/>
+          <!-- Joints -->
+          <circle cx="145" cy="115" r="4" fill="#3b82f6"/>
+          <circle cx="255" cy="115" r="4" fill="#3b82f6"/>
+          <circle cx="115" cy="160" r="4" fill="#3b82f6"/>
+          <circle cx="285" cy="160" r="4" fill="#3b82f6"/>
+          <circle cx="165" cy="195" r="4" fill="#3b82f6"/>
+          <circle cx="235" cy="195" r="4" fill="#3b82f6"/>
+          <circle cx="158" cy="255" r="4" fill="#3b82f6"/>
+          <circle cx="242" cy="255" r="4" fill="#3b82f6"/>
+        </g>
+      </svg>
+
+      <div class="vf-icon" id="vfIcon">
+        <svg viewBox="0 0 24 24">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </div>
+      <p class="vf-title" id="vfTitle">*Click "Start Session" to begin motion tracking*</p>
+      <p class="vf-sub"   id="vfSub">*Camera permission required for live tracking*</p>
+    </div>
+
+    <!-- Live stats shown during session -->
+    <div class="session-stats" id="sessionStats">
+      <div class="stat-pill">
+        <span class="pill-val" id="repCount">0</span>
+        <span class="pill-lbl">*Reps*</span>
+      </div>
+      <div class="stat-pill">
+        <span class="pill-val" id="setCount">0</span>
+        <span class="pill-lbl">*Sets*</span>
+      </div>
+      <div class="stat-pill">
+        <span class="pill-val" id="elapsed">0:00</span>
+        <span class="pill-lbl">*Duration*</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Recent Exercises -->
+    <div class="card">
+      <h3>Recent Exercises</h3>
+      <div id="exerciseLog">
+        <p class="exercise-empty" id="exerciseEmpty">*No exercises recorded yet*</p>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="tips-card">
+      <h3>Tips for Better Tracking</h3>
+      <div class="tip-item"><div class="tip-dot"></div><span>*Ensure good lighting in your space*</span></div>
+      <div class="tip-item"><div class="tip-dot"></div><span>*Stay within camera frame*</span></div>
+      <div class="tip-item"><div class="tip-dot"></div><span>*Wear contrasting colors*</span></div>
+      <div class="tip-item"><div class="tip-dot"></div><span>*Follow the on-screen feedback*</span></div>
+    </div>
+
+  </div>
+</div>
+
+<a href="#" class="help-btn">?</a>
+
+<script>
+  /* AUTO-ACTIVE NAV */
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.classList.toggle('active', link.href === window.location.href);
+  });
+
+  /* SESSION STATE */
+  let sessionActive = false;
+  let stream        = null;
+  let timerInterval = null;
+  let seconds       = 0;
+  let repInterval   = null;
+  let reps = 0, sets = 0;
+
+  async function toggleSession() {
+    const vf      = document.getElementById('viewfinder');
+    const label   = document.getElementById('session-label');
+    const icon    = document.getElementById('session-icon');
+    const vfIcon  = document.getElementById('vfIcon');
+    const vfTitle = document.getElementById('vfTitle');
+    const vfSub   = document.getElementById('vfSub');
+    const video   = document.getElementById('cameraFeed');
+    const stats   = document.getElementById('sessionStats');
+
+    if (!sessionActive) {
+      /* ── START ── */
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.style.display = 'block';
+        vfIcon.style.display  = 'none';
+        vfTitle.style.display = 'none';
+        vfSub.style.display   = 'none';
+      } catch {
+        vfTitle.textContent = '*Camera access denied — showing placeholder session state*';
+        vfSub.textContent   = '';
+      }
+
+      vf.classList.add('scanning');
+      label.textContent = 'Stop Session';
+      icon.innerHTML    = '<rect x="6" y="6" width="12" height="12" rx="2"/>';
+      stats.classList.add('visible');
+
+      /* Timer */
+      seconds = 0;
+      timerInterval = setInterval(() => {
+        seconds++;
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        document.getElementById('elapsed').textContent = m + ':' + String(s).padStart(2, '0');
+      }, 1000);
+
+      /* Simulated rep counter */
+      reps = 0; sets = 0;
+      repInterval = setInterval(() => {
+        reps++;
+        document.getElementById('repCount').textContent = reps;
+        if (reps % 10 === 0) {
+          sets++;
+          document.getElementById('setCount').textContent = sets;
+        }
+      }, 2000);
+
+      /* Animate skeleton */
+      animateSkeleton(true);
+
+      sessionActive = true;
+
+    } else {
+      /* ── STOP ── */
+      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+      clearInterval(timerInterval);
+      clearInterval(repInterval);
+      animateSkeleton(false);
+
+      video.style.display   = 'none';
+      vfIcon.style.display  = '';
+      vfTitle.style.display = '';
+      vfSub.style.display   = '';
+      vfTitle.textContent   = '*Click "Start Session" to begin motion tracking*';
+      vfSub.textContent     = '*Camera permission required for live tracking*';
+
+      vf.classList.remove('scanning');
+      label.textContent = 'Start Session';
+      icon.innerHTML    = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      stats.classList.remove('visible');
+
+      /* Log the session if any reps were counted */
+      if (reps > 0) logExercise(reps, sets, seconds);
+
+      reps = 0; sets = 0; seconds = 0;
+      document.getElementById('repCount').textContent = '0';
+      document.getElementById('setCount').textContent = '0';
+      document.getElementById('elapsed').textContent  = '0:00';
+
+      sessionActive = false;
+    }
+  }
+
+  /* Skeleton subtle breathing animation */
+  let skeletonAnim = null;
+
+  function animateSkeleton(on) {
+    const g = document.getElementById('skeleton');
+    if (!on) {
+      clearInterval(skeletonAnim);
+      g.setAttribute('transform', '');
+      return;
+    }
+    let tick = 0;
+    skeletonAnim = setInterval(() => {
+      tick++;
+      const dy = Math.sin(tick * 0.15) * 2;
+      const sc = 1 + Math.sin(tick * 0.1) * 0.01;
+      g.setAttribute('transform', `translate(0, ${dy}) scale(${sc})`);
+      g.style.transformOrigin = '200px 160px';
+    }, 50);
+  }
+
+  /* Log a completed session to Recent Exercises */
+  function logExercise(reps, sets, secs) {
+    const log   = document.getElementById('exerciseLog');
+    const empty = document.getElementById('exerciseEmpty');
+    if (empty) empty.remove();
+
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    const duration = m + ':' + String(s).padStart(2, '0');
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const item = document.createElement('div');
+    item.className = 'exercise-item';
+    item.innerHTML = `
+      <div class="ex-icon">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="ex-text">
+        <h4>*Motion Session*</h4>
+        <p>${reps} *reps* · ${sets} *sets* · ${duration}</p>
+      </div>
+      <div class="ex-time">${now}</div>
+    `;
+    log.prepend(item);
+  }
+</script>
+</body>
+</html>
