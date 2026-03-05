@@ -1,114 +1,206 @@
 import requests
 import base64
 import json
-import re
 import sys
 import os
+import re
+import tempfile
+import logging
+from fastapi import FastAPI, File, UploadFile, Form
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from typing import Optional
 
-def analyze(image_path, prompt_file):
-    """The simplest food identification, returning structured data"""
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-    # Check if image file exists
-    if not os.path.exists(image_path):
-        return f"ERROR: Image file does not exist: {image_path}"
+app = FastAPI(title="Ollama AI Image Analyzer", version="1.0.0")
 
-    # Check if prompt file exists
-    if not os.path.exists(prompt_file):
-        return f"ERROR: Prompt file does not exist: {prompt_file}"
+class AnalyzeRequest(BaseModel):
+    image_path: str
+    prompt_file: str
 
-    with open(image_path, "rb") as f:
-        image_bytes = f.read()
+def analyze(img_path: str, prompt_path: str) -> str:
+    """AI model analyzes images"""
+    logger.info(f"Starting analysis for image: {img_path} with prompt: {prompt_path}")
 
-    if image_bytes is None or len(image_bytes) == 0:
-        return "ERROR: No image provided or empty image file"
+    # Verify file existence
+    for path, name in [(img_path, "image"), (prompt_path, "prompt")]:
+        if not os.path.exists(path):
+            error_msg = f"ERROR: {name} file does not exist: {path}"
+            logger.error(error_msg)
+            return error_msg
 
-    image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+    # Read image and encode
+    with open(img_path, "rb") as f:
+        image = base64.b64encode(f.read()).decode('utf-8')
 
-    # Improved prompt file reading with error handling
+    if not image:
+        error_msg = "ERROR: No image provided or empty image file"
+        logger.error(error_msg)
+        return error_msg
+
+    # Read prompt
+    with open(prompt_path, 'r', encoding='utf-8') as f:
+        prompt = f.read().strip()
+
+    if not prompt:
+        error_msg = "ERROR: Prompt file is empty"
+        logger.error(error_msg)
+        return error_msg
+
+    logger.debug(f"Sending request to Ollama API with prompt: {prompt[:100]}...")  # Log first 100 chars of prompt
+
+    # Call Ollama API
     try:
-        with open(prompt_file, 'r', encoding='utf-8') as f:
-            prompt = f.read()
+        resp = requests.post(
+            "http://localhost:11434/api/generate",
+            json={
+                "model": "llava",
+                "prompt": prompt,
+                "images": [image],
+                "stream": False
+            },
+            timeout=60
+        )
 
-        if prompt is None or prompt.strip() == "":
-            return "ERROR: Prompt file is empty or contains only whitespace"
+        if resp.status_code != 200:
+            error_msg = f"Ollama API request failed: {resp.status_code} - {resp.text}"
+            logger.error(error_msg)
+            return error_msg
 
-        print(f"DEBUG: Loaded prompt (length: {len(prompt)}): {prompt[:100]}...", file=sys.stderr)
-
-    except FileNotFoundError:
-        return f"ERROR: Prompt file not found: {prompt_file}"
-    except UnicodeDecodeError:
-        # Try reading with different encoding
-        try:
-            with open(prompt_file, 'r', encoding='latin-1') as f:
-                prompt = f.read()
-            if prompt is None or prompt.strip() == "":
-                return "ERROR: Prompt file is empty or contains only whitespace"
-        except Exception as e:
-            return f"ERROR: Could not read prompt file due to encoding issues: {str(e)}"
-    except Exception as e:
-        return f"ERROR: Failed to read prompt file: {str(e)}"
-
-    # using Ollama
-    url = "http://localhost:11434/api/generate"
-
-    payload = {
-        "model": "llava",
-        "prompt": prompt,
-        "images": [image_base64],
-        "stream": False
-    }
-
-    try:
-        response = requests.post(url, json=payload, timeout=60)  # Add timeout
-
-        # Check if request was successful
-        if response.status_code != 200:
-            return f"ERROR: Request failed with status code {response.status_code}: {response.text}"
-
-        result = response.json()
-
-        # Check for errors in response from Ollama
+        result = resp.json()
         if 'error' in result:
-            return f"ERROR from Ollama: {result['error']}"
+            error_msg = f"{{\"error\": \"from Ollama: {result['error']}\"}}"
+            logger.error(f"Ollama API returned error: {result['error']}")
+            return error_msg
 
-        # Extract the response text
-        response_text = result.get("response", "").strip()
+        # Extract JSON response
+        text = result.get("response", "").strip()
+        logger.debug(f"Ollama API response: {text[:200]}...")  # Log first 200 chars of response
+        match = re.search(r'\{.*\}', text, re.DOTALL)
 
-        # Try to extract JSON from the response
-        # Look for JSON object between curly braces
-        match = re.search(r'\{.*\}', response_text, re.DOTALL)
         if match:
-            json_str = match.group()
             try:
-                # Validate that it's proper JSON
-                parsed = json.loads(json_str)
-                return json.dumps(parsed)  # Return clean JSON string
-            except json.JSONDecodeError:
-                # If JSON parsing fails, return the matched string as is
-                return json_str
+                json_content = json.loads(match.group())
+                logger.info(f"Successfully processed image analysis for {img_path}")
+                return json.dumps(json_content)
+            except json.JSONDecodeError as e:
+                error_msg = f"Invalid JSON in response: {str(e)}, content: {match.group()}"
+                logger.error(error_msg)
+                return error_msg
         else:
-            # If no JSON object found, return original response
-            return response_text
+            error_msg = f"No JSON in response: {text}"
+            logger.warning(error_msg)
+            return error_msg
 
     except requests.exceptions.ConnectionError:
-        return "ERROR: Cannot connect to Ollama server. Make sure it's running on http://localhost:11434"
+        error_msg = "Cannot connect to Ollama server"
+        logger.error(error_msg)
+        return error_msg
     except requests.exceptions.Timeout:
-        return "ERROR: Request timed out. The operation took longer than expected."
+        error_msg = "Request to Ollama API timed out"
+        logger.error(error_msg)
+        return error_msg
+    except json.JSONDecodeError:
+        error_msg = f"Invalid JSON in response: {match.group() if match else text}"
+        logger.error(error_msg)
+        return error_msg
     except Exception as e:
-        return f"ERROR: {str(e)}"
+        error_msg = f"Unexpected error during analysis: {str(e)}"
+        logger.exception(error_msg)
+        return error_msg
 
+@app.post("/analyze")
+async def analyze_endpoint(request: AnalyzeRequest):
+    """API endpoint for analyzing images by path"""
+    logger.info(f"Received analyze request for image: {request.image_path} with prompt: {request.prompt_file}")
+    result = analyze(request.image_path, request.prompt_file)
+
+    try:
+        # Parse the result from analyze function
+        parsed_result = json.loads(result)
+
+        logger.info(f"Analysis completed successfully: {parsed_result}")
+        return {"result": parsed_result}
+    except json.JSONDecodeError:
+        # If result is not valid JSON, it might be an error message in string format
+        # In this case, the result is probably an error string wrapped in quotes
+        logger.error(f"Invalid JSON result: {result}")
+        return JSONResponse(status_code=400, content={"error": f"Invalid JSON result: {result}"})
+
+@app.post("/analyze-upload")
+async def analyze_upload(image: UploadFile = File(...), prompt_file: str = Form(...)):
+    """API endpoint for analyzing uploaded image files"""
+    logger.info(f"Received analyze-upload request for image: {image.filename} with prompt: {prompt_file}")
+    temp_dir = None
+    temp_image_path = None
+    try:
+        # Create a temporary file to save the uploaded image
+        temp_dir = tempfile.mkdtemp()
+        temp_image_path = os.path.join(temp_dir, image.filename)
+        logger.debug(f"Created temporary file: {temp_image_path}")
+
+        # Save the uploaded file
+        content = await image.read()
+        with open(temp_image_path, "wb") as f:
+            f.write(content)
+
+        # Now call the analyze function
+        result = analyze(temp_image_path, prompt_file)
+
+        try:
+            # Parse the result from analyze function
+            parsed_result = json.loads(result)
+            logger.info(f"Analysis completed successfully: {parsed_result}")
+            return {"result": parsed_result}
+        except json.JSONDecodeError:
+            # If result is not valid JSON, it might be an error message in string format
+            error_msg = f"Invalid JSON in response: {result}"
+            logger.error(error_msg)
+            return JSONResponse(status_code=400, content={error_msg})
+    except Exception as e:
+        error_msg  = f"Unexpected error during analysis: {str(e)}"
+        logger.exception(error_msg)
+        return JSONResponse(status_code=500, content={error_msg})
+    finally:
+        # Ensure cleanup happens even if there's an error
+        if temp_image_path and os.path.exists(temp_image_path):
+            try:
+                os.remove(temp_image_path)
+                logger.debug(f"Removed temporary image file: {temp_image_path}")
+            except:
+                logger.warning(f"Failed to remove temporary image file: {temp_image_path}")
+        if temp_dir and os.path.exists(temp_dir):
+            try:
+                os.rmdir(temp_dir)
+                logger.debug(f"Removed temporary directory: {temp_dir}")
+            except:
+                logger.warning(f"Failed to remove temporary directory: {temp_dir}")
+
+@app.get("/health")
+async def health():
+    """Health check endpoint"""
+    logger.info("Health check requested")
+    return {"status": "healthy"}
+
+# Maintain command line compatibility
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python ollamaAI.py <image_path> <prompt_file>", file=sys.stderr)
-        sys.exit(1)
+    if len(sys.argv) > 1 and sys.argv[1] == "--server":
+        import uvicorn
+        port = int(sys.argv[2]) if len(sys.argv) > 2 else 8000
+        logger.info(f"Starting server on port {port}")
+        uvicorn.run(app, host="localhost", port=port)
+    else:
+        if len(sys.argv) < 3:
+            print("Usage: python ollamaAI.py <image_path> <prompt_file>", file=sys.stderr)
+            print("Or run as server: python ollamaAI.py --server [port]", file=sys.stderr)
+            sys.exit(1)
 
-    image_path = sys.argv[1]
-    prompt_file = sys.argv[2]
+        result = analyze(sys.argv[1], sys.argv[2])
+        print(result)
 
-    # Verify arguments
-    print(f"Debug: Processing image: {image_path}", file=sys.stderr)
-    print(f"Debug: Using prompt file: {prompt_file}", file=sys.stderr)
-    print(f"Debug: Prompt file exists: {os.path.exists(prompt_file)}", file=sys.stderr)
 
-    result = analyze(image_path, prompt_file)
-    print(result)
+
+

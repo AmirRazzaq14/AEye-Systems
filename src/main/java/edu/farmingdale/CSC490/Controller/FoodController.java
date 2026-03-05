@@ -1,63 +1,58 @@
 package edu.farmingdale.CSC490.Controller;
 
-import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import edu.farmingdale.CSC490.Food.PythonCaller;
+import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Instant;
-import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/food")
 @CrossOrigin(origins = "*")
 public class FoodController {
+
+    @Value("${prompt.food_analyzer:food_analyze_prompt}")
+    private String prompt;
     
     @Autowired
-    private PythonCaller pythonCaller;
+    private PythonCaller PythonCaller;
 
     @PostMapping("/analyze")
     public ResponseEntity<Nutrition_log> analyzeFood(
-            @RequestParam("file") MultipartFile file) {
-        
-        System.out.println("Received pictures: " + file.getOriginalFilename()
-            + ", size: " + file.getSize() + " bytes");
+            @RequestParam("image") MultipartFile image) {
+
         
         try {
-            // Read the image binary data
-            byte[] imageBytes = file.getBytes();
-            
-            // Call Python analysis
-            Nutrition_log result = pythonCaller.analyze(
-                imageBytes,
-                file.getOriginalFilename()
+            if (image.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Call the Python service for image analysis
+            Nutrition_log result = PythonCaller.analyze(
+                    image.getBytes(),
+                    image.getOriginalFilename(),
+                    prompt
             );
 
             //  If no result found, return a default result
-            if(result == null){
-                result = Nutrition_log.builder()
-                    .user_id(1)
-                    .log_id(1)
-                    .log_date(LocalDate.now())
-                    .meal_type("unknown")
-                    .food_name("unknown")
-                    .calories(1000)
-                    .protein_grams(10)
-                    .carbs_grams(10)
-                    .fat_grams(10)
-                    .logged_at(Instant.now())
-                    .build();
+            if (result != null) {
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.internalServerError().build();
             }
-
-
-            return ResponseEntity.ok(result);
             
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error analyzing food image: " + e.getMessage());
             return ResponseEntity.status(500).body(null);
         }
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Food controller is running");
     }
 
 

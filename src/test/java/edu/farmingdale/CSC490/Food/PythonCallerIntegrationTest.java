@@ -13,7 +13,7 @@ public class PythonCallerIntegrationTest {
 
     @Test
     public void testPythonCallerWithRealImage() throws Exception {
-        PythonCaller pythonCaller = new PythonCaller();
+        PythonCaller PythonCaller = new PythonCaller();
 
         // Try loading the test picture from the resources directory
         // python E:\Code\AEye-Systems\src\main\resources\AI\ollamaAI.py E:\Code\AEye-Systems\src\main\resources\images\apple.jpg E:\Code\AEye-Systems\src\main\resources\AI\food_analyze_prompt.txt
@@ -26,7 +26,7 @@ public class PythonCallerIntegrationTest {
 
 
         // Call PythonCaller to analyze the image
-        Nutrition_log result = pythonCaller.analyze(imageBytes, fileName);
+        Nutrition_log result = PythonCaller.analyze(imageBytes, fileName);
 
         // Print the result to the console
         if (result != null) {
