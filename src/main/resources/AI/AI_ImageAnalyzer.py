@@ -71,6 +71,7 @@ def _extract_json_response(text: str, img_path: str) -> str:
         logger.warning(error_msg)
         return error_msg
 
+
 def analyze(img_path: str, prompt_path: str) -> str:
     """AI model analyzes images using either local Ollama API or remote API based on configuration"""
     logger.info(f"Starting analysis for image: {img_path} with prompt: {prompt_path}")
@@ -104,9 +105,12 @@ def analyze(img_path: str, prompt_path: str) -> str:
 
 def _analyze_with_local_api(image: str, prompt: str, img_path: str) -> str:
     """Analyze using local Ollama API"""
+    logger.info("Using local Ollama API")
 
     url = os.getenv("LOCAL_API_URL")
     model = os.getenv("LOCAL_API_MODEL")
+    logger.debug(f"Using local Ollama API with URL: {url} and model: {model}")
+
 
     try:
         resp = requests.post(
@@ -154,9 +158,14 @@ def _analyze_with_local_api(image: str, prompt: str, img_path: str) -> str:
 
 def _analyze_with_remote_api(image: str, prompt: str, img_path: str, api_key: str) -> str:
     """Analyze using remote API such as OpenAI"""
+
+    logger.info("Using remote API")
+
     # Use environment variables or defaults for API settings
-    base_url = os.getenv("REMOTE_API_BASE_URL")
-    model = os.getenv("REMOTE_API_MODEL")
+    base_url = os.getenv("REMOTE_API_BASE_URL","")
+    model = os.getenv("REMOTE_API_MODEL","")
+
+    logger.debug(f"Using remote API with base URL: {base_url} and model: {model}")
 
     # Prepare the payload for the remote API
     headers = {
@@ -300,12 +309,14 @@ if __name__ == "__main__":
         uvicorn.run(app, host="localhost", port=port)
     else:
         if len(sys.argv) < 3:
-            print("Usage: python ollamaAI.py <image_path> <prompt_file>", file=sys.stderr)
-            print("Or run as server: python ollamaAI.py --server [port]", file=sys.stderr)
+            print("Usage: python AI_ImageAnalyzer.py <image_path> <prompt_file>", file=sys.stderr)
+            print("Or run as server: python AI_ImageAnalyzer.py --server [port]", file=sys.stderr)
             sys.exit(1)
 
         result = analyze(sys.argv[1], sys.argv[2])
         print(result)
+
+
 
 
 

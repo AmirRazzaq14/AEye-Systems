@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,7 @@ public class PythonServiceManager {
 
     @Value("${PYTHON_FILE_PATH:/src/main/resources/AI/AI_ImageAnalyzer.py}")
     private String PYTHON_File_Path;
+
     /**
      * Start the Python FastAPI service
      */
@@ -60,6 +62,7 @@ public class PythonServiceManager {
 
             // Check if Python is available
             ProcessBuilder pb = new ProcessBuilder("python", "--version");
+
             Process process = pb.start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
@@ -74,6 +77,12 @@ public class PythonServiceManager {
             processBuilder.directory(new File(projectRoot));
             // Merge error flows and standard output streams
             processBuilder.redirectErrorStream(true);
+
+            // 将Spring Boot配置属性添加到子进程环境变量中
+            Map<String, String> env = processBuilder.environment();
+
+            env.putAll(System.getenv());
+
 
             pythonProcess = processBuilder.start();
             logger.info("Python service started successfully.");
