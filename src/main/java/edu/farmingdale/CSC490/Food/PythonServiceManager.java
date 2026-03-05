@@ -17,10 +17,10 @@ public class PythonServiceManager {
     private Process pythonProcess;
     private boolean isRunning = false;
 
-    @Value("${PYTHON_API_PORT}")
+    @Value("${PYTHON_API_PORT:8000}")
     private int PYTHON_SERVICE_PORT;
 
-    @Value("${PYTHON_FILE_PATH}")
+    @Value("${PYTHON_FILE_PATH:/src/main/resources/AI/AI_ImageAnalyzer.py}")
     private String PYTHON_File_Path;
     /**
      * Start the Python FastAPI service

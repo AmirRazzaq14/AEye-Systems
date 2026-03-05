@@ -28,7 +28,7 @@ public class foodAnalyzer {
 
     Gson gson = new Gson();
 
-    @Value("${PYTHON_API_URL}")
+    @Value("${PYTHON_API_URL:http://localhost:8000}")
     private String PYTHON_API_URL;
 
     public FoodResult analyze(byte[] imageBytes, String originalFilename, String prompt) {
