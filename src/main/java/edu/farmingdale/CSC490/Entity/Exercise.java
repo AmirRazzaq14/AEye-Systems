@@ -1,17 +1,19 @@
 package edu.farmingdale.CSC490.Entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.google.cloud.firestore.annotation.DocumentId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Exercise {
-    private int exercise_id;
-    private int exercise_name;
-    private String muscle_group; // int -> String
+    @DocumentId
+    private String exercise_id;      // changed int → String (Firestore uses String IDs)
+    private String exercise_name;    // changed int → String (was a bug)
+    private String muscle_group;
     private String notes;
 }
