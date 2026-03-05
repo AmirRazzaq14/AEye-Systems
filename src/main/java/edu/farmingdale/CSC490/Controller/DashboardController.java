@@ -19,7 +19,7 @@ public class DashboardController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<DashboardView> getDashboardData(@PathVariable int userId) {
+    public ResponseEntity<DashboardView> getDashboardData(@PathVariable int userId) throws Exception {
         DashboardView view = dashboardService.buildDashboard(userId);
         return ResponseEntity.ok(view);
     }

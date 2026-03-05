@@ -21,9 +21,8 @@ public class MockDatabase {
     public void initDummyData() {
         // Create user 1
         User u1 = new User();
-        u1.setUser_id(1);
-        u1.setFirst_name("John");
-        u1.setLast_name("Doe");
+        u1.setUser_id(String.valueOf(1));
+
         u1.setEmail("john.doe@example.com");
         users.add(u1);
 
