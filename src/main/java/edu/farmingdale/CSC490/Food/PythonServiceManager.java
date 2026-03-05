@@ -78,9 +78,8 @@ public class PythonServiceManager {
             // Merge error flows and standard output streams
             processBuilder.redirectErrorStream(true);
 
-            // 将Spring Boot配置属性添加到子进程环境变量中
+            // Add the Spring Boot configuration property to the child process environment variables
             Map<String, String> env = processBuilder.environment();
-
             env.putAll(System.getenv());
 
 
