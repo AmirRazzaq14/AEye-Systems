@@ -1,5 +1,6 @@
 package edu.farmingdale.CSC490.Controller;
 
+import edu.farmingdale.CSC490.Food.PythonCaller;
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,7 @@ public class FoodController {
     private String prompt;
     
     @Autowired
-    private edu.farmingdale.CSC490.Food.PythonCaller PythonCaller;
+    private PythonCaller PythonCaller;
 
     @PostMapping("/analyze")
     public ResponseEntity<Nutrition_log> analyzeFood(
