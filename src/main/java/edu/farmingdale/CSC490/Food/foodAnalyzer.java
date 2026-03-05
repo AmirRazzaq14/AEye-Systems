@@ -2,9 +2,9 @@ package edu.farmingdale.CSC490.Food;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
@@ -19,34 +19,19 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.LocalDate;
 
 
 @Service
-public class PythonCaller {
+public class foodAnalyzer {
 
-    private static final Logger logger = LoggerFactory.getLogger(PythonCaller.class);
+    private static final Logger logger = LoggerFactory.getLogger(foodAnalyzer.class);
+
     Gson gson = new Gson();
-    private static final String PYTHON_API_URL = System.getenv("PYTHON_API_URL") != null ? 
-        System.getenv("PYTHON_API_URL") :"http://localhost:" + getPythonServicePort();
 
-    // A secondary method to get a Python service port
-    private static int getPythonServicePort() {
-        try {
-            String configuredPort = System.getenv("PYTHON_API_PORT");
-            if (configuredPort != null && !configuredPort.isEmpty()) {
-                return Integer.parseInt(configuredPort);
-            }
-            // Default port
-            return 8000;
-        } catch (NumberFormatException e) {
-            logger.error("Invalid port configuration, using default port: 8000", e);
-            return 8000;
-        }
-    }
+    @Value("${PYTHON_API_URL}")
+    private String PYTHON_API_URL;
 
-    public Nutrition_log analyze(byte[] imageBytes, String originalFilename, String prompt) {
+    public FoodResult analyze(byte[] imageBytes, String originalFilename, String prompt) {
         logger.info("Starting analysis for image: {}, prompt: {}", originalFilename, prompt);
         
         if (imageBytes == null || imageBytes.length == 0) {
@@ -72,17 +57,28 @@ public class PythonCaller {
                 String jsonResponse = callPythonApi(image,prompt);
                 logger.debug("Received response from Python API: {}", jsonResponse);
 
+                FoodResult result;
                 // Extract the actual result if it's wrapped in a result field
                 String actualJson = jsonResponse;
                 if (jsonResponse.contains("\"result\"")) {
                     JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
                     if (jsonObject.has("result")) {
                         actualJson = jsonObject.getAsJsonObject("result").toString();
+                        logger.debug("Extracted result: {}", actualJson);
+
+                    }
+                }else if (jsonResponse.contains("\"error\"")) {
+                    JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
+                    if (jsonObject.has("error")) {
+                        actualJson = jsonObject.get("error").toString();
+                        logger.warn("Error from Python API: {}", actualJson);
+
+                        return null;
                     }
                 }
 
                 // Convert JSON to FoodResult type
-                FoodResult result = gson.fromJson(actualJson, FoodResult.class);
+                result = gson.fromJson(actualJson, FoodResult.class);
 
                 if(result == null){
                     logger.warn("Could not parse result. Response: {}", actualJson);
@@ -91,22 +87,8 @@ public class PythonCaller {
 
                 logger.info("Successfully analyzed image: {} with food name: {}", originalFilename, result.getFoodName());
 
-                // Convert FoodResult to Nutrition_log
-                Nutrition_log nutritionLog = Nutrition_log.builder()
-                        .user_id(1)
-                        .log_id(1)
-                        .log_date(LocalDate.now())
-                        .meal_type(result.getMealType())
-                        .food_name(result.getFoodName())
-                        .calories(result.getCalories().intValue())
-                        .protein_grams(result.getProtein_grams().intValue())
-                        .carbs_grams(result.getCarbs_grams().intValue())
-                        .fat_grams(result.getFat_grams().intValue())
-                        .logged_at(Instant.now())
-                        .build();
+                return result;
 
-                logger.info("Created nutrition log for food: {}", result.getFoodName());
-                return nutritionLog;
 
             } finally {
                 // Clean up temporary file
@@ -115,7 +97,7 @@ public class PythonCaller {
             }
 
         } catch (Exception e) {
-            logger.error("Exception in PythonCaller.analyze: ", e);
+            logger.error("Exception in foodAnalyzer.analyze: ", e);
         }
         return null;
     }

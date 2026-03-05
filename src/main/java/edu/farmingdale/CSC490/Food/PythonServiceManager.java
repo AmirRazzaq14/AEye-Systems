@@ -1,37 +1,48 @@
 package edu.farmingdale.CSC490.Food;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @Component
 public class PythonServiceManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(PythonServiceManager.class);
+
     private Process pythonProcess;
     private boolean isRunning = false;
-    private static final int PYTHON_SERVICE_PORT = 8000;
+
+    @Value("${PYTHON_API_PORT}")
+    private int PYTHON_SERVICE_PORT;
+
+    @Value("${PYTHON_FILE_PATH}")
+    private String PYTHON_File_Path;
     /**
      * Start the Python FastAPI service
      */
     public synchronized boolean startPythonService() {
         if (isRunning()) {
-            System.out.println("Python service is already running.");
+            logger.warn("Python service is already running.");
             return true;
         }
 
         try {
+            logger.info("Starting Python service...");
             // Get the project root path
             String projectRoot = System.getProperty("user.dir");
             if (projectRoot == null || projectRoot.isEmpty()) {
                 // If you can't get the project directory, try using the relative path
+                logger.warn("Could not get project directory. Using default path.");
                 projectRoot = System.getProperty("user.home") + "/AEye-Systems";
             }
 
             // Build a command to start a Python service - for a Windows environment, using a new port
-            String pythonScriptPath = projectRoot + "/src/main/resources/AI/ollamaAI.py";
+            String pythonScriptPath = projectRoot +  PYTHON_File_Path;
             String[] cmd;
             
             // Detect the operating system
@@ -44,18 +55,18 @@ public class PythonServiceManager {
                 cmd = new String[]{"sh", "-c", "python " + pythonScriptPath + " --server " + PYTHON_SERVICE_PORT};
             }
 
-            System.out.println("Starting Python service with command: " + String.join(" ", cmd));
-            System.out.println("Looking for Python script at: " + pythonScriptPath);
-            System.out.println("Using port: " + PYTHON_SERVICE_PORT);
+            logger.debug("Constructing Python service command: {}", String.join(" ", cmd));
+            logger.debug("Looking for Python script at:{} " , pythonScriptPath);
 
             // Check if Python is available
             ProcessBuilder pb = new ProcessBuilder("python", "--version");
             Process process = pb.start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                System.err.println("Python is not available in PATH. Please install Python and make sure it's in PATH.");
+                logger.error("Python is not available in PATH. Please install Python and make sure it's in PATH.");
                 return false;
             }
+
 
             // Start the Python process
             ProcessBuilder processBuilder = new ProcessBuilder(cmd);
@@ -63,46 +74,48 @@ public class PythonServiceManager {
             processBuilder.directory(new File(projectRoot));
             // Merge error flows and standard output streams
             processBuilder.redirectErrorStream(true);
+
             pythonProcess = processBuilder.start();
+            logger.info("Python service started successfully.");
 
             // Read Python service output asynchronously
             CompletableFuture<Void> outputFuture = CompletableFuture.runAsync(() -> {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null && pythonProcess.isAlive()) {
-                        System.out.println("[Python Service] " + line);
+                        logger.debug("Python service output: {}", line);
                     }
                 } catch (IOException e) {
-                    System.err.println("Error reading Python service output: " + e.getMessage());
+                    logger.error("Error reading Python service output: {}", e.getMessage());
                 }
             });
 
             // Wait for the service to start
             Thread.sleep(5000);
 
+
             if (pythonProcess.isAlive()) {
                 isRunning = true;
-                System.out.println("Python service started successfully on port " + PYTHON_SERVICE_PORT);
+                logger.info("Python service started successfully on port {}", PYTHON_SERVICE_PORT);
                 
                 // The monitoring process ends
                 CompletableFuture.runAsync(() -> {
                     try {
                         pythonProcess.waitFor();
-                        System.out.println("Python service process ended unexpectedly");
+                        logger.error("Python service process ended unexpectedly");
                         isRunning = false;
                     } catch (InterruptedException e) {
-                        System.out.println("Python service monitoring interrupted");
+                        logger.error("Python service monitoring interrupted");
                     }
                 });
                 
                 return true;
             } else {
-                System.err.println("Failed to start Python service. Process exited with code: " + pythonProcess.exitValue());
+                logger.error("Failed to start Python service. Process exited with code: {}", pythonProcess.exitValue());
                 return false;
             }
         } catch (Exception e) {
-            System.err.println("Error starting Python service: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error starting Python service: {}", e.getMessage());
             return false;
         }
     }
@@ -112,14 +125,14 @@ public class PythonServiceManager {
      */
     public synchronized boolean stopPythonService() {
         if (!isRunning()) {
-            System.out.println("Python service is not running.");
+            logger.warn("Python service is not running.");
             return true;
         }
 
         try {
             if (pythonProcess != null && pythonProcess.isAlive()) {
-                pythonProcess.destroy(); // Try to terminate the process
-                
+                pythonProcess.destroy();
+                logger.info("Python service terminated.");
                 // Wait for the process to end
                 if (!pythonProcess.waitFor(5, TimeUnit.SECONDS)) {
                     // If it does not end within 5 seconds, it is forced to terminate
@@ -129,11 +142,10 @@ public class PythonServiceManager {
                 }
             }
             isRunning = false;
-            System.out.println("Python service stopped successfully");
+            logger.info("Python service stopped successfully.");
             return true;
         } catch (Exception e) {
-            System.err.println("Error stopping Python service: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error stopping Python service: {}", e.getMessage());
             return false;
         }
     }
@@ -151,11 +163,5 @@ public class PythonServiceManager {
     public void shutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stopPythonService));
     }
-    
-    /**
-     * Get the URL of the Python service
-     */
-    public String getServiceUrl() {
-        return "http://localhost:" + PYTHON_SERVICE_PORT;
-    }
+
 }
