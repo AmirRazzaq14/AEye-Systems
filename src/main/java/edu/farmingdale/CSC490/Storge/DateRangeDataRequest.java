@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface DateRangeDataRequest<T> {
 
-    List<T> getDataByUserIdAndDateRange(int userId, LocalDate startDate, LocalDate endDate);
+    List<T> getDataByUserIdAndDateRange(int userId, LocalDate startDate, LocalDate endDate) throws Exception;
 }
