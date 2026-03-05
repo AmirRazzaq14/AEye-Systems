@@ -12,7 +12,7 @@ public class PythonServiceManager {
 
     private Process pythonProcess;
     private boolean isRunning = false;
-    private static final int PYTHON_SERVICE_PORT = 8001;
+    private static final int PYTHON_SERVICE_PORT = 8000;
     /**
      * Start the Python FastAPI service
      */
@@ -23,24 +23,24 @@ public class PythonServiceManager {
         }
 
         try {
-            // 获取项目根目录路径
+            // Get the project root path
             String projectRoot = System.getProperty("user.dir");
             if (projectRoot == null || projectRoot.isEmpty()) {
-                // 如果无法获取到项目目录，则尝试使用相对路径
+                // If you can't get the project directory, try using the relative path
                 projectRoot = System.getProperty("user.home") + "/AEye-Systems";
             }
 
-            // 构建启动Python服务的命令 - 针对Windows环境，使用新端口
+            // Build a command to start a Python service - for a Windows environment, using a new port
             String pythonScriptPath = projectRoot + "/src/main/resources/AI/ollamaAI.py";
             String[] cmd;
             
-            // 检测操作系统
+            // Detect the operating system
             String os = System.getProperty("os.name").toLowerCase();
             if (os.contains("win")) {
-                // Windows系统使用cmd
+                // Windows systems use cmd
                 cmd = new String[]{"cmd", "/c", "python", pythonScriptPath, "--server", String.valueOf(PYTHON_SERVICE_PORT)};
             } else {
-                // Unix/Linux/Mac系统使用shell
+                // Unix/Linux/Mac systems use shells
                 cmd = new String[]{"sh", "-c", "python " + pythonScriptPath + " --server " + PYTHON_SERVICE_PORT};
             }
 
@@ -48,7 +48,7 @@ public class PythonServiceManager {
             System.out.println("Looking for Python script at: " + pythonScriptPath);
             System.out.println("Using port: " + PYTHON_SERVICE_PORT);
 
-            // 检查Python是否可用
+            // Check if Python is available
             ProcessBuilder pb = new ProcessBuilder("python", "--version");
             Process process = pb.start();
             int exitCode = process.waitFor();
@@ -57,13 +57,15 @@ public class PythonServiceManager {
                 return false;
             }
 
-            // 启动Python进程
+            // Start the Python process
             ProcessBuilder processBuilder = new ProcessBuilder(cmd);
-            processBuilder.directory(new File(projectRoot)); // 设置工作目录为项目根目录
-            processBuilder.redirectErrorStream(true); // 合并错误流和标准输出流
+            // Set the working directory as the project root
+            processBuilder.directory(new File(projectRoot));
+            // Merge error flows and standard output streams
+            processBuilder.redirectErrorStream(true);
             pythonProcess = processBuilder.start();
 
-            // 异步读取Python服务输出
+            // Read Python service output asynchronously
             CompletableFuture<Void> outputFuture = CompletableFuture.runAsync(() -> {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(pythonProcess.getInputStream()))) {
                     String line;
@@ -75,14 +77,14 @@ public class PythonServiceManager {
                 }
             });
 
-            // 等待服务启动
-            Thread.sleep(5000); // 给服务更多时间来启动
+            // Wait for the service to start
+            Thread.sleep(5000);
 
             if (pythonProcess.isAlive()) {
                 isRunning = true;
                 System.out.println("Python service started successfully on port " + PYTHON_SERVICE_PORT);
                 
-                // 监控进程结束
+                // The monitoring process ends
                 CompletableFuture.runAsync(() -> {
                     try {
                         pythonProcess.waitFor();
@@ -106,7 +108,7 @@ public class PythonServiceManager {
     }
 
     /**
-     * 停止Python服务
+     * Stop the Python service
      */
     public synchronized boolean stopPythonService() {
         if (!isRunning()) {
@@ -116,12 +118,14 @@ public class PythonServiceManager {
 
         try {
             if (pythonProcess != null && pythonProcess.isAlive()) {
-                pythonProcess.destroy(); // 尝试优雅地终止进程
+                pythonProcess.destroy(); // Try to terminate the process
                 
-                // 等待进程结束
+                // Wait for the process to end
                 if (!pythonProcess.waitFor(5, TimeUnit.SECONDS)) {
-                    pythonProcess.destroyForcibly(); // 如果5秒内未结束，则强制终止
-                    pythonProcess.waitFor(2, TimeUnit.SECONDS); // 再等2秒确保进程结束
+                    // If it does not end within 5 seconds, it is forced to terminate
+                    pythonProcess.destroyForcibly();
+                    // Wait another 2 seconds to ensure the process is over
+                    pythonProcess.waitFor(2, TimeUnit.SECONDS);
                 }
             }
             isRunning = false;

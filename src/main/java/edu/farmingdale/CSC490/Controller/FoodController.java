@@ -2,6 +2,7 @@ package edu.farmingdale.CSC490.Controller;
 
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/food")
 @CrossOrigin(origins = "*")
 public class FoodController {
+
+    @Value("${prompt.food_analyzer:food_analyze_prompt}")
+    private String prompt;
     
     @Autowired
     private edu.farmingdale.CSC490.Food.PythonCaller PythonCaller;
@@ -28,7 +32,8 @@ public class FoodController {
             // Call the Python service for image analysis
             Nutrition_log result = PythonCaller.analyze(
                     image.getBytes(),
-                    image.getOriginalFilename()
+                    image.getOriginalFilename(),
+                    prompt
             );
 
             //  If no result found, return a default result
