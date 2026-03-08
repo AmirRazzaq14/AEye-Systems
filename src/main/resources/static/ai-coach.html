@@ -390,6 +390,7 @@
         botWrap.innerHTML = '<div class="' + msgClass + '">' + escapeHtml(text) + '</div><div class="msg-time">' + getTime() + '</div>';
         messages.appendChild(botWrap);
         messages.scrollTop = messages.scrollHeight;
+    }
 
         function sendMsg() {
             const input = document.getElementById('chatInput');
@@ -445,7 +446,6 @@
         <div class="msg-time">—:— ••</div>
       </div>
       <div class="chat-placeholder" id="chatPlaceholder">Conversation history appears here.</div>`;
-        }
     }
 </script>
 </body>
