@@ -290,6 +290,47 @@
         link.classList.toggle('active', link.href === window.location.href);
     });
 
+    //Load saved session data on page load
+    let cumulativeNutrition = JSON.parse(localStorage.getItem('cumulativeNutrition')) || {
+        calories: 0,
+        protein_grams: 0,
+        carbs_grams: 0,
+        fat_grams: 0
+    };
+
+    let foodLogItems =JSON.parse(localStorage.getItem('foodLogItems')) || [];
+
+    // Update UI with saved data
+    function loadSavedData() {
+        // Update nutrition progress bars
+        updateNutritionDisplay();
+
+        // Update food log
+        const logContainer = document.getElementById('foodLog');
+        if (foodLogItems.length> 0) {
+            logContainer.innerHTML = '';
+            foodLogItems.forEach(item => {
+                const logItem = document.createElement('div');
+                logItem.className = 'food-log-item';
+                logItem.innerHTML = `
+                    <div>
+                        <span class="food-log-name">${item.name} (${item.type}): ${item.calories} kcal</span>
+                        <div class="food-details" style="display:none;">
+                            <p>Calories: ${item.calories} kcal</p>
+                            <p>Protein: ${item.protein}g</p>
+                            <p>Carbs: ${item.carbs}g</p>
+                            <p>Fat: ${item.fat}g</p>
+                        </div>
+                    </div>
+                    <span class="food-log-cal" onclick="toggleDetails(this)">▼</span>
+                `;
+                logContainer.appendChild(logItem);
+            });
+        } else {
+            logContainer.innerHTML = '<p class="food-log-empty">*No meals logged yet — food entries appear here*</p>';
+        }
+    }
+
     function handleDrag(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag-over'); }
     function handleDragLeave(e) { document.getElementById('uploadZone').classList.remove('drag-over'); }
     function handleDrop(e) {
@@ -357,6 +398,19 @@ function updateFoodLog(foodData) {
         const foodType = foodData.mealType || 'Type N/A';
         const calories = foodData.calories ||  0;
 
+        //Add to local storage
+        const newItem = {
+            name: foodName,
+            type: foodType,
+            calories: calories,
+            protein: foodData.protein_grams || 0,
+            carbs: foodData.carbs_grams || 0,
+            fat: foodData.fat_grams || 0,
+            timestamp: new Date().toISOString()
+        };
+        foodLogItems.push(newItem);
+        localStorage.setItem('foodLogItems', JSON.stringify(foodLogItems));
+
         const logContainer = document.getElementById('foodLog');
         const emptyMsg = logContainer.querySelector('.food-log-empty');
         if (emptyMsg) emptyMsg.remove();
@@ -391,22 +445,22 @@ function updateFoodLog(foodData) {
         }
     }
 
-    let cumulativeNutrition = {
-        calories: 0,
-        protein_grams: 0,
-        carbs_grams:0,
-        fat_grams: 0
-    };
-
-
+    //Initialize data on page load
+    document.addEventListener('DOMContentLoaded', loadSavedData);
 
     function updateNutritionProgress(foodData) {
         cumulativeNutrition.calories += foodData.calories || 0;
         cumulativeNutrition.protein_grams += foodData.protein_grams || 0;
         cumulativeNutrition.carbs_grams+= foodData.carbs_grams || 0;
         cumulativeNutrition.fat_grams += foodData.fat_grams || 0;
+        // Save to localStorage
+        localStorage.setItem('cumulativeNutrition', JSON.stringify(cumulativeNutrition));
 
-        const calPercent = Math.min(100, cumulativeNutrition.calories / 2000 * 100);
+        updateNutritionDisplay();
+    }
+
+    function updateNutritionDisplay() {
+        const calPercent = Math.min(100, cumulativeNutrition.calories / 2000 *100);
         const protPercent = Math.min(100, cumulativeNutrition.protein_grams / 150 * 100);
         const carbPercent = Math.min(100, cumulativeNutrition.carbs_grams / 250 * 100);
         const fatPercent = Math.min(100, cumulativeNutrition.fat_grams / 70 * 100);
@@ -443,7 +497,7 @@ function updateFoodLog(foodData) {
         if (empty) empty.remove();
         const item = document.createElement('div');
         item.className = 'food-log-item';
-item.innerHTML = `<span class="food-log-name">*Detected food item*</span><span class="food-log-cal">*~XXX cal*</span>`;
+        item.innerHTML = `<span class="food-log-name">*Detected food item*</span><span class="food-log-cal">*~XXX cal*</span>`;
         log.appendChild(item);
     }
 
@@ -451,7 +505,7 @@ item.innerHTML = `<span class="food-log-name">*Detected food item*</span><span c
 
         document.getElementById('uploadZone').classList.remove('has-image');
         document.getElementById('previewImg').src = '';
-document.getElementById('resetWrap').style.display  = 'none';
+        document.getElementById('resetWrap').style.display  = 'none';
         document.getElementById('fileInput').value = '';
         ['cal-fill','prot-fill','carb-fill','fat-fill'].forEach(id => {
         document.getElementById(id).style.width = '0%';
@@ -461,6 +515,17 @@ document.getElementById('resetWrap').style.display  = 'none';
         document.getElementById('carb-label').textContent = '0g / 0g';
         document.getElementById('fat-label').textContent  = '0g / 0g';
         document.getElementById('foodLog').innerHTML = '<p class="food-log-empty">*No meals logged yet — food entries appear here*</p>';
+
+        // Clear stored data
+        cumulativeNutrition = {
+            calories: 0,
+            protein_grams: 0,
+            carbs_grams: 0,
+            fat_grams: 0
+        };
+        foodLogItems = [];
+        localStorage.removeItem('cumulativeNutrition');
+        localStorage.removeItem('foodLogItems');
     }
 </script>
 </body>
