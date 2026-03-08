@@ -14,14 +14,63 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import configparser
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 logger = logging.getLogger(__name__)
 
+def load_config():
+    """Read the configuration file in the project"""
+    global config_file
+    # Get the directory where this script is located
+    script_dir = Path(__file__).parent.absolute()
+
+    config_file = script_dir.parent / 'application.properties'
+
+    # Create a custom config parser that can handle Java properties format
+    config = {}
+
+    # Read the application.properties file directly
+    with open(config_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                # Handle Java properties format (key=value pairs)
+                if '=' in line:
+                    key, value = line.split('=', 1)
+                    key = key.strip()
+                    value = value.strip()
+
+                    # Handle placeholder replacement like ${VARIABLE:default}
+                    import re
+                    def replace_placeholders(match):
+                        var_name = match.group(1)
+                        default_val = match.group(2) if match.group(2) else ''
+                        return os.getenv(var_name, default_val)
+
+                    # Replace placeholders like ${VAR:default}
+                    value = re.sub(r'\$\{([^}:]+):?([^}]*)\}', replace_placeholders, value)
+
+                    config[key] = value
+     # Set environment variables based on config values
+    for key, value in config.items():
+        # Convert property keys to environment variable names (uppercase with underscores)
+        env_var_name = key.upper().replace('.', '_')
+        if not os.environ.get(env_var_name):
+            os.environ[env_var_name] = value
+
+
+    return config
+
+config = load_config()
+
+
 # Global variable to track server state
 server_should_exit = False
+
 
 # Store the lifespan in a variable for later use
 @asynccontextmanager
@@ -123,8 +172,8 @@ def _analyze_with_local_api(image: str, prompt: str, img_path: str) -> str:
     """Analyze using local Ollama API"""
     logger.info("Using local Ollama API")
 
-    url = os.getenv("LOCAL_API_URL",  "http://localhost:11434")
-    model = os.getenv("LOCAL_API_MODEL",  "llava")
+    url = os.getenv("LOCAL_API_URL")
+    model = os.getenv("LOCAL_API_MODEL")
 
     logger.debug(f"Using local Ollama API with URL: {url} and model: {model}")
 
@@ -183,8 +232,8 @@ def _analyze_with_remote_api(image: str, prompt: str, img_path: str, api_key: st
     logger.info("Using remote API")
 
     # Use environment variables or defaults for API settings
-    base_url = os.getenv("REMOTE_API_BASE_URL","")
-    model = os.getenv("REMOTE_API_MODEL","")
+    base_url = os.getenv("REMOTE_API_BASE_URL")
+    model = os.getenv("REMOTE_API_MODEL")
 
     logger.debug(f"Using remote API with base URL: {base_url} and model: {model}")
 
