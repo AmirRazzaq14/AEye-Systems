@@ -5,8 +5,8 @@ import com.google.firebase.cloud.FirestoreClient;
 import edu.farmingdale.CSC490.Entity.Exercise_log;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -30,7 +30,7 @@ public class ExerciseRepository {
     }
 
     public void save(String uid, Exercise_log log) throws Exception {
-        log.setUpdatedAt(new Date().toString());
+        log.setUpdatedAt(Instant.now().toString()); // ← ISO-8601 format
         docRef(uid, log.getDate()).set(log).get();
     }
 
@@ -40,7 +40,7 @@ public class ExerciseRepository {
             Exercise_log log = snap.toObject(Exercise_log.class);
             if (log != null) {
                 log.setId(snap.getId());
-                log.setDate(snap.getId()); // ← FIX: populate date from document ID
+                log.setDate(snap.getId()); // ← populate date from document ID
             }
             return log;
         }
@@ -53,7 +53,7 @@ public class ExerciseRepository {
             Exercise_log log = d.toObject(Exercise_log.class);
             if (log != null) {
                 log.setId(d.getId());
-                log.setDate(d.getId()); // ← FIX: populate date from document ID
+                log.setDate(d.getId()); // ← populate date from document ID
                 list.add(log);
             }
         }
@@ -72,7 +72,7 @@ public class ExerciseRepository {
             Exercise_log log = d.toObject(Exercise_log.class);
             if (log != null) {
                 log.setId(d.getId());
-                log.setDate(d.getId()); // ← FIX: populate date from document ID
+                log.setDate(d.getId()); // ← populate date from document ID
                 list.add(log);
             }
         }
