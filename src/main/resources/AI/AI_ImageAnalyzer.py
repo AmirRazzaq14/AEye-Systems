@@ -160,17 +160,19 @@ def analyze(img_path: str, prompt_path: str) -> str:
     logger.debug(f"Sending request with prompt: {prompt[:100]}...")  # Log first 100 chars of prompt
 
     # Determine whether to use remote API based on environment variables
-    remote_api_key = os.getenv("REMOTE_API_KEY")
-    if remote_api_key:
+    python_model = os.getenv("PYTHON_MODEL")
+    logger.debug(f"Using Python model: {python_model}")
+    if python_model == "REMOTE":
         # Use remote API
-        return _analyze_with_remote_api(image, prompt, img_path, remote_api_key)
-    else:
+        logger.info("Using remote API")
+        return _analyze_with_remote_api(image, prompt, img_path)
+    elif python_model == "LOCAL":
         # Use local Ollama API
+        logger.info("Using local Ollama API")
         return _analyze_with_local_api(image, prompt, img_path)
 
 def _analyze_with_local_api(image: str, prompt: str, img_path: str) -> str:
     """Analyze using local Ollama API"""
-    logger.info("Using local Ollama API")
 
     url = os.getenv("LOCAL_API_URL")
     model = os.getenv("LOCAL_API_MODEL")
@@ -226,69 +228,116 @@ def _analyze_with_local_api(image: str, prompt: str, img_path: str) -> str:
         logger.exception(error_msg)
         return error_msg
 
-def _analyze_with_remote_api(image: str, prompt: str, img_path: str, api_key: str) -> str:
+def _analyze_with_remote_api(image: str, prompt: str, img_path: str) -> str:
     """Analyze using remote API such as OpenAI"""
 
-    logger.info("Using remote API")
-
     # Use environment variables or defaults for API settings
+    api_key = os.getenv("REMOTE_API_KEY")
     base_url = os.getenv("REMOTE_API_BASE_URL")
     model = os.getenv("REMOTE_API_MODEL")
 
     logger.debug(f"Using remote API with base URL: {base_url} and model: {model}")
 
-    # Prepare the payload for the remote API
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "model": model,
-        "messages": [
-            {
-                "role": "user",
-                "content": [
+    # Check if it's Google Gemini API or OpenAI-compatible API
+    if "generativelanguage.googleapis.com" in base_url:
+        # Google Gemini API
+        api_endpoint = f"{base_url}/v1beta/models/{model}:generateContent?key={api_key}"
+        payload = {
+            "contents": [{
+                "parts": [
+                    {"text": prompt},
                     {
-                        "type": "text",
-                        "text": prompt
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{image}",
-                            "detail": "high"
+                        "inline_data": {
+                            "mime_type": "image/jpeg",
+                            "data": image
                         }
                     }
                 ]
+            }],
+            "generationConfig": {
+                "temperature": 0.4,
+                "topK": 40,
+                "topP": 0.95,
+                "maxOutputTokens": 2048,
             }
-        ],
-        "max_tokens": 1000
-    }
+        }
+        headers = {
+            "Content-Type": "application/json"
+        }
+    else:
+        # OpenAI-compatible API
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image}",
+                                "detail": "high"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "max_tokens": 1000
+        }
+        api_endpoint = f"{base_url}/chat/completions"
 
     try:
         # Make the API request
         response = requests.post(
-            f"{base_url}/chat/completions",
+            api_endpoint,
             headers=headers,
             json=payload,
             timeout=60
         )
 
-        if response.status_code != 200:
+        if response.status_code not in [200, 201]:
             error_msg = f"Remote API request failed: {response.status_code} - {response.text}"
             logger.error(error_msg)
             return error_msg
-
         result = response.json()
 
         if 'error' in result:
-            error_msg = f"Remote API returned error: {result['error']}"
+            error_msg = f"RemoteAPI returned error: {result['error']}"
             logger.error(error_msg)
             return error_msg
 
-        # Extract the response text
-        text = result['choices'][0]['message']['content'].strip()
+        # Extract the response text based on API type
+        if "generativelanguage.googleapis.com" in base_url:
+            # Google Gemini API response structure
+            if 'candidates' in result and len(result['candidates']) > 0:
+                if 'content' in result['candidates'][0] and 'parts' in result['candidates'][0]['content']:
+                    text_parts = result['candidates'][0]['content']['parts']
+                    text = ''.join([part.get('text', '') for part in text_parts]).strip()
+                else:
+                    error_msg = f"No text response from Gemini API: {result}"
+                    logger.error(error_msg)
+                    return error_msg
+            else:
+                error_msg = f"No candidates in Gemini API response: {result}"
+                logger.error(error_msg)
+                return error_msg
+        else:
+            # OpenAI-compatibleAPI response structure
+            if 'choices' in result and len(result['choices']) > 0:
+                text = result['choices'][0]['message']['content'].strip()
+            else:
+                error_msg = f"No choices in OpenAI-compatible API response: {result}"
+                logger.error(error_msg)
+                return error_msg
+
         return _extract_json_response(text, img_path)
 
     except requests.exceptions.ConnectionError:
@@ -301,6 +350,10 @@ def _analyze_with_remote_api(image: str, prompt: str, img_path: str, api_key: st
         return error_msg
     except json.JSONDecodeError:
         error_msg = f"Invalid JSON in response: {match.group() if match else text}"
+        logger.error(error_msg)
+        return error_msg
+    except KeyError as e:
+        error_msg = f"Missing expected key in API response: {str(e)}. Response: {result}"
         logger.error(error_msg)
         return error_msg
     except Exception as e:
