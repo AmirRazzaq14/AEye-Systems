@@ -20,21 +20,90 @@ public class PythonServiceManager {
 
     @Value("${PYTHON_API_PORT:8000}")
     private int PYTHON_SERVICE_PORT;
+    private Integer currentPort = null;
 
     @Value("${PYTHON_FILE_PATH:/src/main/resources/AI/AI_ImageAnalyzer.py}")
     private String PYTHON_File_Path;
 
     /**
+     * Findavailable ports within the specified range
+     */
+    private int findAvailablePort(int startPort, int endPort) {
+        for (int port = startPort; port <= endPort; port++) {
+            try (java.net.ServerSocket socket = new java.net.ServerSocket(port)) {
+                socket.setReuseAddress(true);
+socket.close();
+                return port;
+            } catch (IOException e) {
+                logger.debug("Port {} is not available: {}", port, e.getMessage());
+                continue;
+            }
+        }
+        return -1; // No available ports found
+    }
+
+    /**
+     * Kill any existing Python processes that might be runningthe AI service
+     */
+    private void killExistingPythonServices() {
+        logger.info("Checking for existing Python services to kill...");
+        try {
+            // On Windows, kill Python processes that might be running our script
+            String os = System.getProperty("os.name").toLowerCase();
+            if (os.contains("win")){
+                // Listall Python processes
+                Process p = Runtime.getRuntime().exec("wmic process where \"name='python.exe'\" get commandline,processid");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("AI_ImageAnalyzer.py") && line.contains("--server")) {
+                        // Extract process ID from the line (it's usually at the end)
+                        String[] parts = line.trim().split("\\s+");
+                        if (parts.length > 0) {
+                            String pid = parts[parts.length - 1]; // PID should bethe last element
+                            if (pid.matches("\\d+")) { // Check if it's a number
+                                logger.info("Killing existing Python service with PID: {}", pid);
+                                Runtime.getRuntime().exec("taskkill /F /PID " + pid);
+                            }
+                        }
+                    }
+                }
+                p.waitFor();
+} else {
+                // On Unix-like systems, use pgrep/pkill
+                Process p = Runtime.getRuntime().exec("pgrep -f 'AI_ImageAnalyzer.py.*--server'");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String pid;
+                while ((pid = reader.readLine()) != null){
+                    if (pid.trim().matches("\\d+")) {
+                        logger.info("Killing existing Python service with PID: {}", pid.trim());
+                        Runtime.getRuntime().exec("kill -9 " + pid.trim());
+                    }
+                }
+                p.waitFor();
+            }
+            // Give a moment for processes to terminate
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            logger.warn("Could not kill existing Python services: {}", e.getMessage());
+        }
+    }
+
+    /**
      * Start the Python FastAPI service
      */
     public synchronized boolean startPythonService() {
+        // Kill any existing Python services before startinga new one
+        killExistingPythonServices();
+
+
         if (isRunning()) {
             logger.warn("Python service is already running.");
             return true;
         }
 
         try {
-            logger.info("Starting Python service...");
+            logger.info("Starting Python serviceonport {}...", PYTHON_SERVICE_PORT);
             // Get the project root path
             String projectRoot = System.getProperty("user.dir");
             if (projectRoot == null || projectRoot.isEmpty()) {
@@ -98,22 +167,37 @@ public class PythonServiceManager {
                 }
             });
 
+            // Read Python service error output asynchronously
+            CompletableFuture<Void> errorFuture = CompletableFuture.runAsync(() -> {
+                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(pythonProcess.getErrorStream()))) {
+                    String line;
+                    while ((line = errorReader.readLine()) != null && pythonProcess.isAlive()) {
+                        logger.error("Python service error: {}", line);
+                    }
+                } catch (IOException e) {
+                    logger.error("Error reading Python service error stream: {}", e.getMessage());
+                }
+            });
+
             // Wait for the service to start
             Thread.sleep(5000);
 
 
             if (pythonProcess.isAlive()) {
                 isRunning = true;
+                currentPort = PYTHON_SERVICE_PORT;  // Track the current port
                 logger.info("Python service started successfully on port {}", PYTHON_SERVICE_PORT);
                 
                 // The monitoring process ends
                 CompletableFuture.runAsync(() -> {
+
                     try {
                         pythonProcess.waitFor();
-                        logger.error("Python service process ended unexpectedly");
+                        logger.error("Python service process ended with exit code: {}. Process was running on port {}", exitCode, currentPort);
                         isRunning = false;
                     } catch (InterruptedException e) {
-                        logger.error("Python service monitoring interrupted");
+                        logger.error("Python service monitoring interrupted {}", e.getMessage());
+                        Thread.currentThread().interrupt();
                     }
                 });
                 
@@ -150,13 +234,17 @@ public class PythonServiceManager {
                 }
             }
             isRunning = false;
-            logger.info("Python service stopped successfully.");
+            if (currentPort != null) {
+                logger.info("Python service on port {} stopped successfully.", currentPort);
+                currentPort = null;
+            }
             return true;
         } catch (Exception e) {
             logger.error("Error stopping Python service: {}", e.getMessage());
             return false;
         }
     }
+
 
     /**
      * Check if the Python service is running
@@ -169,7 +257,18 @@ public class PythonServiceManager {
      * Ensure that the service is properly stopped when the app is closed
      */
     public void shutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(this::stopPythonService));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("Shutting down Python service...");
+            stopPythonService();
+        }));
+    }
+
+    /**
+     * Graceful shutdown method that can be called externally
+     */
+    public void gracefulShutdown() {
+        logger.info("Initiating graceful shutdown of Python service...");
+        stopPythonService();
     }
 
 }

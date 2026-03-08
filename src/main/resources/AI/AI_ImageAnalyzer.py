@@ -6,15 +6,31 @@ import os
 import re
 import tempfile
 import logging
+import signal
+import atexit
+import asyncio
+from contextlib import asynccontextmanager
+from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="AI Image Analyzer", version="1.1.0")
+# Global variable to track server state
+server_should_exit = False
+
+# Store the lifespan in a variable for later use
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting up AI Image Analyzer service...")
+    yield
+    logger.info("Shutting down AI Image Analyzer service...")
+
+app = FastAPI(title="AI Image Analyzer", version="1.1.0", lifespan=lifespan)
 
 class AnalyzeRequest(BaseModel):
     image_path: str
@@ -107,10 +123,15 @@ def _analyze_with_local_api(image: str, prompt: str, img_path: str) -> str:
     """Analyze using local Ollama API"""
     logger.info("Using local Ollama API")
 
-    url = os.getenv("LOCAL_API_URL")
-    model = os.getenv("LOCAL_API_MODEL")
+    url = os.getenv("LOCAL_API_URL",  "http://localhost:11434")
+    model = os.getenv("LOCAL_API_MODEL",  "llava")
+
     logger.debug(f"Using local Ollama API with URL: {url} and model: {model}")
 
+    if not url or url == "None":
+            error_msg = "LOCAL_API_URL is not set properly. Please check your environment variables."
+            logger.error(error_msg)
+            return error_msg
 
     try:
         resp = requests.post(
@@ -300,13 +321,51 @@ async def health():
     logger.info("Health check requested")
     return {"status": "healthy"}
 
+def signal_handler(signum, frame):
+    """Handle termination signals"""
+    global server_should_exit
+    logger.info(f"Received signal {signum}, initiating graceful shutdown...")
+    server_should_exit = True
+    # Perform any cleanup here if needed
+    sys.exit(0)
+
+# Register signal handlers for graceful shutdown
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+
+# Also register cleanup at exit
+def cleanup_on_exit():
+    logger.info("Performing cleanup on exit...")
+
+atexit.register(cleanup_on_exit)
+
 # Maintain command line compatibility
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--server":
         import uvicorn
         port = int(sys.argv[2]) if len(sys.argv) > 2 else 8000
         logger.info(f"Starting server on port {port}")
-        uvicorn.run(app, host="localhost", port=port)
+
+        # Use Uvicorn with proper signal handling
+        config = uvicorn.Config(
+            app,
+            host="localhost",
+            port=port,
+            log_level="info",
+            reload=False  # Disable reload in production
+        )
+        server = uvicorn.Server(config)
+
+        try:
+            # Run the server
+            import asyncio
+            asyncio.run(server.serve())
+        except KeyboardInterrupt:
+            logger.info("Server interrupted by user")
+        except Exception as e:
+            logger.error(f"Server error: {e}")
+        finally:
+            logger.info("Server shutdown complete")
     else:
         if len(sys.argv) < 3:
             print("Usage: python AI_ImageAnalyzer.py <image_path> <prompt_file>", file=sys.stderr)

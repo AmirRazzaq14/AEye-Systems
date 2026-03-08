@@ -44,13 +44,13 @@ public class FoodController {
                     prompt
             );
 
-            logger.info("Result: {}",result);
+                logger.debug("Result: {}",result);
 
             //TODO:save to database with nutrition log
 
             //  If no result found, return a default result
             if(result == null){
-                logger.warn("No result found for image: {}", image.getOriginalFilename());
+                logger.error("No result found for image: {}", image.getOriginalFilename());
             }
 
             return ResponseEntity.ok(result);

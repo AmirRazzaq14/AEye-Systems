@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 
 public class DashboardDemoTest {
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         System.out.println("=== AEye-Systems Dashboard Demo ===\n");
         
         // Create a simulation data service

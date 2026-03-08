@@ -71,7 +71,7 @@ public class foodAnalyzer {
                     JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
                     if (jsonObject.has("error")) {
                         actualJson = jsonObject.get("error").toString();
-                        logger.warn("Error from Python API: {}", actualJson);
+                        logger.error("Error from Python API: {}", actualJson);
 
                         return null;
                     }
