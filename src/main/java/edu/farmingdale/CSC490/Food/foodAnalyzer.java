@@ -1,6 +1,8 @@
 package edu.farmingdale.CSC490.Food;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +28,19 @@ public class foodAnalyzer {
 
     private static final Logger logger = LoggerFactory.getLogger(foodAnalyzer.class);
 
-    Gson gson = new Gson();
+    Gson gson =  new GsonBuilder()
+            .registerTypeAdapter(Double.class, (JsonDeserializer<Double>) (json, typeOfT, context) -> json.getAsDouble())
+            .registerTypeAdapter(double.class, (JsonDeserializer<Double>) (json, typeOfT, context) -> json.getAsDouble())
+            .registerTypeAdapter(int.class, (JsonDeserializer<Integer>) (json, typeOfT, context) -> Math.round(json.getAsFloat()))
+            .registerTypeAdapter(Integer.class, (JsonDeserializer<Integer>) (json, typeOfT, context) -> Math.round(json.getAsFloat()))
+            .create();
+
+
 
     @Value("${PYTHON_API_URL:http://localhost:8000}")
     private String PYTHON_API_URL;
+
+    private RestTemplate restTemplate = new RestTemplate();;
 
     public FoodResult analyze(byte[] imageBytes, String originalFilename, String prompt) {
         logger.info("Starting analysis for image: {}, prompt: {}", originalFilename, prompt);
@@ -104,7 +115,7 @@ public class foodAnalyzer {
 
     private String callPythonApi(String imagePath,  String prompt) {
         logger.debug("Calling Python API with image: {} and prompt: {}", imagePath, prompt);
-        RestTemplate restTemplate = new RestTemplate();
+
 
         try {
             // Create headers

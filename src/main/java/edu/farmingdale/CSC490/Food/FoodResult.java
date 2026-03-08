@@ -10,9 +10,9 @@ import lombok.Data;
 public class FoodResult {
     private String foodName;
     private String mealType;
-    private Double calories;
-    private Double protein_grams;
-    private Double carbs_grams;
-    private Double fat_grams;
+    private int calories;
+    private int protein_grams;
+    private int carbs_grams;
+    private int fat_grams;
 
 }

@@ -38,7 +38,7 @@ public class DashboardDemoTest {
         displayDashboard(dashboardView);
     }
     
-    private static DashboardService createDemoDashboardService() {
+    private static DashboardService createDemoDashboardService() throws Exception {
         // Create a mock data store
         DateRangeDataRequest<Workout_log> mockWorkoutStorage = createMockWorkoutStorage();
         DateRangeDataRequest<Nutrition_log> mockNutritionStorage = createMockNutritionStorage();
@@ -53,7 +53,7 @@ public class DashboardDemoTest {
         );
     }
     
-    private static DateRangeDataRequest<Workout_log> createMockWorkoutStorage() {
+    private static DateRangeDataRequest<Workout_log> createMockWorkoutStorage() throws Exception {
         DateRangeDataRequest<Workout_log> mockStorage = mock(DateRangeDataRequest.class);
         
         // Create simulated site log data
@@ -87,7 +87,7 @@ public class DashboardDemoTest {
         return mockStorage;
     }
     
-    private static DateRangeDataRequest<Nutrition_log> createMockNutritionStorage() {
+    private static DateRangeDataRequest<Nutrition_log> createMockNutritionStorage() throws Exception {
         DateRangeDataRequest<Nutrition_log> mockStorage = mock(DateRangeDataRequest.class);
         
         // Create simulated nutrient log data
@@ -118,7 +118,7 @@ public class DashboardDemoTest {
         return mockStorage;
     }
     
-    private static DateRangeDataRequest<Goal> createMockGoalStorage() {
+    private static DateRangeDataRequest<Goal> createMockGoalStorage() throws Exception {
         DateRangeDataRequest<Goal> mockStorage = mock(DateRangeDataRequest.class);
         
         // Create the target data for the simulation
@@ -146,7 +146,7 @@ public class DashboardDemoTest {
         return mockStorage;
     }
     
-    private static DateRangeDataRequest<Body_measurement> createMockBodyMeasurementStorage() {
+    private static DateRangeDataRequest<Body_measurement> createMockBodyMeasurementStorage() throws Exception {
         DateRangeDataRequest<Body_measurement> mockStorage = mock(DateRangeDataRequest.class);
         
         // Create simulated body measurements
