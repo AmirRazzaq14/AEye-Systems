@@ -19,15 +19,29 @@ public class NutritionStorage implements DateRangeDataRequest<Nutrition_log> {
     public List<Nutrition_log> getDataByUserIdAndDateRange(
             int userId, LocalDate startDate, LocalDate endDate) throws Exception {
 
-        return firestore.collection("nutrition_logs")
-                .whereEqualTo("user_id", String.valueOf(userId))
+        return firestore.collection("users")
+                .document(String.valueOf(userId))
+                .collection("nutritionLogs")
                 .get().get()
                 .getDocuments()
                 .stream()
-                .map(doc -> doc.toObject(Nutrition_log.class))
-                .filter(log -> log.getLog_date() != null
-                        && !log.getLog_date().isBefore(startDate)
-                        && !log.getLog_date().isAfter(endDate))
+                .map(doc -> {
+                    Nutrition_log log = doc.toObject(Nutrition_log.class);
+                    if (log != null) {
+                        log.setId(doc.getId());
+                        log.setDate(doc.getId()); // document ID is the date string
+                    }
+                    return log;
+                })
+                .filter(log -> {
+                    if (log == null || log.getDate() == null) return false;
+                    try {
+                        LocalDate logDate = LocalDate.parse(log.getDate());
+                        return !logDate.isBefore(startDate) && !logDate.isAfter(endDate);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
                 .collect(Collectors.toList());
     }
 }

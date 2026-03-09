@@ -70,6 +70,24 @@ public class DashboardService {
         return new Card("Workout weekly", currentWeekWorkouts, trend);
     }
 
+    // ── Helper: sum all calories from a Nutrition_log's meals list ──
+    private int getTotalCalories(Nutrition_log log) {
+        if (log.getMeals() == null) return 0;
+        return log.getMeals().stream()
+                .mapToInt(meal -> {
+                    try { return Integer.parseInt(meal.getCals()); }
+                    catch (Exception e) { return 0; }
+                })
+                .sum();
+    }
+
+    // ── Helper: safely parse updatedAt string to Instant ──
+    private Instant parseInstant(String updatedAt) {
+        if (updatedAt == null) return Instant.now();
+        try { return Instant.parse(updatedAt); }
+        catch (Exception e) { return Instant.now(); }
+    }
+
     private Card buildNutritionCard(int userId) throws Exception {
         List<Nutrition_log> currentWeekData = nutritionStorage
                 .getDataByUserIdAndDateRange(userId, startWeek, today);
@@ -77,20 +95,17 @@ public class DashboardService {
                 .getDataByUserIdAndDateRange(userId, startWeek.minusWeeks(1), today.minusDays(1));
 
         int currentWeekCalories = currentWeekData.stream()
-                .mapToInt(Nutrition_log::getCalories)
+                .mapToInt(this::getTotalCalories)
                 .sum();
         int previousWeekCalories = previousWeekData.stream()
-                .mapToInt(Nutrition_log::getCalories)
+                .mapToInt(this::getTotalCalories)
                 .sum();
 
         int trend = currentWeekCalories - previousWeekCalories;
-        return new Card("Calories burned", currentWeekCalories, trend);
+        return new Card("Calories logged", currentWeekCalories, trend);
     }
 
     private Card buildGoalCard(int userId) throws Exception {
-        LocalDate today = LocalDate.now();
-        LocalDate startWeek = today.with(DayOfWeek.MONDAY);
-
         List<Goal> currentWeekData = goalStorage
                 .getDataByUserIdAndDateRange(userId, startWeek, today);
         List<Goal> previousWeekData = goalStorage
@@ -104,9 +119,6 @@ public class DashboardService {
     }
 
     private Chart buildActivityChart(int userId) throws Exception {
-        LocalDate today = LocalDate.now();
-        LocalDate startWeek = today.with(DayOfWeek.MONDAY);
-
         Map<String, Integer> activityData = new HashMap<>();
         List<Workout_log> currentWeekData = workoutStorage
                 .getDataByUserIdAndDateRange(userId, startWeek, today);
@@ -126,9 +138,9 @@ public class DashboardService {
                 .getDataByUserIdAndDateRange(userId, startWeek, today);
 
         for (Nutrition_log nutrition : currentWeekData) {
-            String dayOfWeek = nutrition.getLog_date().getDayOfWeek().toString();
-            int calories = nutrition.getCalories();
-            nutritionData.put(dayOfWeek, calories);
+            String dateKey = nutrition.getDate() != null ? nutrition.getDate() : "unknown";
+            int calories = getTotalCalories(nutrition);
+            nutritionData.put(dateKey, calories);
         }
 
         return new Chart("Nutrition Tracking", nutritionData);
@@ -153,7 +165,8 @@ public class DashboardService {
         }
         for (Nutrition_log nutrition : currentWeekNutritionData) {
             recentActivity.add(new RecentActivity("Nutrition",
-                    nutrition.getCalories() + " calories", nutrition.getLogged_at()));
+                    getTotalCalories(nutrition) + " calories",
+                    parseInstant(nutrition.getUpdatedAt())));
         }
         for (Body_measurement body : currentWeekBodyData) {
             recentActivity.add(new RecentActivity("Body Measurement",

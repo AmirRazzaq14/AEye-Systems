@@ -22,7 +22,6 @@ public class MockDatabase {
         // Create user 1
         User u1 = new User();
         u1.setUser_id(String.valueOf(1));
-
         u1.setEmail("john.doe@example.com");
         users.add(u1);
 
@@ -45,12 +44,18 @@ public class MockDatabase {
         w2.setLogged_at(Instant.now());
         workoutLogs.add(w2);
 
-        // Add Nutrition
+        // Add Nutrition using new meal-based structure
+        List<Nutrition_log.Meal> meals = new ArrayList<>();
+        meals.add(new Nutrition_log.Meal("Breakfast", "600", "30"));
+        meals.add(new Nutrition_log.Meal("Lunch", "900", "40"));
+        meals.add(new Nutrition_log.Meal("Dinner", "900", "45"));
+
         Nutrition_log n1 = new Nutrition_log();
-        n1.setUser_id(1);
-        n1.setLog_date(today);
-        n1.setCalories(2400);
-        n1.setLogged_at(Instant.now());
+        n1.setUserId("1");
+        n1.setDate(today.toString());
+        n1.setMeals(meals);
+        n1.setNotes("Felt good today");
+        n1.setUpdatedAt(Instant.now().toString());
         nutritionLogs.add(n1);
 
         // Add Goal
