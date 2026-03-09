@@ -76,7 +76,6 @@
       transition: color 0.15s, background 0.15s;
     }
 
-    /* FIXED: use shared hover var from theme.css */
     .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
 
     .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
@@ -140,12 +139,23 @@
     .cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-shrink: 0; }
     .cal-month-label { font-size: 0.8rem; font-weight: 700; color: var(--text); }
     .cal-nav-btn {
-      width: 22px; height: 22px; border-radius: 6px; border: none;
-      background: #f3f4f6; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted); transition: background 0.15s, color 0.15s;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
-    .cal-nav-btn:hover { background: var(--blue); color: white; }
+    .cal-nav-btn:hover {
+      background: var(--blue);
+      color: white;
+      border-color: transparent;
+    }
     .cal-nav-btn svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
     .cal-dow-row { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 3px; flex-shrink: 0; }
@@ -169,9 +179,16 @@
     .cal-day-today.cal-day-logged:hover { background: #16a34a; }
 
     .loading-overlay {
-      position: fixed; inset: 0; background: rgba(255,255,255,0.8);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 999; font-size: 0.9rem; font-weight: 600; color: var(--muted);
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--muted);
       gap: 0.75rem;
     }
     .loading-overlay.hidden { display: none; }
@@ -194,8 +211,12 @@
     }
 
     .modal {
-      background: white; border-radius: 20px; padding: 1.75rem;
-      width: 340px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.75rem;
+      width: 340px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       animation: popIn 0.22s ease both;
     }
     .modal h4 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
@@ -207,21 +228,41 @@
       margin-bottom: 0.3rem; letter-spacing: 0.04em; text-transform: uppercase;
     }
     .lbl-opt { font-size: 0.68rem; font-weight: 400; color: #9ca3af; text-transform: none; letter-spacing: 0; }
-    .modal-field input, .modal-field textarea {
-      width: 100%; padding: 0.55rem 0.8rem; border: 1.5px solid var(--border);
-      border-radius: 10px; font-size: 0.87rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: #f9fafb; outline: none; transition: border-color 0.15s;
+    .modal-field input,
+    .modal-field textarea {
+      width: 100%;
+      padding: 0.55rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.87rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--input-bg);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
       resize: none;
     }
-    .modal-field input:focus, .modal-field textarea:focus { border-color: var(--blue); background: white; }
+    .modal-field input:focus,
+    .modal-field textarea:focus {
+      border-color: var(--blue);
+      background: var(--input-bg);
+    }
     .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
     .modal-actions { display: flex; gap: 0.7rem; margin-top: 1.2rem; }
     .btn-cancel {
-      flex: 1; padding: 0.62rem; border-radius: 10px; border: 1.5px solid var(--border);
-      background: white; font-size: 0.87rem; font-weight: 600; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; color: var(--muted); transition: background 0.15s;
+      flex: 1;
+      padding: 0.62rem;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      font-size: 0.87rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--muted);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
-    .btn-cancel:hover { background: #f3f4f6; }
+    .btn-cancel:hover { background: var(--nav-hover-bg); }
     .btn-save {
       flex: 1; padding: 0.62rem; border-radius: 10px; border: none;
       font-size: 0.87rem; font-weight: 700; cursor: pointer;
@@ -232,20 +273,28 @@
     .btn-save-orange { background: #f97316; }
 
     .nut-modal {
-      background: white; border-radius: 20px; padding: 1.75rem;
-      width: 460px; max-width: 95vw;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.75rem;
+      width: 460px;
+      max-width: 95vw;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       animation: popIn 0.22s ease both;
-      max-height: 90vh; overflow-y: auto;
+      max-height: 90vh;
+      overflow-y: auto;
     }
     .nut-modal h4 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
     .nut-modal .modal-date-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
 
     .meal-entries { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.8rem; }
     .meal-entry {
-      border: 1.5px solid var(--border); border-radius: 12px;
-      padding: 0.75rem 0.85rem; background: #fafafa;
-      position: relative; animation: popIn 0.18s ease both;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 0.85rem;
+      background: var(--input-bg);
+      position: relative;
+      animation: popIn 0.18s ease both;
     }
     .meal-entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.55rem; }
     .meal-entry-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
@@ -257,9 +306,16 @@
     .meal-entry-remove:hover { color: #ef4444; }
     .meal-entry-remove svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
     .meal-entry input {
-      width: 100%; padding: 0.48rem 0.7rem; border: 1.5px solid var(--border);
-      border-radius: 8px; font-size: 0.84rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: white; outline: none; transition: border-color 0.15s;
+      width: 100%;
+      padding: 0.48rem 0.7rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--card-bg);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
       margin-bottom: 0.45rem;
     }
     .meal-entry input:last-child { margin-bottom: 0; }
@@ -280,12 +336,22 @@
     .nut-notes-field { margin-bottom: 0; }
     .nut-notes-field label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
     .nut-notes-field textarea {
-      width: 100%; padding: 0.5rem 0.75rem; border: 1.5px solid var(--border);
-      border-radius: 10px; font-size: 0.84rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: #f9fafb; outline: none; resize: none;
-      transition: border-color 0.15s;
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--input-bg);
+      outline: none;
+      resize: none;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
     }
-    .nut-notes-field textarea:focus { border-color: #f97316; background: white; }
+    .nut-notes-field textarea:focus {
+      border-color: #f97316;
+      background: var(--input-bg);
+    }
 
     .view-popup {
       display: none; position: fixed; inset: 0;
@@ -294,11 +360,16 @@
     }
     .view-popup.open { display: flex; }
     .view-popup-inner {
-      background: white; border-radius: 20px; padding: 1.5rem;
-      width: 360px; max-width: 95vw;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      width: 360px;
+      max-width: 95vw;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       animation: popIn 0.22s ease both;
-      max-height: 85vh; overflow-y: auto;
+      max-height: 85vh;
+      overflow-y: auto;
     }
     .view-popup-inner h4 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
     .view-popup-date { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.9rem; }
@@ -311,8 +382,11 @@
     .view-row-value { font-weight: 600; color: var(--text); text-align: right; }
     .view-no-details { font-size: 0.83rem; color: var(--muted); font-style: italic; padding: 0.3rem 0; }
     .view-meal-card {
-      border: 1.5px solid var(--border); border-radius: 10px;
-      padding: 0.65rem 0.8rem; margin-bottom: 0.5rem; background: #fafafa;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0.65rem 0.8rem;
+      margin-bottom: 0.5rem;
+      background: var(--input-bg);
     }
     .view-meal-card:last-child { margin-bottom: 0; }
     .view-meal-name { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
@@ -334,11 +408,19 @@
     }
     .btn-add-more:hover { background: #ffedd5; }
     .btn-close {
-      flex: 1; padding: 0.58rem; border-radius: 10px; border: 1.5px solid var(--border);
-      background: white; font-size: 0.84rem; font-weight: 600; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; color: var(--muted); transition: background 0.15s;
+      flex: 1;
+      padding: 0.58rem;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--muted);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
-    .btn-close:hover { background: #f3f4f6; }
+    .btn-close:hover { background: var(--nav-hover-bg); }
 
     /* WEEKLY PLANNER */
     .planner-card { background: var(--card-bg); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; flex: 1; }
@@ -361,7 +443,6 @@
       color: var(--green-dark);
     }
 
-    /* Pastel rainbow per day */
     .planner-day:nth-child(1) .planner-day-label { background: #ffe4e4; color: #c0392b; }
     .planner-day:nth-child(2) .planner-day-label { background: #ffecd2; color: #d35400; }
     .planner-day:nth-child(3) .planner-day-label { background: #fef9c3; color: #a16207; }
@@ -371,22 +452,49 @@
     .planner-day:nth-child(7) .planner-day-label { background: #fce7f3; color: #9d174d; }
 
     .split-select {
-      width: 100%; padding: 0.4rem 0.5rem; border: 1.5px solid var(--border);
-      border-radius: 8px; font-size: 0.72rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: #f9fafb; outline: none;
-      cursor: pointer; transition: border-color 0.15s;
-      appearance: none; text-align: center;
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--input-bg);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      appearance: none;
+      text-align: center;
     }
-    .split-select:focus { border-color: var(--blue); background: white; }
+    .split-select:focus {
+      border-color: var(--blue);
+      background: var(--input-bg);
+    }
+    .split-select option {
+      color: var(--text);
+      background: var(--card-bg);
+    }
 
     .planner-exercises {
-      width: 100%; padding: 0.4rem 0.5rem; border: 1.5px solid var(--border);
-      border-radius: 8px; font-size: 0.72rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: #f9fafb; outline: none; resize: none;
-      transition: border-color 0.15s; flex: 1; min-height: 80px;
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--input-bg);
+      outline: none;
+      resize: none;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      flex: 1;
+      min-height: 80px;
     }
-    .planner-exercises:focus { border-color: var(--blue); background: white; }
-    .planner-exercises::placeholder { color: #9ca3af; font-size: 0.68rem; }
+    .planner-exercises:focus {
+      border-color: var(--blue);
+      background: var(--input-bg);
+    }
+    .planner-exercises::placeholder { color: var(--muted); font-size: 0.68rem; }
 
     .planner-field-label {
       font-size: 0.62rem; font-weight: 700; color: var(--muted);
@@ -504,7 +612,6 @@
     </a>
   </div>
 
-  <!-- CALENDAR LOG CARDS -->
   <div class="charts-row">
     <div class="log-card">
       <div class="log-header">
@@ -551,7 +658,6 @@
     </div>
   </div>
 
-  <!-- WEEKLY PLANNER -->
   <div class="planner-card">
     <h3>📅 Plan Your Week</h3>
     <div class="planner-grid" id="plannerGrid"></div>
@@ -560,7 +666,6 @@
 
 <a href="#" class="help-btn">?</a>
 
-<!-- EXERCISE ADD MODAL -->
 <div class="modal-overlay" id="exAddModal">
   <div class="modal">
     <h4>🏋️ Log a Workout</h4>
@@ -600,7 +705,6 @@
   </div>
 </div>
 
-<!-- NUTRITION ADD MODAL -->
 <div class="modal-overlay" id="nutAddModal">
   <div class="nut-modal">
     <h4>🥗 Log Meals</h4>
@@ -621,7 +725,6 @@
   </div>
 </div>
 
-<!-- EXERCISE VIEW POPUP -->
 <div class="view-popup" id="exViewPopup">
   <div class="view-popup-inner">
     <h4>🏋️ Workout</h4>
@@ -634,7 +737,6 @@
   </div>
 </div>
 
-<!-- NUTRITION VIEW POPUP -->
 <div class="view-popup" id="nutViewPopup">
   <div class="view-popup-inner">
     <h4>🥗 Meals</h4>
@@ -649,12 +751,10 @@
 </div>
 
 <script>
-  // ── Nav active ────────────────────────────────────────────
   document.querySelectorAll('.nav-link').forEach(l =>
           l.classList.toggle('active', l.href === window.location.href)
   );
 
-  // ── State ─────────────────────────────────────────────────
   const logs = { ex: {}, nut: {} };
   const now      = new Date();
   const todayKey = fmtKey(now);
@@ -668,7 +768,6 @@
   const MONTHS = ['January','February','March','April','May','June',
     'July','August','September','October','November','December'];
 
-  // ── Helpers ───────────────────────────────────────────────
   function fmtKey(d) {
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
@@ -681,14 +780,12 @@
     document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
   }
 
-  // ── Firebase Auth token ───────────────────────────────────
   async function getAuthToken() {
     const user = firebase.auth().currentUser;
     if (!user) throw new Error('Not logged in');
     return await user.getIdToken();
   }
 
-  // ── API calls ─────────────────────────────────────────────
   async function apiFetch(path, method = 'GET', body = null) {
     const token   = await getAuthToken();
     const options = {
@@ -705,7 +802,6 @@
     try { return JSON.parse(text); } catch { return text; }
   }
 
-  // ── Load all logs on login ────────────────────────────────
   async function loadAllLogs() {
     showLoading(true);
     try {
@@ -738,7 +834,6 @@
     }
   }
 
-  // ── Auth state ────────────────────────────────────────────
   initApp().then(() => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
@@ -749,7 +844,6 @@
     });
   });
 
-  // ── Calendar render ───────────────────────────────────────
   function renderCal(p) {
     const { year, month } = cal[p];
     document.getElementById(p + 'MonthLabel').textContent = `${MONTHS[month]} ${year}`;
@@ -788,7 +882,6 @@
     renderCal(p);
   }
 
-  // ── Exercise modal ────────────────────────────────────────
   function openAddModal(p, key) {
     pendingKey[p] = key;
     if (p === 'ex') {
@@ -805,7 +898,6 @@
     document.getElementById(p + 'AddModal').classList.remove('open');
   }
 
-  // ── Save exercise ─────────────────────────────────────────
   async function saveExLog() {
     const key     = pendingKey.ex;
     const logData = {
@@ -830,7 +922,6 @@
     }
   }
 
-  // ── Nutrition modal (multi-meal) ──────────────────────────
   function openNutModal(key, prefill) {
     pendingKey.nut = key;
     document.getElementById('nutAddDateSub').textContent = fmtNice(key);
@@ -895,7 +986,6 @@
     });
   }
 
-  // ── Save nutrition ────────────────────────────────────────
   async function saveNutLog() {
     const key     = pendingKey.nut;
     const entries = document.querySelectorAll('.meal-entry');
@@ -939,7 +1029,6 @@
     openNutModal(key, logs.nut[key]);
   }
 
-  // ── Delete log ────────────────────────────────────────────
   async function deleteLog(p) {
     const key      = viewingKey[p];
     const endpoint = p === 'ex' ? 'exercise-logs' : 'nutrition-logs';
@@ -956,7 +1045,6 @@
     }
   }
 
-  // ── View popups ───────────────────────────────────────────
   function openViewPopup(p, key) {
     viewingKey[p] = key;
     const log = logs[p][key];
@@ -1010,12 +1098,10 @@
     document.getElementById(p + 'ViewPopup').classList.remove('open');
   }
 
-  // close modals/popups on backdrop click
   document.querySelectorAll('.modal-overlay, .view-popup').forEach(el => {
     el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
   });
 
-  // ── Stats ─────────────────────────────────────────────────
   function updateStats() {
     const sun = new Date(now);
     sun.setDate(now.getDate() - now.getDay());
@@ -1035,7 +1121,6 @@
     document.getElementById('statGoal').textContent = goal + '%';
   }
 
-  // ── Weekly Planner ────────────────────────────────────────
   const SPLITS = [
     'Rest Day',
     'Push Day',
@@ -1063,7 +1148,6 @@
       const savedSplit    = localStorage.getItem(`planner_split_${day}`)    || '';
       const savedExercises = localStorage.getItem(`planner_exercises_${day}`) || '';
 
-
       const col = document.createElement('div');
       col.className = 'planner-day';
 
@@ -1082,8 +1166,6 @@
           placeholder="e.g. Bench 4x8, OHP 3x10…"
           onchange="savePlanner('${day}','exercises',this.value)"
         >${savedExercises}</textarea>
-
-
       `;
 
       grid.appendChild(col);
@@ -1095,8 +1177,6 @@
   }
 
   buildPlanner();
-
-  // ── Initial render (empty calendars before auth) ──────────
   renderCal('ex');
   renderCal('nut');
 </script>
