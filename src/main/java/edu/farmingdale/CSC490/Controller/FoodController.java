@@ -69,45 +69,11 @@ public class FoodController {
 
         try {
             logger.info("Saving food result to database: {}", result);
-            Nutrition_log nutrition_log = Nutrition_log.builder()
-                    .log_id(1)
-                    .user_id(1)
-                    .log_date(LocalDate.now())
-                    .meal_type(result.getMealType())
-                    .food_name(result.getFoodName())
-                    .calories(result.getCalories())
-                    .protein_grams(result.getProtein_grams())
-                    .carbs_grams(result.getCarbs_grams())
-                    .fat_grams(result.getFat_grams())
-                    .logged_at(Instant.now())
-                    .build();
 
             //TODO: save to database with nutrition log error with diff data type
-            nutritionRepository.save(nutrition_log);
+            //nutritionRepository.save(nutrition_log);
         } catch (Exception e) {
             logger.error("Error saving food result to database: {}", e.getMessage());
-        }
-    }
-
-    @GetMapping("/logs/{userId}")
-    public ResponseEntity<List<Nutrition_log>> getUserLogs(@PathVariable String userId) {
-        try {
-            List<Nutrition_log> logs = nutritionRepository.findByUserId(userId);
-            return ResponseEntity.ok(logs);
-        } catch (Exception e) {
-            logger.error("Error retrieving user logs: {}", e.getMessage());
-            return ResponseEntity.status(500).body(null);
-        }
-    }
-
-    @DeleteMapping("/logs/{logId}")
-    public ResponseEntity<Void> deleteLog(@PathVariable String logId) {
-        try {
-            nutritionRepository.delete(logId);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            logger.error("Error deleting log: {}", e.getMessage());
-            return ResponseEntity.status(500).build();
         }
     }
 
