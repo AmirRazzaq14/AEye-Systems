@@ -3,6 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("wizcoach-theme");
+                if (saved) {
+                    document.documentElement.setAttribute("data-theme", saved);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
     <title>WizCoach – Sign In</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -14,15 +28,18 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --purple: #7c5cfc; --purple-dark: #6344e8; --purple-light: #a78bfa;
-            --text: #1a1a2e; --muted: #6b7280; --border: #e5e7eb;
-            --card-bg: #ffffff; --input-bg: #f9fafb;
+            --purple: #7c5cfc;
+            --purple-dark: #6344e8;
+            --purple-light: #a78bfa;
         }
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background: linear-gradient(135deg, #e8ecf5 0%, #f0eeff 50%, #e8f0ff 100%);
-            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem;
+            background: var(--page-bg);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 2rem;
+            color: var(--text);
         }
 
         .container { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; max-width: 1000px; width: 100%; align-items: center; animation: fadeUp 0.6s ease both; }
@@ -39,15 +56,18 @@
         .hero-title { font-size: 2rem; font-weight: 700; color: var(--text); line-height: 1.2; letter-spacing: -0.03em; margin-bottom: 1rem; animation: fadeUp 0.5s ease 0.2s both; }
         .hero-desc  { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem; animation: fadeUp 0.5s ease 0.25s both; }
 
-        .features { background: white; border-radius: 16px; padding: 0.5rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); animation: fadeUp 0.5s ease 0.3s both; }
+        .features { background: var(--card-bg); border-radius: 16px; padding: 0.5rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); animation: fadeUp 0.5s ease 0.3s both; border: 1px solid var(--border); }
 
         .feature-item { display: flex; align-items: center; gap: 0.875rem; padding: 0.875rem 1rem; border-radius: 12px; transition: background 0.2s; cursor: pointer; text-decoration: none; }
-        .feature-item:hover { background: #f7f5ff; }
+
+        /* FIXED: use your shared hover variable */
+        .feature-item:hover { background: var(--nav-hover-bg); }
+
         .feature-emoji { font-size: 1.6rem; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .feature-text h4 { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 0.1rem; }
         .feature-text p  { font-size: 0.8rem; color: var(--muted); }
 
-        .card { background: var(--card-bg); border-radius: 24px; padding: 2.5rem 2.25rem; box-shadow: 0 8px 40px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04); animation: fadeUp 0.5s ease 0.15s both; }
+        .card { background: var(--card-bg); border-radius: 24px; padding: 2.5rem 2.25rem; box-shadow: 0 8px 40px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04); animation: fadeUp 0.5s ease 0.15s both; border: 1px solid var(--border); }
         .card-title    { font-size: 1.75rem; font-weight: 700; color: var(--text); text-align: center; letter-spacing: -0.03em; margin-bottom: 0.4rem; }
         .card-subtitle { text-align: center; color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
 
@@ -56,7 +76,7 @@
         label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; }
 
         .input-wrap { position: relative; display: flex; align-items: center; }
-        .input-icon { position: absolute; left: 14px; color: #9ca3af; display: flex; align-items: center; }
+        .input-icon { position: absolute; left: 14px; color: var(--muted); display: flex; align-items: center; }
         .input-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
         input[type="email"], input[type="password"], input[type="text"] {
@@ -64,16 +84,16 @@
             border: 1.5px solid var(--border); border-radius: 10px;
             background: var(--input-bg); font-family: inherit;
             font-size: 0.9rem; color: var(--text); outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
 
-        input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,92,252,0.12); background: white; }
+        input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,92,252,0.12); background: var(--card-bg); }
 
         .input-error { border-color: #ef4444 !important; }
         .error-msg   { font-size: 0.78rem; color: #ef4444; margin-top: 0.35rem; display: none; }
         .error-msg.show { display: block; }
 
-        .eye-btn { position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: #9ca3af; display: flex; align-items: center; padding: 4px; }
+        .eye-btn { position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; padding: 4px; }
         .eye-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
         .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
@@ -103,21 +123,54 @@
         .signup-row a:hover { text-decoration: underline; }
 
         .divider { border: none; border-top: 1px solid var(--border); margin-bottom: 1rem; }
-        .terms   { text-align: center; font-size: 0.75rem; color: #9ca3af; line-height: 1.5; }
-        .terms a { color: #9ca3af; text-decoration: underline; }
+        .terms   { text-align: center; font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+        .terms a { color: var(--muted); text-decoration: underline; }
 
         .toast {
             position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: #1a1a2e; color: white; padding: 0.75rem 1.5rem;
+            background: var(--nav-bg);
+            color: var(--text);
+            padding: 0.75rem 1.5rem;
             border-radius: 12px; font-size: 0.88rem; font-weight: 500;
+            border: 1px solid var(--border);
             box-shadow: 0 8px 24px rgba(0,0,0,0.2);
             opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap;
         }
 
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        .help-btn { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; background: #1a1a2e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: background 0.2s; text-decoration: none; }
-        .help-btn:hover { background: var(--purple); }
+        /* Help button */
+        .help-btn {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            width: 40px; height: 40px;
+            background: var(--nav-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            text-decoration: none;
+        }
+
+        .help-btn:hover { background: var(--purple); color: white; border-color: transparent; }
+
+        /* Theme toggle button (separate class — no conflicts) */
+        .theme-btn {
+            position: fixed; bottom: 5rem; right: 1.5rem;
+            width: 40px; height: 40px;
+            background: var(--nav-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .theme-btn:hover { background: var(--purple); color: white; border-color: transparent; }
 
         @media (max-width: 680px) { .container { grid-template-columns: 1fr; } .left { order: 2; } .card { order: 1; } }
     </style>
@@ -208,6 +261,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
 <a href="#" class="help-btn">?</a>
 
 <script>
@@ -359,5 +413,10 @@
         });
     });
 </script>
+
+<button onclick="toggleTheme()"
+        class="theme-btn"
+        title="Toggle Dark Mode">🌓</button>
+
 </body>
 </html>

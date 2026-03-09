@@ -4,28 +4,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem("wizcoach-theme");
+        if (saved) {
+          document.documentElement.setAttribute("data-theme", saved);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="js/theme.js" defer></script>
   <title>WizCoach – Motion</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --purple: #7c5cfc; --purple-light: #a78bfa;
+      --purple: #7c5cfc;
+      --purple-light: #a78bfa;
       --blue: #3b82f6;
-      --text: #1a1a2e; --muted: #6b7280;
-      --border: #e5e7eb; --card-bg: #ffffff;
     }
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background: linear-gradient(135deg, #e8ecf5 0%, #f0eeff 50%, #e8f0ff 100%);
-      min-height: 100vh; color: var(--text);
+      background: var(--page-bg);
+      min-height: 100vh;
+      color: var(--text);
     }
 
     /* NAV */
     nav {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem; height: 60px; background: white;
+      padding: 0 2rem; height: 60px;
+      background: var(--nav-bg);
       border-bottom: 1px solid var(--border);
       box-shadow: 0 1px 8px rgba(0,0,0,0.05);
       position: sticky; top: 0; z-index: 100;
@@ -52,7 +67,9 @@
       transition: color 0.15s, background 0.15s;
     }
 
-    .nav-link:hover { color: var(--text); background: #f3f4f6; }
+    /* FIXED: hover uses theme.css variable */
+    .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
+
     .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
     .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -72,6 +89,7 @@
     .card {
       background: var(--card-bg); border-radius: 20px;
       padding: 1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      border: 1px solid var(--border);
     }
 
     .card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
@@ -160,9 +178,10 @@
     .session-stats.visible { display: grid; }
 
     .stat-pill {
-      background: #f8f9ff; border-radius: 12px;
+      background: var(--input-bg);
+      border-radius: 12px;
       padding: 0.75rem 1rem; text-align: center;
-      border: 1px solid #e0e7ff;
+      border: 1px solid var(--border);
     }
 
     .stat-pill span { display: block; }
@@ -190,7 +209,9 @@
 
     .ex-icon {
       width: 36px; height: 36px; border-radius: 10px;
-      background: #eff6ff; color: var(--blue);
+      background: var(--input-bg);
+      color: var(--blue);
+      border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
 
@@ -219,16 +240,38 @@
     .tip-item:last-child { margin-bottom: 0; }
     .tip-dot { margin-top: 0.35rem; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.7); flex-shrink: 0; }
 
-    /* Help */
+    /* Help button */
     .help-btn {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
-      width: 40px; height: 40px; background: #1a1a2e; color: white;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px;
+      background: var(--nav-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
       font-size: 1rem; font-weight: 700; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: background 0.2s; text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      text-decoration: none;
     }
 
-    .help-btn:hover { background: var(--purple); }
+    .help-btn:hover { background: var(--purple); color: white; border-color: transparent; }
+
+    /* Theme toggle button (separate class — no conflicts) */
+    .theme-btn {
+      position: fixed; bottom: 5rem; right: 1.5rem;
+      width: 40px; height: 40px;
+      background: var(--nav-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .theme-btn:hover { background: var(--purple); color: white; border-color: transparent; }
 
     @media (max-width: 760px) {
       .page { grid-template-columns: 1fr; }
@@ -513,10 +556,62 @@
 
   <!-- MOTION CARD (WizCoach camera) -->
   <div class="card motion-card">
-    <div class="wiz-page-header">
-      <div class="wiz-logo">
-        <img src="wizcoach-logo.png" alt="WizCoach logo"/>
-        <span>WizCoach Motion</span>
+<div class="wiz-page-header">
+  <div class="wiz-logo">
+    <img src="wizcoach-logo.png" alt="WizCoach logo"/>
+    <span>WizCoach Motion</span>
+  </div>
+</div>
+
+<div class="motion-header">
+  <h3>Motion Detection</h3>
+  <button class="btn-session" onclick="toggleSession()">
+    <svg viewBox="0 0 24 24" id="session-icon">
+      <polygon points="5 3 19 12 5 21 5 3"/>
+    </svg>
+    <span id="session-label">Start Session</span>
+  </button>
+</div>
+
+<div class="viewfinder" id="viewfinder">
+  <div class="vf-corner-tr"></div>
+  <div class="vf-corner-bl"></div>
+  <div class="scan-line"></div>
+  <video id="cameraFeed" autoplay playsinline></video>
+
+  <svg class="pose-overlay" id="poseOverlay" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+    <g id="skeleton" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.85">
+      <circle cx="200" cy="55" r="18" stroke="#60a5fa" fill="rgba(59,130,246,0.1)"/>
+      <line x1="200" y1="73" x2="200" y2="95"/>
+      <line x1="200" y1="95" x2="145" y2="115"/>
+      <line x1="200" y1="95" x2="255" y2="115"/>
+      <line x1="200" y1="95" x2="200" y2="185"/>
+      <line x1="145" y1="115" x2="115" y2="160"/>
+      <line x1="255" y1="115" x2="285" y2="160"/>
+      <line x1="115" y1="160" x2="100" y2="210"/>
+      <line x1="285" y1="160" x2="300" y2="210"/>
+      <line x1="200" y1="185" x2="165" y2="195"/>
+      <line x1="200" y1="185" x2="235" y2="195"/>
+      <line x1="165" y1="195" x2="158" y2="255"/>
+      <line x1="235" y1="195" x2="242" y2="255"/>
+      <line x1="158" y1="255" x2="155" y2="305"/>
+      <line x1="242" y1="255" x2="245" y2="305"/>
+      <circle cx="145" cy="115" r="4" fill="#3b82f6"/>
+      <circle cx="255" cy="115" r="4" fill="#3b82f6"/>
+      <circle cx="115" cy="160" r="4" fill="#3b82f6"/>
+      <circle cx="285" cy="160" r="4" fill="#3b82f6"/>
+      <circle cx="165" cy="195" r="4" fill="#3b82f6"/>
+      <circle cx="235" cy="195" r="4" fill="#3b82f6"/>
+      <circle cx="158" cy="255" r="4" fill="#3b82f6"/>
+      <circle cx="242" cy="255" r="4" fill="#3b82f6"/>
+    </g>
+  </svg>
+
+  <div class="vf-icon" id="vfIcon">
+    <svg viewBox="0 0 24 24">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>
       </div>
       <small style="color: var(--muted);">AI-powered motion coach</small>
     </div>
@@ -605,7 +700,6 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
 
-    <!-- Recent Exercises -->
     <div class="card">
       <h3>Recent Exercises</h3>
       <div id="exerciseLog">
@@ -613,7 +707,6 @@
       </div>
     </div>
 
-    <!-- Tips -->
     <div class="tips-card">
       <h3>Tips for Better Tracking</h3>
       <div class="tip-item"><div class="tip-dot"></div><span>*Ensure good lighting in your space*</span></div>
@@ -634,7 +727,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
 
 <script>
-  /* AUTO-ACTIVE NAV */
   document.querySelectorAll('.nav-link').forEach(link => {
     link.classList.toggle('active', link.href === window.location.href);
   });
@@ -1354,5 +1446,10 @@
     updateExerciseIndicator();
   });
 </script>
+
+<button onclick="toggleTheme()"
+        class="theme-btn"
+        title="Toggle Dark Mode">🌓</button>
+
 </body>
 </html>
