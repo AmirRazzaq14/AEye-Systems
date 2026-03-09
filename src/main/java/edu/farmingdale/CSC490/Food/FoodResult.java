@@ -3,10 +3,11 @@ package edu.farmingdale.CSC490.Food;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data
-@Builder
+@NoArgsConstructor
 public class FoodResult {
     private String foodName;
     private String mealType;

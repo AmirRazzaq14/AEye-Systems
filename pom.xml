@@ -82,6 +82,11 @@
             <artifactId>google-auth-library-oauth2-http</artifactId>
             <version>1.19.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

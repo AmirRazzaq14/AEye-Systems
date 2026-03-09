@@ -4,23 +4,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 @Service
@@ -36,11 +30,8 @@ public class foodAnalyzer {
             .create();
 
 
-
-    @Value("${PYTHON_API_URL:http://localhost:8000}")
-    private String PYTHON_API_URL;
-
-    private RestTemplate restTemplate = new RestTemplate();;
+    @Autowired
+    private AIImageAnalyzer aiImageAnalyzer;
 
     public FoodResult analyze(byte[] imageBytes, String originalFilename, String prompt) {
         logger.info("Starting analysis for image: {}, prompt: {}", originalFilename, prompt);
@@ -64,115 +55,72 @@ public class foodAnalyzer {
             String image = tempFile.toString();
 
             try {
-                // Call the Python API service
-                String jsonResponse = callPythonApi(image,prompt);
-                logger.debug("Received response from Python API: {}", jsonResponse);
+                // Create a temporary prompt file
+                Path tempPromptFile = Files.createTempFile("prompt_", ".txt");
+                Files.write(tempPromptFile, prompt.getBytes());
+                
+                // Call the Java AI service instead of Python API
+                String jsonResponse = aiImageAnalyzer.analyze(tempFile.toString(), tempPromptFile.toString());
+                logger.debug("Received response from Java AI: {}", jsonResponse);
 
                 FoodResult result;
-                // Extract the actual result if it's wrapped in a result field
-                String actualJson = jsonResponse;
-                if (jsonResponse.contains("\"result\"")) {
-                    JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
-                    if (jsonObject.has("result")) {
-                        actualJson = jsonObject.getAsJsonObject("result").toString();
-                        logger.debug("Extracted result: {}", actualJson);
-
+                
+                // Check if response is a valid JSON object
+                if (jsonResponse != null && !jsonResponse.trim().isEmpty()) {
+                    try {
+                        // Try to parse as JSON
+                        JsonObject jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
+                        
+                        // Check if it's an error response
+                        if (jsonObject.has("error")) {
+                            String errorMessage = jsonObject.get("error").getAsString();
+                            logger.error("Error from Java AI: {}", errorMessage);
+                            return null;
+                        }
+                        
+                        // Attempt to convert JSON to FoodResult type
+                        result = gson.fromJson(jsonObject, FoodResult.class);
+                        
+                        if(result == null){
+                            logger.warn("Could not parse result. Response: {}", jsonResponse);
+                            return null;
+                        }
+                        
+                        logger.info("Successfully analyzed image: {} with food name: {}", originalFilename, result.getFoodName());
+                        return result;
+                        
+                    } catch (JsonSyntaxException e) {
+                        // If it's not valid JSON, it might be an error string or plain text
+                        logger.warn("Response is not valid JSON: {}", jsonResponse);
+                        
+                        // Check if it looks like an error message
+                        if (jsonResponse.toLowerCase().contains("error") || 
+                            jsonResponse.toLowerCase().contains("exception") ||
+                            jsonResponse.startsWith("ERROR:") ||
+                            jsonResponse.startsWith("Exception")) {
+                            logger.error("Error from Java AI: {}", jsonResponse);
+                            return null;
+                        } else {
+                            // If it's not an error, maybe it's malformed response
+                            logger.error("Invalid response format from AI: {}", jsonResponse);
+                            return null;
+                        }
                     }
-                }else if (jsonResponse.contains("\"error\"")) {
-                    JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
-                    if (jsonObject.has("error")) {
-                        actualJson = jsonObject.get("error").toString();
-                        logger.error("Error from Python API: {}", actualJson);
-
-                        return null;
-                    }
-                }
-
-                // Convert JSON to FoodResult type
-                result = gson.fromJson(actualJson, FoodResult.class);
-
-                if(result == null){
-                    logger.warn("Could not parse result. Response: {}", actualJson);
+                } else {
+                    logger.error("Empty response from Java AI");
                     return null;
                 }
 
-                logger.info("Successfully analyzed image: {} with food name: {}", originalFilename, result.getFoodName());
-
-                return result;
-
-
             } finally {
-                // Clean up temporary file
-                boolean deleted = Files.deleteIfExists(tempFile);
-                logger.debug("Temporary file {} deletion: {}", tempFile, deleted);
+                // Clean up temporary files
+                Files.deleteIfExists(tempFile);
+                logger.debug("Temporary files deletion completed");
             }
 
         } catch (Exception e) {
             logger.error("Exception in foodAnalyzer.analyze: ", e);
         }
         return null;
-    }
-
-    private String callPythonApi(String imagePath,  String prompt) {
-        logger.debug("Calling Python API with image: {} and prompt: {}", imagePath, prompt);
-
-
-        try {
-            // Create headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-            // Create form data
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            
-            // Add the image file
-            FileSystemResource imageResource = new FileSystemResource(new File(imagePath));
-            body.add("image", imageResource);
-            
-            // Add the prompt file path
-            String promptPath = getParsedPromptPath(prompt);
-            logger.debug("Using prompt file path: {}", promptPath);
-            body.add("prompt_file", promptPath);
-
-            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-            ResponseEntity<String> response = restTemplate.postForEntity(
-                PYTHON_API_URL + "/analyze-upload",
-                requestEntity, 
-                String.class
-            );
-            
-            logger.debug("Python API response status: {}", response.getStatusCode());
-            return response.getBody();
-            
-        } catch (ResourceAccessException e) {
-            logger.error("Error connecting to Python API: ", e);
-            return "{\"error\": \"Failed to connect to Python API: " + e.getMessage() + 
-                   ". Please make sure the Python FastAPI server is running at " + PYTHON_API_URL + "\"}";
-        } catch (Exception e) {
-            logger.error("Error calling Python API: ", e);
-            return "{\"error\": \"Failed to connect to Python API: " + e.getMessage() + "\"}";
-        }
-    }
-    
-    // method to get a prompt file path
-    private String getParsedPromptPath(String prompt) {
-        logger.debug("Getting prompt file path for: {}", prompt);
-        // If the prompt is already the full path, use it directly
-        if (new File(prompt).exists()) {
-            logger.debug("Prompt file exists at provided path: {}", prompt);
-            return prompt;
-        }
-        
-        // Otherwise, construct a relative path
-        String projectRoot = System.getProperty("user.dir");
-        if (projectRoot == null || projectRoot.isEmpty()) {
-            projectRoot = System.getProperty("user.home") + "/AEye-Systems";
-        }
-        String scriptDir = new File(projectRoot, "src/main/resources/AI").getAbsolutePath();
-        String fullPath = new File(scriptDir, prompt).getAbsolutePath();
-        logger.debug("Constructed prompt file path: {}", fullPath);
-        return fullPath;
     }
 }
 
