@@ -68,8 +68,9 @@
     .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     .page {
-      max-width: 1100px; margin: 2rem auto; padding: 0 2rem;
+      max-width: 1100px; margin: 2rem auto; padding: 0 2rem 2rem;
       display: flex; flex-direction: column; gap: 1.5rem;
+      min-height: calc(100vh - 60px - 4rem);
       animation: fadeUp 0.5s ease both;
     }
     @keyframes fadeUp {
@@ -314,22 +315,62 @@
     }
     .btn-close:hover { background: #f3f4f6; }
 
-    .activity-card { background: var(--card-bg); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-    .activity-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; }
-    a.activity-item {
-      display: flex; align-items: center; gap: 1rem;
-      padding: 0.875rem 0; border-bottom: 1px solid var(--border);
-      text-decoration: none; color: inherit;
-      transition: background 0.15s, padding-left 0.15s; border-radius: 0;
+    /* WEEKLY PLANNER */
+    .planner-card { background: var(--card-bg); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; flex: 1; }
+    .planner-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
+
+    .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; flex: 1; }
+
+    .planner-day {
+      display: flex; flex-direction: column; gap: 0.5rem; min-width: 0;
     }
-    a.activity-item:last-child { border-bottom: none; }
-    a.activity-item:hover { background: #f9fafb; border-radius: 10px; padding-left: 0.5rem; }
-    .act-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .act-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .act-text { flex: 1; }
-    .act-text h4 { font-size: 0.88rem; font-weight: 600; color: var(--text); }
-    .act-text p  { font-size: 0.78rem; color: var(--muted); margin-top: 0.1rem; }
-    .act-time    { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+
+    .planner-day-label {
+      font-size: 0.7rem; font-weight: 700; text-align: center;
+      padding: 0.3rem 0.4rem; border-radius: 8px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      border: 2px solid transparent;
+    }
+    .planner-day-label.today-label {
+      border-color: var(--green);
+      color: var(--green-dark);
+    }
+
+    /* Pastel rainbow per day */
+    .planner-day:nth-child(1) .planner-day-label { background: #ffe4e4; color: #c0392b; }
+    .planner-day:nth-child(2) .planner-day-label { background: #ffecd2; color: #d35400; }
+    .planner-day:nth-child(3) .planner-day-label { background: #fef9c3; color: #a16207; }
+    .planner-day:nth-child(4) .planner-day-label { background: #dcfce7; color: #15803d; }
+    .planner-day:nth-child(5) .planner-day-label { background: #dbeafe; color: #1d4ed8; }
+    .planner-day:nth-child(6) .planner-day-label { background: #ede9fe; color: #6d28d9; }
+    .planner-day:nth-child(7) .planner-day-label { background: #fce7f3; color: #9d174d; }
+
+    .split-select {
+      width: 100%; padding: 0.4rem 0.5rem; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 0.72rem; font-family: 'DM Sans', sans-serif;
+      color: var(--text); background: #f9fafb; outline: none;
+      cursor: pointer; transition: border-color 0.15s;
+      appearance: none; text-align: center;
+    }
+    .split-select:focus { border-color: var(--blue); background: white; }
+
+    .planner-exercises {
+      width: 100%; padding: 0.4rem 0.5rem; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 0.72rem; font-family: 'DM Sans', sans-serif;
+      color: var(--text); background: #f9fafb; outline: none; resize: none;
+      transition: border-color 0.15s; flex: 1; min-height: 80px;
+    }
+    .planner-exercises:focus { border-color: var(--blue); background: white; }
+    .planner-exercises::placeholder { color: #9ca3af; font-size: 0.68rem; }
+
+    .planner-field-label {
+      font-size: 0.62rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px;
+    }
+
+    @media (max-width: 760px) {
+      .planner-grid { grid-template-columns: 1fr; }
+    }
 
     .help-btn {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
@@ -479,29 +520,10 @@
     </div>
   </div>
 
-  <!-- RECENT ACTIVITY -->
-  <div class="activity-card">
-    <h3>Recent Activity</h3>
-    <a href="motion.html" class="activity-item">
-      <div class="act-icon icon-blue"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-      <div class="act-text"><h4>Morning Run</h4><p>5.2 km · 28 min</p></div>
-      <div class="act-time">2 hours ago</div>
-    </a>
-    <a href="nutrition.html" class="activity-item">
-      <div class="act-icon icon-green"><svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg></div>
-      <div class="act-text"><h4>Breakfast logged</h4><p>480 kcal · 32g protein</p></div>
-      <div class="act-time">3 hours ago</div>
-    </a>
-    <a href="body.html" class="activity-item">
-      <div class="act-icon icon-purple"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
-      <div class="act-text"><h4>Body metrics updated</h4><p>Weight · Body fat %</p></div>
-      <div class="act-time">Yesterday</div>
-    </a>
-    <a href="ai-coach.html" class="activity-item">
-      <div class="act-icon icon-indigo"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div>
-      <div class="act-text"><h4>AI Coach session</h4><p>Recovery tips · Meal plan</p></div>
-      <div class="act-time">2 days ago</div>
-    </a>
+  <!-- WEEKLY PLANNER -->
+  <div class="planner-card">
+    <h3>📅 Plan Your Week</h3>
+    <div class="planner-grid" id="plannerGrid"></div>
   </div>
 </div>
 
@@ -981,6 +1003,67 @@
     const goal = Math.min(100, Math.round((weekCount / 5) * 100));
     document.getElementById('statGoal').textContent = goal + '%';
   }
+
+  // ── Weekly Planner ────────────────────────────────────────
+  const SPLITS = [
+    'Rest Day',
+    'Push Day',
+    'Pull Day',
+    'Legs',
+    'Upper Body',
+    'Lower Body',
+    'Full Body',
+    'Cardio',
+    'Core & Abs',
+    'Custom'
+  ];
+
+  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+  function buildPlanner() {
+    const grid = document.getElementById('plannerGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const todayName = now.toLocaleDateString('en-US', { weekday: 'long' });
+
+    DAYS.forEach(day => {
+      const isToday = day === todayName;
+      const savedSplit    = localStorage.getItem(`planner_split_${day}`)    || '';
+      const savedExercises = localStorage.getItem(`planner_exercises_${day}`) || '';
+
+
+      const col = document.createElement('div');
+      col.className = 'planner-day';
+
+      col.innerHTML = `
+        <div class="planner-day-label ${isToday ? 'today-label' : ''}">${day}</div>
+
+        <div class="planner-field-label">Split</div>
+        <select class="split-select" onchange="savePlanner('${day}','split',this.value)">
+          <option value="">— select split —</option>
+          ${SPLITS.map(s => `<option value="${s}" ${savedSplit === s ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+
+        <div class="planner-field-label">Exercises</div>
+        <textarea
+          class="planner-exercises"
+          placeholder="e.g. Bench 4x8, OHP 3x10…"
+          onchange="savePlanner('${day}','exercises',this.value)"
+        >${savedExercises}</textarea>
+
+
+      `;
+
+      grid.appendChild(col);
+    });
+  }
+
+  function savePlanner(day, field, value) {
+    localStorage.setItem(`planner_${field}_${day}`, value);
+  }
+
+  buildPlanner();
 
   // ── Initial render (empty calendars before auth) ──────────
   renderCal('ex');
