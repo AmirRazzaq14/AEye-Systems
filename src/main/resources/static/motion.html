@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -234,6 +235,243 @@
       nav { padding: 0 1rem; }
       .nav-logo-name { display: none; }
     }
+
+    /* ─────────────────────────────────────────────
+       WizCoach camera layout (ported from React app)
+       ───────────────────────────────────────────── */
+    .wiz-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .wiz-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .wiz-logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    .wiz-logo span {
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .wiz-camera-card {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .wiz-state-card {
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      background: radial-gradient(circle at top, #1f2937 0%, #020617 50%, #020617 100%);
+      color: #e5e7eb;
+      text-align: center;
+      box-shadow: inset 0 0 0 1px rgba(148,163,184,0.25);
+    }
+
+    .wiz-primary-button {
+      margin-top: 0.9rem;
+      padding: 0.65rem 1.5rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      box-shadow: 0 10px 30px rgba(22,163,74,0.45);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+
+    .wiz-primary-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 14px 40px rgba(22,163,74,0.55);
+    }
+
+    .wiz-spinner {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 3px solid rgba(148,163,184,0.3);
+      border-top-color: #22c55e;
+      margin: 0.75rem auto 0;
+      animation: wiz-spin 0.8s linear infinite;
+    }
+
+    @keyframes wiz-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .wiz-error {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: #fecaca;
+    }
+
+    .wiz-video-and-skeleton {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 1.25rem;
+    }
+
+    .wiz-video-wrap {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #111827 0%, #020617 55%, #000 100%);
+      box-shadow: 0 18px 60px rgba(15,23,42,0.9);
+      min-height: 260px;
+    }
+
+    .wiz-video,
+    .wiz-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .wiz-skeleton-panel {
+      border-radius: 20px;
+      padding: 1rem;
+      background: radial-gradient(circle at top, #020617 0%, #020617 45%, #000 100%);
+      border: 1px solid rgba(148,163,184,0.3);
+      box-shadow: 0 12px 40px rgba(15,23,42,0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .wiz-skeleton-canvas {
+      width: 170px;
+      height: 230px;
+      border-radius: 14px;
+      background: #020617;
+    }
+
+    .wiz-skeleton-label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .wiz-coach-row {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 0.9rem 1rem;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(148,163,184,0.45);
+      box-shadow: 0 12px 40px rgba(15,23,42,0.9);
+    }
+
+    .wiz-coach-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: radial-gradient(circle at top, #22c55e 0%, #16a34a 40%, #15803d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wiz-coach-avatar img {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      object-fit: cover;
+    }
+
+    .wiz-coach-text {
+      font-size: 0.9rem;
+      color: #e5e7eb;
+    }
+
+    .wiz-stats-row {
+      display: grid;
+      grid-template-columns: 2.2fr repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .wiz-stat-card {
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      background: radial-gradient(circle at top, #020617 0%, #020617 55%, #000 100%);
+      border: 1px solid rgba(148,163,184,0.35);
+      color: #e5e7eb;
+      box-shadow: 0 12px 40px rgba(15,23,42,0.9);
+    }
+
+    .wiz-stat-label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+
+    .wiz-motion-bar {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      overflow: hidden;
+      margin-bottom: 0.3rem;
+    }
+
+    .wiz-motion-fill {
+      position: absolute;
+      inset: 0;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #22c55e, #a3e635);
+      box-shadow: 0 0 14px rgba(132,204,22,0.8);
+      transition: width 0.18s ease-out;
+    }
+
+    .wiz-stat-value {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .wiz-exercise-indicator {
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      color: #bbf7d0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .wiz-video-and-skeleton {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -273,87 +511,94 @@
 <!-- PAGE -->
 <div class="page">
 
-  <!-- MOTION CARD -->
+  <!-- MOTION CARD (WizCoach camera) -->
   <div class="card motion-card">
-    <div class="motion-header">
-      <h3>Motion Detection</h3>
-      <button class="btn-session" onclick="toggleSession()">
-        <svg viewBox="0 0 24 24" id="session-icon">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        <span id="session-label">Start Session</span>
-      </button>
+    <div class="wiz-page-header">
+      <div class="wiz-logo">
+        <img src="wizcoach-logo.png" alt="WizCoach logo"/>
+        <span>WizCoach Motion</span>
+      </div>
+      <small style="color: var(--muted);">AI-powered motion coach</small>
     </div>
 
-    <div class="viewfinder" id="viewfinder">
-      <div class="vf-corner-tr"></div>
-      <div class="vf-corner-bl"></div>
-      <div class="scan-line"></div>
-      <video id="cameraFeed" autoplay playsinline></video>
+    <div class="wiz-camera-card">
+      <!-- Idle / permission states -->
+      <section id="wizIdleState" class="wiz-state-card">
+        <p>Your AI coach will watch your form and count your reps.</p>
+        <button id="wizStartButton" type="button" class="wiz-primary-button">
+          Allow camera &amp; start
+        </button>
+      </section>
 
-      <!-- SVG skeleton pose overlay -->
-      <svg class="pose-overlay" id="poseOverlay" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
-        <g id="skeleton" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.85">
-          <!-- Head -->
-          <circle cx="200" cy="55" r="18" stroke="#60a5fa" fill="rgba(59,130,246,0.1)"/>
-          <!-- Neck -->
-          <line x1="200" y1="73" x2="200" y2="95"/>
-          <!-- Shoulders -->
-          <line x1="200" y1="95" x2="145" y2="115"/>
-          <line x1="200" y1="95" x2="255" y2="115"/>
-          <!-- Spine -->
-          <line x1="200" y1="95" x2="200" y2="185"/>
-          <!-- Upper arms -->
-          <line x1="145" y1="115" x2="115" y2="160"/>
-          <line x1="255" y1="115" x2="285" y2="160"/>
-          <!-- Lower arms -->
-          <line x1="115" y1="160" x2="100" y2="210"/>
-          <line x1="285" y1="160" x2="300" y2="210"/>
-          <!-- Hips -->
-          <line x1="200" y1="185" x2="165" y2="195"/>
-          <line x1="200" y1="185" x2="235" y2="195"/>
-          <!-- Upper legs -->
-          <line x1="165" y1="195" x2="158" y2="255"/>
-          <line x1="235" y1="195" x2="242" y2="255"/>
-          <!-- Lower legs -->
-          <line x1="158" y1="255" x2="155" y2="305"/>
-          <line x1="242" y1="255" x2="245" y2="305"/>
-          <!-- Joints -->
-          <circle cx="145" cy="115" r="4" fill="#3b82f6"/>
-          <circle cx="255" cy="115" r="4" fill="#3b82f6"/>
-          <circle cx="115" cy="160" r="4" fill="#3b82f6"/>
-          <circle cx="285" cy="160" r="4" fill="#3b82f6"/>
-          <circle cx="165" cy="195" r="4" fill="#3b82f6"/>
-          <circle cx="235" cy="195" r="4" fill="#3b82f6"/>
-          <circle cx="158" cy="255" r="4" fill="#3b82f6"/>
-          <circle cx="242" cy="255" r="4" fill="#3b82f6"/>
-        </g>
-      </svg>
+      <section id="wizAskingState" class="wiz-state-card hidden">
+        <p>Requesting camera access…</p>
+        <div class="wiz-spinner"></div>
+      </section>
 
-      <div class="vf-icon" id="vfIcon">
-        <svg viewBox="0 0 24 24">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-      </div>
-      <p class="vf-title" id="vfTitle">*Click "Start Session" to begin motion tracking*</p>
-      <p class="vf-sub"   id="vfSub">*Camera permission required for live tracking*</p>
-    </div>
+      <section id="wizDeniedState" class="wiz-state-card hidden">
+        <p>Camera access was denied.</p>
+        <p id="wizDeniedError" class="wiz-error"></p>
+        <button id="wizRetryButton" type="button" class="wiz-primary-button">
+          Try again
+        </button>
+      </section>
 
-    <!-- Live stats shown during session -->
-    <div class="session-stats" id="sessionStats">
-      <div class="stat-pill">
-        <span class="pill-val" id="repCount">0</span>
-        <span class="pill-lbl">*Reps*</span>
-      </div>
-      <div class="stat-pill">
-        <span class="pill-val" id="setCount">0</span>
-        <span class="pill-lbl">*Sets*</span>
-      </div>
-      <div class="stat-pill">
-        <span class="pill-val" id="elapsed">0:00</span>
-        <span class="pill-lbl">*Duration*</span>
-      </div>
+      <section id="wizErrorState" class="wiz-state-card hidden">
+        <p id="wizGenericError">Something went wrong.</p>
+      </section>
+
+      <!-- Ready state: full camera UI -->
+      <section id="wizReadyState" class="hidden">
+        <div class="wiz-video-and-skeleton">
+          <div class="wiz-video-wrap">
+            <video id="wizVideo" class="wiz-video" playsinline muted></video>
+            <canvas id="wizCanvas" class="wiz-canvas"></canvas>
+          </div>
+
+          <div class="wiz-skeleton-panel">
+            <canvas id="wizMiniSkeleton" class="wiz-skeleton-canvas"></canvas>
+            <span class="wiz-skeleton-label">How WizCoach sees your body</span>
+          </div>
+        </div>
+
+        <div class="wiz-coach-row" style="margin-top: 1rem;">
+          <div class="wiz-coach-avatar">
+            <img src="wizcoach-logo.png" alt="Coach avatar"/>
+          </div>
+          <div class="wiz-coach-text">
+            <p id="wizCoachFeedback">👋 Ready to start your workout!</p>
+          </div>
+        </div>
+
+        <div class="wiz-stats-row" style="margin-top: 1rem;">
+          <div class="wiz-stat-card">
+            <span class="wiz-stat-label">Motion</span>
+            <div class="wiz-motion-bar">
+              <div id="wizMotionFill" class="wiz-motion-fill"></div>
+            </div>
+            <span id="wizMotionValue" class="wiz-stat-value">0%</span>
+          </div>
+
+          <div class="wiz-stat-card">
+            <span class="wiz-stat-label">Squats</span>
+            <span id="wizSquatCount" class="wiz-stat-value">0</span>
+          </div>
+
+          <div class="wiz-stat-card">
+            <span class="wiz-stat-label">Pushups</span>
+            <span id="wizPushupCount" class="wiz-stat-value">0</span>
+          </div>
+
+          <div class="wiz-stat-card">
+            <span class="wiz-stat-label">Arm raises</span>
+            <span id="wizArmRaiseCount" class="wiz-stat-value">0</span>
+          </div>
+        </div>
+
+        <div id="wizExerciseIndicator" class="wiz-exercise-indicator hidden">
+          Current: <span id="wizExerciseLabel"></span>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -382,150 +627,732 @@
 
 <a href="#" class="help-btn">?</a>
 
+<!-- TensorFlow.js + Pose Detection (browser builds) -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.20.0/dist/tf-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.20.0/dist/tf-backend-webgl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.20.0/dist/tf-converter.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+
 <script>
   /* AUTO-ACTIVE NAV */
   document.querySelectorAll('.nav-link').forEach(link => {
     link.classList.toggle('active', link.href === window.location.href);
   });
 
-  /* SESSION STATE */
-  let sessionActive = false;
-  let stream        = null;
-  let timerInterval = null;
-  let seconds       = 0;
-  let repInterval   = null;
-  let reps = 0, sets = 0;
+  /* ─────────────────────────────────────────────
+     WizCoach camera logic (ported from FitnessCamera.tsx)
+     Plain JS + browser TFJS build
+     ───────────────────────────────────────────── */
 
-  async function toggleSession() {
-    const vf      = document.getElementById('viewfinder');
-    const label   = document.getElementById('session-label');
-    const icon    = document.getElementById('session-icon');
-    const vfIcon  = document.getElementById('vfIcon');
-    const vfTitle = document.getElementById('vfTitle');
-    const vfSub   = document.getElementById('vfSub');
-    const video   = document.getElementById('cameraFeed');
-    const stats   = document.getElementById('sessionStats');
+  const CameraStatus = {
+    IDLE: 'idle',
+    ASKING: 'asking',
+    DENIED: 'denied',
+    READY: 'ready',
+    ERROR: 'error'
+  };
 
-    if (!sessionActive) {
-      /* ── START ── */
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        video.style.display = 'block';
-        vfIcon.style.display  = 'none';
-        vfTitle.style.display = 'none';
-        vfSub.style.display   = 'none';
-      } catch {
-        vfTitle.textContent = '*Camera access denied — showing placeholder session state*';
-        vfSub.textContent   = '';
+  let cameraStatus = CameraStatus.IDLE;
+  let wizVideo, wizCanvas, wizMiniSkeleton;
+  let wizStartButton, wizRetryButton;
+  let wizIdleState, wizAskingState, wizDeniedState, wizErrorState, wizReadyState;
+  let wizDeniedError, wizGenericError, wizCoachFeedbackEl;
+  let wizMotionFill, wizMotionValue, wizSquatCountEl, wizPushupCountEl, wizArmRaiseCountEl;
+  let wizExerciseIndicator, wizExerciseLabel;
+
+  let stream = null;
+  let detector = null;
+  let animationFrameId = 0;
+
+  let prevFrame = null;
+  let motionCtx = null;
+  let motionCanvas = null;
+  let smoothedMotion = 0;
+
+  let lastPoseMs = 0;
+  let lastPose = null;
+
+  const exerciseState = {
+    type: 'none',
+    phase: 'unknown',
+    count: 0,
+    lastPhase: 'unknown',
+    confidence: 0,
+    lastSeenMs: 0
+  };
+
+  let squatCount = 0;
+  let pushupCount = 0;
+  let armRaiseCount = 0;
+  let currentExercise = 'none';
+
+  function setCameraStatus(status) {
+    cameraStatus = status;
+    if (!wizIdleState) return;
+
+    wizIdleState.classList.toggle('hidden', status !== CameraStatus.IDLE);
+    wizAskingState.classList.toggle('hidden', status !== CameraStatus.ASKING);
+    wizDeniedState.classList.toggle('hidden', status !== CameraStatus.DENIED);
+    wizErrorState.classList.toggle('hidden', status !== CameraStatus.ERROR);
+    wizReadyState.classList.toggle('hidden', status !== CameraStatus.READY);
+  }
+
+  function getKeypoint(pose, name) {
+    if (!pose || !pose.keypoints) return undefined;
+    return pose.keypoints.find(k => k.name === name);
+  }
+
+  function distance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function angle(a, b, c) {
+    const as = a.score || 0;
+    const bs = b.score || 0;
+    const cs = c.score || 0;
+    if (as < 0.08 || bs < 0.08 || cs < 0.08) return 0;
+
+    const rad = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+    let deg = Math.abs((rad * 180) / Math.PI);
+    if (deg > 180) deg = 360 - deg;
+    return deg;
+  }
+
+  function getBodySize(pose, w, h) {
+    const lShoulder = getKeypoint(pose, 'left_shoulder');
+    const rShoulder = getKeypoint(pose, 'right_shoulder');
+    const lAnkle = getKeypoint(pose, 'left_ankle');
+    const rAnkle = getKeypoint(pose, 'right_ankle');
+
+    if (!lShoulder || !rShoulder || !lAnkle || !rAnkle) {
+      return { size: 0, tooClose: false, tooFar: false, inFrame: false };
+    }
+
+    const shoulderWidth = distance(lShoulder, rShoulder);
+    const bodyHeight = Math.abs((lShoulder.y + rShoulder.y) / 2 - (lAnkle.y + rAnkle.y) / 2);
+    const bodySize = Math.max(shoulderWidth, bodyHeight);
+
+    const marginX = Math.max(20, w * 0.08);
+    const marginY = Math.max(20, h * 0.08);
+
+    const inFrame =
+      lShoulder.x > marginX &&
+      rShoulder.x < w - marginX &&
+      lAnkle.x > marginX &&
+      rAnkle.x < w - marginX &&
+      lShoulder.y > marginY &&
+      lAnkle.y < h - marginY;
+
+    const tooClose = bodySize > Math.max(w, h) * 0.85;
+    const tooFar = bodySize < Math.max(w, h) * 0.28;
+
+    return { size: bodySize, tooClose, tooFar, inFrame };
+  }
+
+  function isFacingCamera(pose, w, h) {
+    const lSh = getKeypoint(pose, 'left_shoulder');
+    const rSh = getKeypoint(pose, 'right_shoulder');
+    const lHp = getKeypoint(pose, 'left_hip');
+    const rHp = getKeypoint(pose, 'right_hip');
+
+    if (!lSh || !rSh || !lHp || !rHp) return false;
+
+    const shoulderWidth = distance(lSh, rSh);
+    const midShoulder = { x: (lSh.x + rSh.x) / 2, y: (lSh.y + rSh.y) / 2 };
+    const midHip = { x: (lHp.x + rHp.x) / 2, y: (lHp.y + rHp.y) / 2 };
+    const torsoHeight = Math.max(distance(midShoulder, midHip), 1);
+
+    const ratio = shoulderWidth / torsoHeight;
+    return ratio > 0.35;
+  }
+
+  function detectSquat(pose) {
+    const lHip = getKeypoint(pose, 'left_hip');
+    const rHip = getKeypoint(pose, 'right_hip');
+    const lKnee = getKeypoint(pose, 'left_knee');
+    const rKnee = getKeypoint(pose, 'right_knee');
+    const lAnkle = getKeypoint(pose, 'left_ankle');
+    const rAnkle = getKeypoint(pose, 'right_ankle');
+
+    let kneeAngleSum = 0;
+    let sides = 0;
+    let minScore = 1;
+
+    function trySide(hip, knee, ankle) {
+      if (!hip || !knee || !ankle) return;
+      const hs = hip.score || 0;
+      const ks = knee.score || 0;
+      const as = ankle.score || 0;
+      if (hs < 0.05 || ks < 0.05 || as < 0.05) return;
+      const a = angle(hip, knee, ankle);
+      if (a <= 0) return;
+      kneeAngleSum += a;
+      sides += 1;
+      minScore = Math.min(minScore, hs, ks, as);
+    }
+
+    trySide(lHip, lKnee, lAnkle);
+    trySide(rHip, rKnee, rAnkle);
+
+    if (sides === 0) return { phase: 'unknown', confidence: 0 };
+
+    const avgKneeAngle = kneeAngleSum / sides;
+    if (avgKneeAngle < 160) return { phase: 'down', confidence: minScore };
+    if (avgKneeAngle > 175) return { phase: 'up', confidence: minScore };
+    return { phase: 'transitioning', confidence: minScore };
+  }
+
+  function detectPushup(pose) {
+    const lShoulder = getKeypoint(pose, 'left_shoulder');
+    const lElbow = getKeypoint(pose, 'left_elbow');
+    const lWrist = getKeypoint(pose, 'left_wrist');
+    const lHip = getKeypoint(pose, 'left_hip');
+    const rShoulder = getKeypoint(pose, 'right_shoulder');
+    const rElbow = getKeypoint(pose, 'right_elbow');
+    const rWrist = getKeypoint(pose, 'right_wrist');
+    const rHip = getKeypoint(pose, 'right_hip');
+
+    const side = (() => {
+      const lOk = (lShoulder?.score || 0) > 0.08 && (lElbow?.score || 0) > 0.08 && (lWrist?.score || 0) > 0.08;
+      const rOk = (rShoulder?.score || 0) > 0.08 && (rElbow?.score || 0) > 0.08 && (rWrist?.score || 0) > 0.08;
+      if (lOk && lShoulder && lElbow && lWrist) return { shoulder: lShoulder, elbow: lElbow, wrist: lWrist, hip: lHip };
+      if (rOk && rShoulder && rElbow && rWrist) return { shoulder: rShoulder, elbow: rElbow, wrist: rWrist, hip: rHip };
+      return null;
+    })();
+
+    if (!side) return { phase: 'unknown', confidence: 0 };
+
+    const { shoulder, elbow, wrist, hip } = side;
+    const conf = Math.min(shoulder.score || 0, elbow.score || 0, wrist.score || 0, hip?.score || 1);
+
+    if (hip && (hip.score || 0) > 0.08) {
+      const dy = Math.abs(shoulder.y - hip.y);
+      if (dy > 180) return { phase: 'unknown', confidence: conf * 0.5 };
+    }
+
+    const elbowAngle = angle(shoulder, elbow, wrist);
+    if (elbowAngle <= 0) return { phase: 'unknown', confidence: conf };
+    if (elbowAngle < 120) return { phase: 'down', confidence: conf };
+    if (elbowAngle > 140) return { phase: 'up', confidence: conf };
+    return { phase: 'transitioning', confidence: conf };
+  }
+
+  function detectArmRaise(pose) {
+    const lShoulder = getKeypoint(pose, 'left_shoulder');
+    const rShoulder = getKeypoint(pose, 'right_shoulder');
+    const lWrist = getKeypoint(pose, 'left_wrist');
+    const rWrist = getKeypoint(pose, 'right_wrist');
+    const lElbow = getKeypoint(pose, 'left_elbow');
+    const rElbow = getKeypoint(pose, 'right_elbow');
+
+    const sides = [];
+    if (lShoulder && lWrist && (lShoulder.score || 0) > 0.08 && (lWrist.score || 0) > 0.08) {
+      sides.push({ shoulder: lShoulder, wrist: lWrist, elbow: lElbow });
+    }
+    if (rShoulder && rWrist && (rShoulder.score || 0) > 0.08 && (rWrist.score || 0) > 0.08) {
+      sides.push({ shoulder: rShoulder, wrist: rWrist, elbow: rElbow });
+    }
+    if (sides.length === 0) return { phase: 'unknown', confidence: 0 };
+
+    const shoulderY = sides.reduce((s, x) => s + x.shoulder.y, 0) / sides.length;
+    const wristY = sides.reduce((s, x) => s + x.wrist.y, 0) / sides.length;
+    const minScore = Math.min(...sides.flatMap(x => [x.shoulder.score || 0, x.wrist.score || 0]));
+
+    const wristAbove = wristY < shoulderY - 5;
+
+    let elbowsOk = true;
+    for (const s of sides) {
+      if (s.elbow && (s.elbow.score || 0) > 0.08) {
+        const a = angle(s.shoulder, s.elbow, s.wrist);
+        if (a > 0) elbowsOk = elbowsOk && a > 100;
       }
+    }
 
-      vf.classList.add('scanning');
-      label.textContent = 'Stop Session';
-      icon.innerHTML    = '<rect x="6" y="6" width="12" height="12" rx="2"/>';
-      stats.classList.add('visible');
+    if (wristAbove && elbowsOk) return { phase: 'up', confidence: minScore };
+    return { phase: 'down', confidence: minScore };
+  }
 
-      /* Timer */
-      seconds = 0;
-      timerInterval = setInterval(() => {
-        seconds++;
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        document.getElementById('elapsed').textContent = m + ':' + String(s).padStart(2, '0');
-      }, 1000);
-
-      /* Simulated rep counter */
-      reps = 0; sets = 0;
-      repInterval = setInterval(() => {
-        reps++;
-        document.getElementById('repCount').textContent = reps;
-        if (reps % 10 === 0) {
-          sets++;
-          document.getElementById('setCount').textContent = sets;
+  function getFormFeedbackOnRep(exercise, pose) {
+    switch (exercise) {
+      case 'squat': {
+        const lHip = getKeypoint(pose, 'left_hip');
+        const lKnee = getKeypoint(pose, 'left_knee');
+        const lAnkle = getKeypoint(pose, 'left_ankle');
+        const rHip = getKeypoint(pose, 'right_hip');
+        const rKnee = getKeypoint(pose, 'right_knee');
+        const rAnkle = getKeypoint(pose, 'right_ankle');
+        let minAngle = 180;
+        if (lHip && lKnee && lAnkle) {
+          const a = angle(lHip, lKnee, lAnkle);
+          if (a > 0) minAngle = Math.min(minAngle, a);
         }
-      }, 2000);
-
-      /* Animate skeleton */
-      animateSkeleton(true);
-
-      sessionActive = true;
-
-    } else {
-      /* ── STOP ── */
-      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-      clearInterval(timerInterval);
-      clearInterval(repInterval);
-      animateSkeleton(false);
-
-      video.style.display   = 'none';
-      vfIcon.style.display  = '';
-      vfTitle.style.display = '';
-      vfSub.style.display   = '';
-      vfTitle.textContent   = '*Click "Start Session" to begin motion tracking*';
-      vfSub.textContent     = '*Camera permission required for live tracking*';
-
-      vf.classList.remove('scanning');
-      label.textContent = 'Start Session';
-      icon.innerHTML    = '<polygon points="5 3 19 12 5 21 5 3"/>';
-      stats.classList.remove('visible');
-
-      /* Log the session if any reps were counted */
-      if (reps > 0) logExercise(reps, sets, seconds);
-
-      reps = 0; sets = 0; seconds = 0;
-      document.getElementById('repCount').textContent = '0';
-      document.getElementById('setCount').textContent = '0';
-      document.getElementById('elapsed').textContent  = '0:00';
-
-      sessionActive = false;
+        if (rHip && rKnee && rAnkle) {
+          const a = angle(rHip, rKnee, rAnkle);
+          if (a > 0) minAngle = Math.min(minAngle, a);
+        }
+        if (minAngle > 120) return 'Rep counted! Try going a bit lower for better depth.';
+        if (minAngle > 100) return 'Rep counted! Good depth — keep it up.';
+        return 'Rep counted! Good form.';
+      }
+      case 'arm_raise': {
+        const lSh = getKeypoint(pose, 'left_shoulder');
+        const lEl = getKeypoint(pose, 'left_elbow');
+        const lWr = getKeypoint(pose, 'left_wrist');
+        const rSh = getKeypoint(pose, 'right_shoulder');
+        const rEl = getKeypoint(pose, 'right_elbow');
+        const rWr = getKeypoint(pose, 'right_wrist');
+        let minAngle = 180;
+        if (lSh && lEl && lWr) { const a = angle(lSh, lEl, lWr); if (a > 0) minAngle = Math.min(minAngle, a); }
+        if (rSh && rEl && rWr) { const a = angle(rSh, rEl, rWr); if (a > 0) minAngle = Math.min(minAngle, a); }
+        if (minAngle < 160 && minAngle > 0) return 'Rep counted! Try straightening your arms more at the top.';
+        return 'Rep counted! Good form.';
+      }
+      case 'pushup': {
+        const lSh = getKeypoint(pose, 'left_shoulder');
+        const lEl = getKeypoint(pose, 'left_elbow');
+        const lWr = getKeypoint(pose, 'left_wrist');
+        const rSh = getKeypoint(pose, 'right_shoulder');
+        const rEl = getKeypoint(pose, 'right_elbow');
+        const rWr = getKeypoint(pose, 'right_wrist');
+        let minAngle = 180;
+        if (lSh && lEl && lWr) { const a = angle(lSh, lEl, lWr); if (a > 0) minAngle = Math.min(minAngle, a); }
+        if (rSh && rEl && rWr) { const a = angle(rSh, rEl, rWr); if (a > 0) minAngle = Math.min(minAngle, a); }
+        if (minAngle > 100 && minAngle < 180) return 'Rep counted! Try lowering your chest a bit more next time.';
+        return 'Rep counted! Good form.';
+      }
+      default:
+        return 'Rep counted!';
     }
   }
 
-  /* Skeleton subtle breathing animation */
-  let skeletonAnim = null;
+  function getCoachFeedback(exercise, phase, confidence, pose, bodySize) {
+    if (!pose || confidence < 0.08) return '👋 Stand in front of the camera so I can see you!';
+    if (!bodySize.inFrame) return 'Move to the center so I can see your full body.';
+    if (bodySize.tooClose) return 'You are too close — step back.';
+    if (bodySize.tooFar) return 'You are too far — move a bit closer.';
+    if (confidence < 0.15) return 'Improve lighting for better detection.';
 
-  function animateSkeleton(on) {
-    const g = document.getElementById('skeleton');
-    if (!on) {
-      clearInterval(skeletonAnim);
-      g.setAttribute('transform', '');
+    switch (exercise) {
+      case 'squat':
+        if (phase === 'down') return 'Nice — keep chest up and knees out.';
+        if (phase === 'up') return 'Stand tall — drive through your heels.';
+        return 'Squat: go down and back up.';
+      case 'pushup':
+        if (phase === 'down') return 'Lower with control — keep body straight.';
+        if (phase === 'up') return 'Press up — keep core tight.';
+        return 'Pushup: lower and press up.';
+      case 'arm_raise':
+        if (phase === 'up') return 'Arms up — hold briefly.';
+        return 'Raise both arms above shoulders.';
+      default:
+        return 'Try squats, pushups, or arm raises!';
+    }
+  }
+
+  function updateMotionUI(level) {
+    if (!wizMotionFill || !wizMotionValue) return;
+    const clamped = Math.max(0, Math.min(100, Math.round(level)));
+    wizMotionFill.style.width = clamped + '%';
+    wizMotionValue.textContent = clamped + '%';
+  }
+
+  function updateCounts() {
+    if (wizSquatCountEl) wizSquatCountEl.textContent = String(squatCount);
+    if (wizPushupCountEl) wizPushupCountEl.textContent = String(pushupCount);
+    if (wizArmRaiseCountEl) wizArmRaiseCountEl.textContent = String(armRaiseCount);
+  }
+
+  function updateExerciseIndicator() {
+    if (!wizExerciseIndicator || !wizExerciseLabel) return;
+    if (currentExercise === 'none') {
+      wizExerciseIndicator.classList.add('hidden');
       return;
     }
-    let tick = 0;
-    skeletonAnim = setInterval(() => {
-      tick++;
-      const dy = Math.sin(tick * 0.15) * 2;
-      const sc = 1 + Math.sin(tick * 0.1) * 0.01;
-      g.setAttribute('transform', `translate(0, ${dy}) scale(${sc})`);
-      g.style.transformOrigin = '200px 160px';
-    }, 50);
+    let label = '';
+    if (currentExercise === 'squat') label = '🏋️ Squats';
+    else if (currentExercise === 'pushup') label = '💪 Pushups';
+    else if (currentExercise === 'arm_raise') label = '🤲 Arm Raises';
+    wizExerciseLabel.textContent = label;
+    wizExerciseIndicator.classList.remove('hidden');
   }
 
-  /* Log a completed session to Recent Exercises */
-  function logExercise(reps, sets, secs) {
-    const log   = document.getElementById('exerciseLog');
-    const empty = document.getElementById('exerciseEmpty');
-    if (empty) empty.remove();
+  async function requestCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCameraStatus(CameraStatus.ERROR);
+      if (wizGenericError) wizGenericError.textContent = 'Camera API not available in this browser.';
+      return;
+    }
+    setCameraStatus(CameraStatus.ASKING);
+    if (wizDeniedError) wizDeniedError.textContent = '';
+    if (wizGenericError) wizGenericError.textContent = '';
 
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    const duration = m + ':' + String(s).padStart(2, '0');
-    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const item = document.createElement('div');
-    item.className = 'exercise-item';
-    item.innerHTML = `
-      <div class="ex-icon">
-        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      </div>
-      <div class="ex-text">
-        <h4>*Motion Session*</h4>
-        <p>${reps} *reps* · ${sets} *sets* · ${duration}</p>
-      </div>
-      <div class="ex-time">${now}</div>
-    `;
-    log.prepend(item);
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: false
+      });
+      stream = s;
+      setCameraStatus(CameraStatus.READY);
+      await startVideoAndModel();
+    } catch (err) {
+      console.error('Camera error', err);
+      const msg = err && err.message ? err.message : 'Could not access camera.';
+      setCameraStatus(CameraStatus.DENIED);
+      if (wizDeniedError) wizDeniedError.textContent = msg;
+    }
   }
+
+  async function startVideoAndModel() {
+    if (!wizVideo || !stream) return;
+
+    wizVideo.srcObject = stream;
+    try {
+      await new Promise((resolve, reject) => {
+        wizVideo.onloadedmetadata = () => {
+          wizVideo.play().then(resolve).catch(reject);
+        };
+        wizVideo.onerror = () => reject(new Error('Video failed to load'));
+      });
+    } catch (e) {
+      console.error('Video failed to play', e);
+      setCameraStatus(CameraStatus.ERROR);
+      if (wizGenericError) wizGenericError.textContent = e && e.message ? e.message : 'Video failed to play.';
+      return;
+    }
+
+    try {
+      await tf.setBackend('webgl');
+      await tf.ready();
+      detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
+        modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER
+      });
+    } catch (e) {
+      console.error('Pose model init failed', e);
+      setCameraStatus(CameraStatus.ERROR);
+      if (wizGenericError) wizGenericError.textContent = 'Could not load pose model.';
+      return;
+    }
+
+    setupMotionCanvas();
+    runCameraLoop();
+  }
+
+  function setupMotionCanvas() {
+    motionCanvas = document.createElement('canvas');
+    motionCanvas.width = 160;
+    motionCanvas.height = 120;
+    motionCtx = motionCanvas.getContext('2d');
+    prevFrame = null;
+    smoothedMotion = 0;
+  }
+
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    prevFrame = null;
+    motionCtx = null;
+    motionCanvas = null;
+    lastPose = null;
+  }
+
+  async function runCameraLoop() {
+    if (!wizCanvas || !wizVideo) return;
+
+    const canvas = wizCanvas;
+    const video = wizVideo;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const POSE_INTERVAL_MS = 80;
+
+    async function frame() {
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+      if (w > 0 && h > 0) {
+        if (canvas.width !== w) canvas.width = w;
+        if (canvas.height !== h) canvas.height = h;
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -w, 0, w, h);
+        ctx.restore();
+      }
+
+      if (video.readyState >= 2 && w > 0 && h > 0) {
+        if (motionCtx && motionCanvas) {
+          motionCtx.drawImage(video, 0, 0, motionCanvas.width, motionCanvas.height);
+          const img = motionCtx.getImageData(0, 0, motionCanvas.width, motionCanvas.height);
+          const data = img.data;
+
+          if (prevFrame) {
+            const prev = prevFrame.data;
+            let changed = 0;
+            const pixels = data.length / 4;
+            for (let i = 0; i < data.length; i += 4) {
+              const r = Math.abs(data[i] - prev[i]);
+              const g = Math.abs(data[i + 1] - prev[i + 1]);
+              const b = Math.abs(data[i + 2] - prev[i + 2]);
+              const d = (r + g + b) / 3;
+              if (d > 15) changed++;
+            }
+            const motionPercent = (changed / pixels) * 100;
+            const scaled = Math.min(100, motionPercent * 2);
+            const alpha = 0.12;
+            smoothedMotion = smoothedMotion * (1 - alpha) + scaled * alpha;
+            updateMotionUI(smoothedMotion);
+          }
+          prevFrame = img;
+        }
+
+        const now = performance.now();
+        if (detector && now - lastPoseMs >= POSE_INTERVAL_MS) {
+          lastPoseMs = now;
+          try {
+            const poses = await detector.estimatePoses(video, { maxPoses: 1 });
+            lastPose = poses[0] || null;
+          } catch (e) {
+            console.error('Pose estimation error', e);
+          }
+        }
+
+        const pose = lastPose;
+        if (pose) {
+          const bodySize = getBodySize(pose, w, h);
+          let justCounted = false;
+          const facing = isFacingCamera(pose, w, h);
+
+          if (facing) {
+            const squat = detectSquat(pose);
+            const pushup = detectPushup(pose);
+            const armRaise = detectArmRaise(pose);
+
+            const candidates = [
+              { type: 'squat', phase: squat.phase, conf: squat.confidence },
+              { type: 'pushup', phase: pushup.phase, conf: pushup.confidence },
+              { type: 'arm_raise', phase: armRaise.phase, conf: armRaise.confidence }
+            ].filter(c => c.conf > 0.06 && c.phase !== 'unknown');
+
+            let best = candidates.sort((a, b) => b.conf - a.conf)[0] || { type: 'none', phase: 'unknown', conf: 0 };
+
+            const STICKY_MS = 1200;
+            const SWITCH_MARGIN = 0.15;
+            const recentlySeen = now - exerciseState.lastSeenMs < STICKY_MS;
+
+            if (exerciseState.type !== 'none' && recentlySeen && best.type !== exerciseState.type) {
+              const currentCandidate = candidates.find(c => c.type === exerciseState.type);
+              const currentConf = currentCandidate?.conf ?? exerciseState.confidence;
+              if (!(best.conf > currentConf + SWITCH_MARGIN)) {
+                best = {
+                  type: exerciseState.type,
+                  phase: currentCandidate?.phase ?? exerciseState.phase,
+                  conf: currentConf
+                };
+              }
+            }
+
+            if (best.type !== 'none') {
+              exerciseState.lastSeenMs = now;
+              if (exerciseState.type !== best.type) {
+                exerciseState.type = best.type;
+                exerciseState.phase = best.phase;
+                exerciseState.lastPhase = 'unknown';
+                exerciseState.count = 0;
+                exerciseState.confidence = best.conf;
+                currentExercise = best.type;
+                squatCount = 0;
+                pushupCount = 0;
+                armRaiseCount = 0;
+                updateCounts();
+                updateExerciseIndicator();
+              } else {
+                exerciseState.phase = best.phase;
+                exerciseState.confidence = best.conf;
+
+                if (best.phase === 'up' &&
+                  (exerciseState.lastPhase === 'down' || exerciseState.lastPhase === 'transitioning')) {
+                  exerciseState.count += 1;
+                  if (exerciseState.type === 'squat') squatCount = exerciseState.count;
+                  if (exerciseState.type === 'pushup') pushupCount = exerciseState.count;
+                  if (exerciseState.type === 'arm_raise') armRaiseCount = exerciseState.count;
+                  updateCounts();
+                  if (wizCoachFeedbackEl) {
+                    wizCoachFeedbackEl.textContent = getFormFeedbackOnRep(exerciseState.type, pose);
+                  }
+                  justCounted = true;
+                }
+
+                if (['up', 'down', 'transitioning'].includes(best.phase)) {
+                  exerciseState.lastPhase = best.phase;
+                }
+              }
+            } else {
+              const RESET_MS = 2000;
+              if (exerciseState.type !== 'none' && now - exerciseState.lastSeenMs > RESET_MS) {
+                exerciseState.type = 'none';
+                exerciseState.phase = 'unknown';
+                exerciseState.lastPhase = 'unknown';
+                exerciseState.confidence = 0;
+                currentExercise = 'none';
+                updateExerciseIndicator();
+              }
+            }
+
+            if (!justCounted && wizCoachFeedbackEl) {
+              wizCoachFeedbackEl.textContent = getCoachFeedback(
+                exerciseState.type,
+                exerciseState.phase,
+                exerciseState.confidence,
+                pose,
+                bodySize
+              );
+            }
+          } else {
+            if (exerciseState.type !== 'none') {
+              exerciseState.type = 'none';
+              exerciseState.phase = 'unknown';
+              exerciseState.lastPhase = 'unknown';
+              exerciseState.confidence = 0;
+              currentExercise = 'none';
+              updateExerciseIndicator();
+            }
+            if (wizCoachFeedbackEl) {
+              wizCoachFeedbackEl.textContent = 'Turn to face the camera directly so I can count your reps.';
+            }
+          }
+
+          ctx.strokeStyle = '#00a0ff';
+          ctx.fillStyle = '#ff4444';
+          ctx.lineWidth = 3;
+
+          for (const kp of pose.keypoints) {
+            if ((kp.score || 0) > 0.05) {
+              ctx.beginPath();
+              ctx.arc(w - kp.x, kp.y, 5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+
+          const skeletonPairs = [
+            ['left_shoulder', 'right_shoulder'],
+            ['left_shoulder', 'left_elbow'],
+            ['left_elbow', 'left_wrist'],
+            ['right_shoulder', 'right_elbow'],
+            ['right_elbow', 'right_wrist'],
+            ['left_shoulder', 'left_hip'],
+            ['right_shoulder', 'right_hip'],
+            ['left_hip', 'right_hip'],
+            ['left_hip', 'left_knee'],
+            ['left_knee', 'left_ankle'],
+            ['right_hip', 'right_knee'],
+            ['right_knee', 'right_ankle']
+          ];
+
+          for (const [aName, bName] of skeletonPairs) {
+            const A = getKeypoint(pose, aName);
+            const B = getKeypoint(pose, bName);
+            if ((A?.score || 0) > 0.05 && (B?.score || 0) > 0.05 && A && B) {
+              ctx.beginPath();
+              ctx.moveTo(w - A.x, A.y);
+              ctx.lineTo(w - B.x, B.y);
+              ctx.stroke();
+            }
+          }
+
+          if (wizMiniSkeleton) {
+            const mctx = wizMiniSkeleton.getContext('2d');
+            if (mctx) {
+              const mw = wizMiniSkeleton.clientWidth || 160;
+              const mh = wizMiniSkeleton.clientHeight || 220;
+              if (wizMiniSkeleton.width !== mw) wizMiniSkeleton.width = mw;
+              if (wizMiniSkeleton.height !== mh) wizMiniSkeleton.height = mh;
+
+              mctx.clearRect(0, 0, mw, mh);
+              mctx.fillStyle = '#050509';
+              mctx.fillRect(0, 0, mw, mh);
+              mctx.strokeStyle = '#00a0ff';
+              mctx.lineWidth = 3;
+              mctx.fillStyle = '#ff4444';
+
+              for (const [aName, bName] of skeletonPairs) {
+                const A = getKeypoint(pose, aName);
+                const B = getKeypoint(pose, bName);
+                if ((A?.score || 0) > 0.05 && (B?.score || 0) > 0.05 && A && B) {
+                  const ax = (A.x / w) * mw;
+                  const ay = (A.y / h) * mh;
+                  const bx = (B.x / w) * mw;
+                  const by = (B.y / h) * mh;
+                  mctx.beginPath();
+                  mctx.moveTo(ax, ay);
+                  mctx.lineTo(bx, by);
+                  mctx.stroke();
+                }
+              }
+
+              for (const kp of pose.keypoints) {
+                if ((kp.score || 0) > 0.05) {
+                  const x = (kp.x / w) * mw;
+                  const y = (kp.y / h) * mh;
+                  mctx.beginPath();
+                  mctx.arc(x, y, 3, 0, Math.PI * 2);
+                  mctx.fill();
+                }
+              }
+            }
+          }
+        } else if (wizCoachFeedbackEl) {
+          wizCoachFeedbackEl.textContent = '👋 Stand in front of the camera so I can see you!';
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(frame);
+    }
+
+    frame();
+  }
+
+  window.addEventListener('beforeunload', () => {
+    stopCamera();
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    wizVideo = document.getElementById('wizVideo');
+    wizCanvas = document.getElementById('wizCanvas');
+    wizMiniSkeleton = document.getElementById('wizMiniSkeleton');
+
+    wizStartButton = document.getElementById('wizStartButton');
+    wizRetryButton = document.getElementById('wizRetryButton');
+
+    wizIdleState = document.getElementById('wizIdleState');
+    wizAskingState = document.getElementById('wizAskingState');
+    wizDeniedState = document.getElementById('wizDeniedState');
+    wizErrorState = document.getElementById('wizErrorState');
+    wizReadyState = document.getElementById('wizReadyState');
+
+    wizDeniedError = document.getElementById('wizDeniedError');
+    wizGenericError = document.getElementById('wizGenericError');
+    wizCoachFeedbackEl = document.getElementById('wizCoachFeedback');
+
+    wizMotionFill = document.getElementById('wizMotionFill');
+    wizMotionValue = document.getElementById('wizMotionValue');
+    wizSquatCountEl = document.getElementById('wizSquatCount');
+    wizPushupCountEl = document.getElementById('wizPushupCount');
+    wizArmRaiseCountEl = document.getElementById('wizArmRaiseCount');
+
+    wizExerciseIndicator = document.getElementById('wizExerciseIndicator');
+    wizExerciseLabel = document.getElementById('wizExerciseLabel');
+
+    if (wizStartButton) wizStartButton.addEventListener('click', requestCamera);
+    if (wizRetryButton) wizRetryButton.addEventListener('click', requestCamera);
+
+    setCameraStatus(CameraStatus.IDLE);
+    updateMotionUI(0);
+    updateCounts();
+    updateExerciseIndicator();
+  });
 </script>
 </body>
 </html>
