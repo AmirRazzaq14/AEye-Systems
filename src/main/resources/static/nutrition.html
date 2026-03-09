@@ -313,23 +313,23 @@
         reader.readAsDataURL(file);
     }
 
-    function analyzeImage(file) {
-        const formData = new FormData();
-        formData.append('file', file);
+    function analyzeImage(image) {
+      const formData = new FormData();
+      formData.append('image', image);
 
-        fetch('/api/analyze', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data) {
-                    updateFoodLog(data);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+      fetch('/api/food/analyze', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data) {
+          updateFoodLog(data);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
     }
 
     function updateFoodLog(foodData) {
@@ -351,22 +351,57 @@
 
         updateNutritionProgress(foodData);
     }
-
+    let cumulativeNutrition = {
+      calories: 0,
+      protein_grams: 0,
+      carbs_grams: 0,
+      fat_grams: 0
+    };
     function updateNutritionProgress(foodData) {
-        const calPercent  = Math.min(100, (foodData.calories || 0) / 2000 * 100);
-        const protPercent = Math.min(100, (foodData.protein_grams || 0) / 150 * 100);
-        const carbPercent = Math.min(100, (foodData.carbs_grams || 0) / 250 * 100);
-        const fatPercent  = Math.min(100, (foodData.fat_grams || 0) / 70 * 100);
+        cumulativeNutrition.calories += foodData.calories || 0;
+        cumulativeNutrition.protein_grams += foodData.protein_grams || 0;
+        cumulativeNutrition.carbs_grams += foodData.carbs_grams || 0;
+        cumulativeNutrition.fat_grams += foodData.fat_grams || 0;
 
-        document.getElementById('cal-label').textContent  = `${Math.round(foodData.calories || 0)} / 2000 kcal`;
-        document.getElementById('prot-label').textContent = `${Math.round(foodData.protein_grams || 0)}g / 150g`;
-        document.getElementById('carb-label').textContent = `${Math.round(foodData.carbs_grams || 0)}g / 250g`;
-        document.getElementById('fat-label').textContent  = `${Math.round(foodData.fat_grams || 0)}g / 70g`;
+        const calPercent = Math.min(100, cumulativeNutrition.calories / 2000 * 100);
+        const protPercent = Math.min(100, cumulativeNutrition.protein_grams / 150 * 100);
+        const carbPercent = Math.min(100, cumulativeNutrition.carbs_grams / 250 * 100);
+        const fatPercent = Math.min(100, cumulativeNutrition.fat_grams / 70 * 100);
 
-        document.getElementById('cal-fill').style.width  = calPercent + '%';
+        document.getElementById('cal-label').textContent = `${Math.round(cumulativeNutrition.calories)} / 2000 kcal`;
+        document.getElementById('prot-label').textContent = `${Math.round(cumulativeNutrition.protein_grams)}g / 150g`;
+        document.getElementById('carb-label').textContent = `${Math.round(cumulativeNutrition.carbs_grams)}g / 250g`;
+        document.getElementById('fat-label').textContent = `${Math.round(cumulativeNutrition.fat_grams)}g / 70g`;
+
+        document.getElementById('cal-fill').style.width = calPercent + '%';
         document.getElementById('prot-fill').style.width = protPercent + '%';
         document.getElementById('carb-fill').style.width = carbPercent + '%';
-        document.getElementById('fat-fill').style.width  = fatPercent + '%';
+        document.getElementById('fat-fill').style.width = fatPercent + '%';
+    }
+
+
+
+    function animateBars() {
+      const bars = [
+        { fill: 'cal-fill',  label: 'cal-label',  value: 35, display: '700 / 2000 *kcal*' },
+        { fill: 'prot-fill', label: 'prot-label', value: 20, display: '30g / 150g' },
+        { fill: 'carb-fill', label: 'carb-label', value: 40, display: '100g / 250g' },
+        { fill: 'fat-fill',  label: 'fat-label',  value: 25, display: '18g / 70g' },
+      ];
+      bars.forEach((b, i) => {
+        setTimeout(() => {
+          document.getElementById(b.fill).style.width = b.value + '%';
+          document.getElementById(b.label).textContent = b.display;
+        }, i * 150);
+      });
+
+      const log = document.getElementById('foodLog');
+      const empty = log.querySelector('.food-log-empty');
+      if (empty) empty.remove();
+      const item = document.createElement('div');
+      item.className = 'food-log-item';
+      item.innerHTML = `<span class="food-log-name">*Detected food item*</span><span class="food-log-cal">*~XXX cal*</span>`;
+      log.appendChild(item);
     }
 
     function resetUpload() {

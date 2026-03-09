@@ -1,43 +1,68 @@
 package edu.farmingdale.CSC490.Controller;
 
 import edu.farmingdale.CSC490.Entity.User;
-import edu.farmingdale.CSC490.Storge.MockDatabase;
+import edu.farmingdale.CSC490.Service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class UserController {
 
-    private final MockDatabase mockDatabase;
+    @Autowired
+    private UserService userService;
 
-    public UserController(MockDatabase mockDatabase) {
-        this.mockDatabase = mockDatabase;
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(
+            @RequestBody Map<String, String> request) {
+        try {
+            User user = userService.login(
+                    request.get("email"),
+                    request.get("password")
+            );
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("user_id", user.getUser_id());
+            response.put("email", user.getEmail());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(401).body(response);
+        }
     }
 
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(mockDatabase.users);
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, Object>> register(
+            @RequestBody User user) {
+        try {
+            userService.register(user);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Account created successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(response);
+        }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable int id) {
-        Optional<User> user = mockDatabase.users.stream()
-                .filter(u -> u.getUser_id() == id)
-                .findFirst();
-        return user.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        // generate a basic auto-incrementing ID based on size
-        int newId = mockDatabase.users.size() + 1;
-        user.setUser_id(newId);
-        mockDatabase.users.add(user);
-        return ResponseEntity.status(201).body(user);
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<User> getUser(
+            @PathVariable String userId) {
+        try {
+            User user = userService.getUserById(userId);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
     }
 }
