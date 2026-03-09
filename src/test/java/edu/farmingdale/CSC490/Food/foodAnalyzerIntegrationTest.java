@@ -6,17 +6,17 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class PythonCallerIntegrationTest {
+public class foodAnalyzerIntegrationTest {
 
     @Test
     public void testPythonCallerWithRealImage() throws Exception {
-        PythonCaller pythonCaller = new PythonCaller();
+        foodAnalyzer foodAnalyzer = new foodAnalyzer();
 
         // Try loading the test picture from the resources directory
+        // python E:\Code\AEye-Systems\src\main\resources\AI\AI_ImageAnalyzer.py E:\Code\AEye-Systems\src\main\resources\images\apple.jpg E:\Code\AEye-Systems\src\main\resources\AI\food_analyze_prompt.txt
         ClassPathResource imgResource = new ClassPathResource("images/apple.jpg");
 
         // Read the content of the image
@@ -25,8 +25,8 @@ public class PythonCallerIntegrationTest {
         String fileName = imgResource.getFilename();
 
 
-        // Call PythonCaller to analyze the image
-        Nutrition_log result = pythonCaller.analyze(imageBytes, fileName);
+        // Call foodAnalyzer to analyze the image
+        Nutrition_log result = foodAnalyzer.analyze(imageBytes, fileName);
 
         // Print the result to the console
         if (result != null) {
@@ -45,6 +45,6 @@ public class PythonCallerIntegrationTest {
             System.out.println("The analysis fails and the return result is empty");
         }
 
-        assertNotNull(result, "PythonCaller应返回有效的Nutrition_log对象");
+        assertNotNull(result, "foodAnalyzer should return a valid Nutrition_log object");
     }
 }
