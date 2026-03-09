@@ -287,10 +287,10 @@
 
             <div class="chat-messages" id="chatMessages">
                 <div>
-                    <div class="msg bot">Hi! I'm your AI coach. Ask me about form, workouts, or nutrition.</div>
+                    <div class="msg bot">*AI greeting message displayed here*</div>
                     <div class="msg-time">—:— ••</div>
                 </div>
-                <div class="chat-placeholder" id="chatPlaceholder">Conversation history appears here.</div>
+                <div class="chat-placeholder" id="chatPlaceholder">*Conversation history appears here*</div>
             </div>
 
             <div class="chat-input-row">
@@ -368,84 +368,47 @@
         link.classList.toggle('active', link.href === window.location.href);
     });
 
-    /* In-memory conversation history for context (role: "user" | "model", content: string) */
-    let chatHistory = [];
-
+    /* CHAT */
     function getTime() {
         return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    function sendMsg() {
+        const input = document.getElementById('chatInput');
+        const val   = input.value.trim();
+        if (!val) return;
 
-    function appendBotMessage(text, isError) {
         const messages = document.getElementById('chatMessages');
-        const loadingEl = document.getElementById('chatLoading');
-        if (loadingEl) loadingEl.remove();
-        const botWrap = document.createElement('div');
-        const msgClass = isError ? 'msg bot' : 'msg bot';
-        botWrap.innerHTML = '<div class="' + msgClass + '">' + escapeHtml(text) + '</div><div class="msg-time">' + getTime() + '</div>';
-        messages.appendChild(botWrap);
+        const placeholder = document.getElementById('chatPlaceholder');
+        if (placeholder) placeholder.remove();
+
+        const userWrap = document.createElement('div');
+        userWrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;';
+        userWrap.innerHTML = `<div class="msg user">${val}</div><div class="msg-time right">${getTime()}</div>`;
+        messages.appendChild(userWrap);
+        input.value = '';
         messages.scrollTop = messages.scrollHeight;
+
+        setTimeout(() => {
+            const botWrap = document.createElement('div');
+            botWrap.innerHTML = `<div class="msg bot">*AI response placeholder — reply appears here.*</div><div class="msg-time">${getTime()}</div>`;
+            messages.appendChild(botWrap);
+            messages.scrollTop = messages.scrollHeight;
+        }, 800);
     }
 
-        function sendMsg() {
-            const input = document.getElementById('chatInput');
-            const val = input.value.trim();
-            if (!val) return;
+    function askQuestion(btn) {
+        document.getElementById('chatInput').value = btn.textContent.trim();
+        document.getElementById('chatInput').focus();
+    }
 
-            const messages = document.getElementById('chatMessages');
-            const placeholder = document.getElementById('chatPlaceholder');
-            if (placeholder) placeholder.remove();
-
-            const userWrap = document.createElement('div');
-            userWrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;';
-            userWrap.innerHTML = '<div class="msg user">' + escapeHtml(val) + '</div><div class="msg-time right">' + getTime() + '</div>';
-            messages.appendChild(userWrap);
-            input.value = '';
-            messages.scrollTop = messages.scrollHeight;
-
-            const loadingWrap = document.createElement('div');
-            loadingWrap.id = 'chatLoading';
-            loadingWrap.innerHTML = '<div class="msg bot" style="font-style:italic;color:var(--muted);">Coach is typing…</div><div class="msg-time">' + getTime() + '</div>';
-            messages.appendChild(loadingWrap);
-            messages.scrollTop = messages.scrollHeight;
-
-            fetch('/api/coach/chat', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message: val, history: chatHistory})
-            }).then(function (res) {
-                return res.json().then(function (data) {
-                    if (!res.ok) throw new Error(data.reply || 'Request failed');
-                    return data;
-                });
-            }).then(function (data) {
-                chatHistory.push({role: 'user', content: val});
-                chatHistory.push({role: 'model', content: data.reply || ''});
-                appendBotMessage(data.reply || 'No response.', false);
-            }).catch(function (err) {
-                console.error('Coach error:', err);
-                appendBotMessage('Coach unavailable. Please try again.', true);
-            });
-        }
-
-        function askQuestion(btn) {
-            document.getElementById('chatInput').value = btn.textContent.trim();
-            document.getElementById('chatInput').focus();
-        }
-
-        function clearChat() {
-            chatHistory = [];
-            document.getElementById('chatMessages').innerHTML = `
+    function clearChat() {
+        document.getElementById('chatMessages').innerHTML = `
       <div>
-        <div class="msg bot">Hi! I'm your AI coach. Ask me about form, workouts, or nutrition.</div>
+        <div class="msg bot">*AI greeting message displayed here*</div>
         <div class="msg-time">—:— ••</div>
       </div>
-      <div class="chat-placeholder" id="chatPlaceholder">Conversation history appears here.</div>`;
+      <div class="chat-placeholder" id="chatPlaceholder">*Conversation history appears here*</div>`;
     }
 </script>
 </body>
