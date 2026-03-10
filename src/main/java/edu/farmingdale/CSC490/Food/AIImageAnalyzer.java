@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -19,8 +19,6 @@ import java.net.http.HttpResponse;
 import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.apache.logging.log4j.util.StringBuilders.escapeJson;
 
 @Component
 public class AIImageAnalyzer {
@@ -48,6 +46,8 @@ public class AIImageAnalyzer {
                 try (InputStream input = Files.newInputStream(configPath)) {
                     config.load(input);
 
+                    logger.info("Loaded configuration from application.properties");
+
                     // Load the configuration into the system properties
                     for (String key : config.stringPropertyNames()) {
                         String value = config.getProperty(key);
@@ -71,6 +71,8 @@ public class AIImageAnalyzer {
                         System.setProperty(key, sb.toString());
 
                     }
+
+                    logger.info("Configuration loaded:");
 
                     model = System.getProperty("api.model");
                     localUrl = System.getProperty("api.local.url");
