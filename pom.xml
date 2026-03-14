@@ -98,6 +98,12 @@
             <version>4.6.1</version>
             <scope>test</scope>
         </dependency>
+        <!-- Google Gen AI (Gemini) SDK -->
+        <dependency>
+            <groupId>com.google.genai</groupId>
+            <artifactId>google-genai</artifactId>
+            <version>1.41.0</version>
+        </dependency>
     </dependencies>
 
     <build>
