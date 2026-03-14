@@ -3,28 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("wizcoach-theme");
+                if (saved) {
+                    document.documentElement.setAttribute("data-theme", saved);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
     <title>WizCoach – Nutrition</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-          --purple: #7c5cfc; --purple-light: #a78bfa;
-          --blue: #3b82f6; --blue-dark: #2563eb;
-          --text: #1a1a2e; --muted: #6b7280;
-          --border: #e5e7eb; --card-bg: #ffffff; --input-bg: #f9fafb;
+            --purple: #7c5cfc;
+            --purple-light: #a78bfa;
+            --blue: #3b82f6;
+            --blue-dark: #2563eb;
         }
 
-        body { font-family: 'DM Sans', sans-serif; background: linear-gradient(135deg, #e8ecf5 0%, #f0eeff 50%, #e8f0ff 100%); min-height: 100vh; color: var(--text); }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--page-bg);
+            min-height: 100vh;
+            color: var(--text);
+        }
 
-        nav { display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 60px; background: white; border-bottom: 1px solid var(--border); box-shadow: 0 1px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem; height: 60px;
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+            position: sticky; top: 0; z-index: 100;
+        }
+
         .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
         .nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--purple), var(--purple-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(124,92,252,0.3); }
         .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
         .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
         .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+
         .nav-link { display: flex; align-items: center; gap: 0.4rem; padding: 0.45rem 1rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--muted); text-decoration: none; border: none; background: none; cursor: pointer; transition: color 0.15s, background 0.15s; }
-        .nav-link:hover { color: var(--text); background: #f3f4f6; }
+
+        /* FIXED: hover uses the theme.css hover variable */
+        .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
+
         .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
         .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -32,32 +63,58 @@
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            border: 1px solid var(--border);
+        }
+
         .card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
 
         .upload-zone {
-          border: 2px dashed #c7d2fe; border-radius: 14px; background: #f8f9ff;
-          padding: 3rem 2rem; display: flex; flex-direction: column;
-          align-items: center; justify-content: center; gap: 0.75rem;
-          cursor: pointer; transition: border-color 0.2s, background 0.2s, transform 0.15s; text-align: center;
+            border: 2px dashed var(--border);
+            border-radius: 14px;
+            background: var(--input-bg);
+            padding: 3rem 2rem; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, transform 0.15s;
+            text-align: center;
         }
 
-        .upload-zone:hover { border-color: var(--blue); background: #eff6ff; transform: scale(1.01); }
-        .upload-zone.drag-over { border-color: var(--blue); background: #dbeafe; }
+        .upload-zone:hover {
+            border-color: var(--blue);
+            background: var(--card-bg);
+            transform: scale(1.01);
+        }
 
-        .upload-icon-wrap { width: 56px; height: 56px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .upload-zone.drag-over {
+            border-color: var(--blue);
+            background: var(--card-bg);
+        }
+
+        .upload-icon-wrap {
+            width: 56px; height: 56px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+
         .upload-icon-wrap svg { width: 26px; height: 26px; stroke: var(--blue); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
         .upload-zone h4 { font-size: 1rem; font-weight: 700; color: var(--text); }
         .upload-zone p  { font-size: 0.82rem; color: var(--muted); }
 
         .btn-upload {
-          display: inline-flex; align-items: center; gap: 0.5rem;
-          padding: 0.65rem 1.5rem;
-          background: linear-gradient(135deg, var(--blue), #60a5fa);
-          color: white; border: none; border-radius: 10px;
-          font-family: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer;
-          margin-top: 0.5rem; box-shadow: 0 3px 10px rgba(59,130,246,0.35);
-          transition: transform 0.15s, box-shadow 0.15s;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.65rem 1.5rem;
+            background: linear-gradient(135deg, var(--blue), #60a5fa);
+            color: white; border: none; border-radius: 10px;
+            font-family: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+            margin-top: 0.5rem; box-shadow: 0 3px 10px rgba(59,130,246,0.35);
+            transition: transform 0.15s, box-shadow 0.15s;
         }
 
         .btn-upload:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(59,130,246,0.45); }
@@ -70,10 +127,13 @@
         #resetWrap { display: none; margin-top: 0.75rem; text-align: center; }
 
         .btn-reset {
-          padding: 0.55rem 1.25rem; border: 1.5px solid var(--border);
-          border-radius: 10px; background: white; font-family: inherit;
-          font-size: 0.85rem; font-weight: 600; color: var(--muted);
-          cursor: pointer; transition: all 0.15s;
+            padding: 0.55rem 1.25rem;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: var(--card-bg);
+            font-family: inherit;
+            font-size: 0.85rem; font-weight: 600; color: var(--muted);
+            cursor: pointer; transition: all 0.15s;
         }
 
         .btn-reset:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
@@ -87,7 +147,7 @@
         .nutrition-meta span:first-child { font-size: 0.85rem; color: var(--muted); }
         .nutrition-meta span:last-child  { font-size: 0.85rem; font-weight: 600; color: var(--text); }
 
-        .track { height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+        .track { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
         .track-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--blue), #60a5fa); width: 0%; transition: width 0.8s ease; }
 
         .food-log-empty { text-align: center; color: var(--muted); font-size: 0.85rem; font-style: italic; padding: 1.5rem 0; }
@@ -97,8 +157,36 @@
         .food-log-name { font-weight: 600; color: var(--text); }
         .food-log-cal  { color: var(--muted); }
 
-        .help-btn { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; background: #1a1a2e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: background 0.2s; text-decoration: none; }
-        .help-btn:hover { background: var(--purple); }
+        .help-btn {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            width: 40px; height: 40px;
+            background: var(--nav-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            text-decoration: none;
+        }
+        .help-btn:hover { background: var(--purple); color: white; border-color: transparent; }
+
+        /* FIXED: separate theme toggle button class (no .help-btn reuse) */
+        .theme-btn {
+            position: fixed; bottom: 5rem; right: 1.5rem;
+            width: 40px; height: 40px;
+            background: var(--nav-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .theme-btn:hover { background: var(--purple); color: white; border-color: transparent; }
 
         @media (max-width: 720px) { .page { grid-template-columns: 1fr; } nav { padding: 0 1rem; } .nav-logo-name { display: none; } }
     </style>
@@ -333,5 +421,10 @@
         document.getElementById('foodLog').innerHTML = '<p class="food-log-empty">*No meals logged yet — food entries appear here*</p>';
     }
 </script>
+
+<button onclick="toggleTheme()"
+        class="theme-btn"
+        title="Toggle Dark Mode">🌓</button>
+
 </body>
 </html>
