@@ -18,16 +18,15 @@
 
 /* DARK THEME */
 :root[data-theme="dark"]{
-    /* keep a gradient so it matches the design style */
     --page-bg: linear-gradient(135deg,#0b1020 0%,#0f172a 55%,#111827 100%);
     --nav-bg: rgba(17,24,39,0.92);
 
     --text: #e5e7eb;
     --muted: #94a3b8;
-    --border: rgba(148,163,184,0.22);
+    --border: rgba(255,255,255,0.06);
 
-    --card-bg: rgba(17,24,39,0.88);
-    --input-bg: rgba(15,23,42,0.75);
+    --card-bg: rgba(22, 32, 51, 0.95);
+    --input-bg: rgba(12, 20, 34, 0.95);
 
     --nav-hover-bg: rgba(148,163,184,0.12);
 }
@@ -47,6 +46,8 @@ nav{
 /* if you have other card class names, you can add them here too */
 .card{
     background: var(--card-bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.22);
 }
 
 /* inputs */
