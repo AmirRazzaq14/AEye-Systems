@@ -2,7 +2,7 @@ package edu.farmingdale.CSC490.Food.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.farmingdale.CSC490.Food.FoodResult;
+import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
@@ -22,7 +22,7 @@ public class FoodResultParser {
         this.geminiParser = geminiParser;
     }
     
-    public Optional<FoodResult> parse(String jsonResponse) {
+    public Optional<Nutrition_log.Meal> parse(String jsonResponse) {
         if (jsonResponse == null || jsonResponse.trim().isEmpty()) {
             log.warn("Empty JSON response received");
             return Optional.empty();
@@ -45,7 +45,7 @@ public class FoodResultParser {
                 return parseFoodResult(extractedJson.get());
             }
             
-            log.warn("Could not extract FoodResult from response");
+            log.warn("Could not extract result from response");
             return Optional.empty();
             
         } catch (Exception e) {
@@ -54,9 +54,9 @@ public class FoodResultParser {
         }
     }
     
-    private Optional<FoodResult> parseFoodResult(String json) {
+    private Optional<Nutrition_log.Meal> parseFoodResult(String json) {
         try {
-            FoodResult result = objectMapper.readValue(json, FoodResult.class);
+            Nutrition_log.Meal result = objectMapper.readValue(json, Nutrition_log.Meal.class);
             return Optional.ofNullable(result);
         } catch (Exception e) {
             log.error("Failed to parse FoodResult from JSON: {}", e.getMessage());

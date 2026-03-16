@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -34,5 +37,7 @@ public class ImageEncoder {
         String encoded = Base64.getEncoder().encodeToString(imageBytes.get());
         return Optional.of(encoded);
     }
+
+
 
 }

@@ -1,8 +1,9 @@
 package edu.farmingdale.CSC490.Controller;
 
+import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import edu.farmingdale.CSC490.Food.FoodAnalyzeService;
-import edu.farmingdale.CSC490.Food.FoodResult;
 import edu.farmingdale.CSC490.Food.config.ConfigLoader;
+import edu.farmingdale.CSC490.Food.util.FileUtils;
 import edu.farmingdale.CSC490.Repository.NutritionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 @Slf4j
@@ -33,39 +35,72 @@ public class FoodController {
     @Autowired
     private ConfigLoader configLoader;
 
+    @Autowired
+    private FileUtils fileUtils;
+
+    private Nutrition_log.Meal totalNutrition = new Nutrition_log.Meal();
 
     @PostMapping("/analyze")
-    public ResponseEntity<FoodResult> analyzeFood(
-            @RequestParam("image") MultipartFile image)  {
+    public ResponseEntity<Nutrition_log.Meal> analyzeFood(
+            @RequestParam("image") MultipartFile image) {
+
         log.info("Received image file: {}", image.getOriginalFilename());
 
         configLoader.validateConfig();
 
+        // Verify the uploaded file
+        if (image.isEmpty()) {
+            log.error("No image file provided");
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Limit file size (e.g. 10MB)
+        if (image.getSize() > 10 * 1024 * 1024) {
+            log.error("Image file too large: {} bytes", image.getSize());
+            return ResponseEntity.status(413).build(); // Payload Too Large
+        }
+
         try {
             Path promptFile = Path.of("src/main/java/edu/farmingdale/CSC490/Food/prompt", promptFilePath);
-
-            Path tempImageFile = Files.createTempFile("food_image_", "_" + image.getOriginalFilename());
-            Files.write(tempImageFile, image.getBytes());
-
-            // Call AI image analysis services
-            Optional<FoodResult> result = foodAnalyzeService.analyze(tempImageFile.toString(), promptFile.toString());
-
-
-            if (result.isEmpty()) {
-                log.error("Failed to parse food result from AI response");
-                return ResponseEntity.status(502).body(null);
+            if (!Files.exists(promptFile)) {
+                log.error("Prompt file does not exist: {}", promptFile);
+                return ResponseEntity.badRequest().build();
             }
 
-            log.info("Successfully analyzed food: {}", result.get().getFoodName());
-            log.info("Food result: {}", result);
+            Optional<String> tempImagePath = fileUtils.tempFile(image);
+            if (tempImagePath.isEmpty()) {
+                log.error("Failed to create temp image file");
+                return ResponseEntity.status(500).build(); // Internal Server Error
+            }
 
-            return ResponseEntity.ok(result.get());
+            String imagePath = tempImagePath.get();
+            try {
+                // Call AI image analysis services
+                Optional<Nutrition_log.Meal> result = foodAnalyzeService.analyze(imagePath, promptFile.toString());
+
+                if (result.isEmpty()) {
+                    log.error("Failed to analyze food");
+                    return ResponseEntity.status(500).build();
+                }
+
+                log.info("Successfully analyzed food: {}", result.get().getName());
+                log.info("Food result: {}", result.get());
+
+                return ResponseEntity.ok(result.get());
+            } finally {
+                // Make sure temporary files are deleted
+                try {
+                    Files.deleteIfExists(Paths.get(imagePath));
+                } catch (Exception e) {
+                    log.warn("Failed to delete temporary file: {}", imagePath, e);
+                }
+            }
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
+
 
 
 

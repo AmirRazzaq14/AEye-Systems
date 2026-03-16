@@ -28,7 +28,7 @@
         .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
         .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        .page { max-width: 1100px; margin: 2rem auto; padding: 0 2rem; display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; animation: fadeUp 0.5s ease both; }
+        .page { max-width: 1100px; margin: 2rem auto; padding: 0 2rem;display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; animation: fadeUp 0.5s ease both; align-items: start; } /* 添加 align-items: start */
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
 
@@ -175,6 +175,41 @@
             font-size: 0.75rem;
             color: var(--muted);
         }
+        .error-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            border-left: 4px solid #dc2626;
+        }
+
+        .error-popup-icon {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .error-popup-message {
+            flex: 1;
+        }
+
+        .error-popup-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #dc2626;
+            padding: 0;
+            margin-left: 10px;
+        }
 
         @media (max-width: 720px) { .page { grid-template-columns: 1fr; } nav { padding: 0 1rem; } .nav-logo-name { display: none; } }
     </style>
@@ -223,7 +258,7 @@
                 <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 78"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 Upload Image
             </button>
-<div class="preview-img-container">
+        <div class="preview-img-container">
                 <img id="previewImg" src="" alt="Food preview">
             </div>
 
@@ -247,7 +282,7 @@
 
 <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)">
 
-        <div id="resetWrap">
+        <div id="resetWrap" style="display:block;">
             <button class="btn-reset" onclick="resetUpload()">✕ Cleaning  up</button>
         </div>
     </div>
@@ -263,14 +298,6 @@
                 <div>
                     <div class="nutrition-meta"><span>Protein</span><span id="prot-label">0g / 0g</span></div>
                     <div class="track"><div class="track-fill" id="prot-fill"></div></div>
-                </div>
-                <div>
-                    <div class="nutrition-meta"><span>Carbs</span><span id="carb-label">0g / 0g</span></div>
-                    <div class="track"><div class="track-fill" id="carb-fill"></div></div>
-                </div>
-                <div>
-                    <div class="nutrition-meta"><span>Fats</span><span id="fat-label">0g / 0g</span></div>
-                    <div class="track"><div class="track-fill" id="fat-fill"></div></div>
                 </div>
             </div>
         </div>
@@ -291,46 +318,8 @@
         link.classList.toggle('active', link.href === window.location.href);
     });
 
-    //Load saved session data on page load
-    let cumulativeNutrition = JSON.parse(localStorage.getItem('cumulativeNutrition')) || {
-        calories: 0,
-        protein_grams: 0,
-        carbs_grams: 0,
-        fat_grams: 0
-    };
-
-    let foodLogItems =JSON.parse(localStorage.getItem('foodLogItems')) || [];
-
-    // Update UI with saved data
-    function loadSavedData() {
-        // Update nutrition progress bars
-        updateNutritionDisplay();
-
-        // Update food log
-        const logContainer = document.getElementById('foodLog');
-        if (foodLogItems.length> 0) {
-            logContainer.innerHTML = '';
-            foodLogItems.forEach(item => {
-                const logItem = document.createElement('div');
-                logItem.className = 'food-log-item';
-                logItem.innerHTML = `
-                    <div>
-                        <span class="food-log-name">${item.name} (${item.type}): ${item.calories} kcal</span>
-                        <div class="food-details" style="display:none;">
-                            <p>Calories: ${item.calories} kcal</p>
-                            <p>Protein: ${item.protein}g</p>
-                            <p>Carbs: ${item.carbs}g</p>
-                            <p>Fat: ${item.fat}g</p>
-                        </div>
-                    </div>
-                    <span class="food-log-cal" onclick="toggleDetails(this)">▼</span>
-                `;
-                logContainer.appendChild(logItem);
-            });
-        } else {
-            logContainer.innerHTML = '<p class="food-log-empty">*No meals logged yet — food entries appear here*</p>';
-        }
-    }
+    // Add a flag to distinguish whether simulated data is used
+    const useMockData = true;
 
     function handleDrag(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag-over'); }
     function handleDragLeave(e) { document.getElementById('uploadZone').classList.remove('drag-over'); }
@@ -351,10 +340,27 @@
         reader.onload= (e) => {
             document.getElementById('previewImg').src = e.target.result;
             document.getElementById('uploadZone').classList.add('has-image');
-            document.getElementById('resetWrap').style.display = 'block';
+            // document.getElementById('resetWrap').style.display = 'block';
 
             showProcessingState();
-            analyzeImage(file);
+
+             if (useMockData) {
+                console.log("Using mock data");
+                // Use simulated data
+                setTimeout(() => {
+                    const mockData = {
+                        name: 'Sample Food Item',
+                        cals: 320,
+                        protein: 28
+                    };
+                    hideProcessingState();
+                    updateFoodLog(mockData);
+                }, 1000);
+            } else {
+                // Call the actual API
+                console.log("Calling real API");
+                analyzeImage(file);
+            }
         };
         reader.readAsDataURL(file);
     }
@@ -363,6 +369,11 @@
         const uploadZone = document.getElementById('uploadZone');
         uploadZone.classList.add('processing');
         document.getElementById('processingMessage').style.display = 'flex';
+
+        setTimeout(() => {
+            hideProcessingState();
+            showErrorPopup('Loading timed out. Please check if the server is connected.');
+        }, 10000);
    }
 
     function hideProcessingState() {
@@ -375,42 +386,83 @@
         const formData = new FormData();
         formData.append('image', image);
 
-    fetch('/api/food/analyze', {
-            method: 'POST',
-            body: formData
+        fetch('/api/food/analyze', {
+                method: 'POST',
+                body: formData
         })
-        .then(response => response.json())
-          .then(data => {
-                if (data) {
-                  updateFoodLog(data);
-                }
+        .then(response => {
+            // Check the response status
+            if (!response.ok) {
+                throw new Error(`API endpoint not found!`);
+            }
+            // Check the response content type
+            const contentType = response.headers.get("content-type");
+            if(contentType && contentType.includes("application/json")) {
+                return response.json();
+            } else {
+                // If it's not a JSON response, throw an error
+                return response.text().then(text => {
+                    console.error('Non-JSON response received:', text);
+                    throw new Error('Server returned non-JSON response');
+                });
+            }
+        })
+        .then(data => {
+            if (data) {
+              updateFoodLog(data);
+            }
 
-                hideProcessingState();
-         })
-          .catch(error => {
-            console.error('Error:', error);
             hideProcessingState();
-          });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showErrorPopup(error.message || 'An unknown error occurred');
+            hideProcessingState();
+       });
     }
 
-function updateFoodLog(foodData) {
+    function showErrorPopup(message) {
+        // Ensure that the container element is present
+        let container = document.getElementById('errorPopupContainer');
+        if (!container) {
+            // Create a container if it doesn't exist
+            container = document.createElement('div');
+            container.id = 'errorPopupContainer';
+            document.body.appendChild(container);
+        }
 
-        const foodName = foodData.foodName || 'Unknown Food';
-        const foodType = foodData.mealType || 'Type N/A';
-        const calories = foodData.calories ||  0;
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-popup';
+        errorDiv.innerHTML = `
+            <span class="error-popup-icon">⚠</span>
+            <span class="error-popup-message">${message}</span>
+            <button class="error-popup-close" onclick="this.parentElement.remove()">&times;</button>
+        `;
+        container.appendChild(errorDiv);
 
-        //Add to local storage
-        const newItem = {
-            name: foodName,
-            type: foodType,
-            calories: calories,
-            protein: foodData.protein_grams || 0,
-            carbs: foodData.carbs_grams || 0,
-            fat: foodData.fat_grams || 0,
-            timestamp: new Date().toISOString()
-        };
-        foodLogItems.push(newItem);
-        localStorage.setItem('foodLogItems', JSON.stringify(foodLogItems));
+        setTimeout(() => {
+            if(errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 5000);
+    }
+
+    // Cumulative nutritional data
+    let cumulativeNutrition = {
+        calories: 0,
+        protein: 0
+    };
+
+
+    function updateFoodLog(foodData) {
+
+        const foodName = foodData.name || 'Unknown Food';
+        const calories = foodData.cals ||  0;
+        const protein = foodData.protein || 0;
+
+        // Cumulative nutritional data
+        cumulativeNutrition.calories += calories;
+        cumulativeNutrition.protein += protein;
 
         const logContainer = document.getElementById('foodLog');
         const emptyMsg = logContainer.querySelector('.food-log-empty');
@@ -420,61 +472,47 @@ function updateFoodLog(foodData) {
         item.className = 'food-log-item';
         item.innerHTML = `
             <div>
-                <span class="food-log-name">${foodName} (${foodType}) : ${calories} kcal</span>
-                <div class="food-details" style="display:none;">
-                    <p>Calories: ${calories} kcal</p>
-                    <p>Protein: ${foodData.protein_grams || 0}g</p>
-                    <p>Carbs: ${foodData.carbs_grams || 0}g</p>
-                    <p>Fat: ${foodData.fat_grams || 0}g</p>
-                </div>
+                <span class="food-log-name">${foodName} </span>
+                <div class="calories">Calories : ${calories} kcal</div>
+                <div class="protein">Protein : ${protein}g</div>
             </div>
-            <span class="food-log-cal" onclick="toggleDetails(this)">▼</span>
+
         `;
         logContainer.appendChild(item);
 
-        updateNutritionProgress(foodData);
+        updateNutritionDisplay(cumulativeNutrition)
     }
 
-    function toggleDetails(element) {
-        const details = element.previousElementSibling.querySelector('.food-details');
-        if (details.style.display === 'none') {
-            details.style.display = 'block';
-            element.textContent = '▲ ';
-        } else {
-            details.style.display = 'none';
-            element.textContent = '▼ ';
-        }
-    }
-
-    //Initialize data on page load
-    document.addEventListener('DOMContentLoaded', loadSavedData);
-
-    function updateNutritionProgress(foodData) {
-        cumulativeNutrition.calories += foodData.calories || 0;
-        cumulativeNutrition.protein_grams += foodData.protein_grams || 0;
-        cumulativeNutrition.carbs_grams+= foodData.carbs_grams || 0;
-        cumulativeNutrition.fat_grams += foodData.fat_grams || 0;
-        // Save to localStorage
-        localStorage.setItem('cumulativeNutrition', JSON.stringify(cumulativeNutrition));
-
-        updateNutritionDisplay();
-    }
 
     function updateNutritionDisplay() {
-        const calPercent = Math.min(100, cumulativeNutrition.calories / 2000 *100);
-        const protPercent = Math.min(100, cumulativeNutrition.protein_grams / 150 * 100);
-        const carbPercent = Math.min(100, cumulativeNutrition.carbs_grams / 250 * 100);
-        const fatPercent = Math.min(100, cumulativeNutrition.fat_grams / 70 * 100);
+        const calories = Number(cumulativeNutrition.calories) || 0;
+        const protein = Number(cumulativeNutrition.protein) || 0;
 
-        document.getElementById('cal-label').textContent = `${cumulativeNutrition.calories} / 2000 kcal`;
-        document.getElementById('prot-label').textContent = `${cumulativeNutrition.protein_grams}g / 150g`;
-        document.getElementById('carb-label').textContent = `${cumulativeNutrition.carbs_grams}g / 250g`;
-        document.getElementById('fat-label').textContent = `${cumulativeNutrition.fat_grams}g/ 70g`;
+        const calPercent = Math.min(100, calories / 2000 *100);
+        const protPercent = Math.min(100, protein  / 150 * 100);
+
+        // When the value exceeds the target, it is set to red
+        const calLabelElement = document.getElementById('cal-label');
+        const protLabelElement = document.getElementById('prot-label');
+
+        // Check if the target value is exceeded
+        if (calories > 2000) {
+            calLabelElement.style.color = 'red';
+        } else {
+            calLabelElement.style.color = 'var(--text)';
+        }
+
+        if (protein > 150) {
+            protLabelElement.style.color = 'red';
+        } else {
+            protLabelElement.style.color = 'var(--text)';
+        }
+
+        calLabelElement.textContent = `${calories.toString()} / 2000 kcal`;
+        protLabelElement.textContent = `${protein.toString()}g / 150g`;
 
         document.getElementById('cal-fill').style.width = calPercent + '%';
         document.getElementById('prot-fill').style.width = protPercent + '%';
-        document.getElementById('carb-fill').style.width = carbPercent + '%';
-        document.getElementById('fat-fill').style.width = fatPercent +'%';
     }
 
 
@@ -482,9 +520,7 @@ function updateFoodLog(foodData) {
     function animateBars() {
         const bars = [
             { fill: 'cal-fill',  label: 'cal-label',  value: 35, display: '700 / 2000 *kcal*' },
-            { fill: 'prot-fill', label: 'prot-label', value: 20, display: '30g / 150g' },
-            { fill: 'carb-fill', label: 'carb-label', value: 40, display: '100g / 250g' },
-            { fill: 'fat-fill',  label: 'fat-label',  value: 25, display: '18g / 70g' },
+            { fill: 'prot-fill', label: 'prot-label', value: 20, display: '30g / 150g' }
         ];
         bars.forEach((b, i) => {
             setTimeout(() => {
@@ -504,30 +540,57 @@ function updateFoodLog(foodData) {
 
    function resetUpload() {
 
+        //  Reset the upload zone
         document.getElementById('uploadZone').classList.remove('has-image');
-        document.getElementById('previewImg').src = '';
-        document.getElementById('resetWrap').style.display  = 'none';
-        document.getElementById('fileInput').value = '';
-        ['cal-fill','prot-fill','carb-fill','fat-fill'].forEach(id => {
-        document.getElementById(id).style.width = '0%';
-        });
-        document.getElementById('cal-label').textContent= '0 / 0 kcal';
-        document.getElementById('prot-label').textContent = '0g / 0g';
-        document.getElementById('carb-label').textContent = '0g / 0g';
-        document.getElementById('fat-label').textContent  = '0g / 0g';
-        document.getElementById('foodLog').innerHTML = '<p class="food-log-empty">*No meals logged yet — food entries appear here*</p>';
 
-        // Clear stored data
+        //  Remove the preview image
+        document.getElementById('previewImg').src = '';
+
+        //  Show the reset button
+        document.getElementById('resetWrap').style.display  = 'block';
+
+        //  Clear the file input
+        document.getElementById('fileInput').value = '';
+
+        //  Reset the progress bars
+        ['cal-fill','prot-fill'].forEach(id => {
+            document.getElementById(id).style.width = '0%';
+        });
+
+        // Reset cumulative nutrition data
         cumulativeNutrition = {
             calories: 0,
-            protein_grams: 0,
-            carbs_grams: 0,
-            fat_grams: 0
+            protein: 0
         };
-        foodLogItems = [];
-        localStorage.removeItem('cumulativeNutrition');
-        localStorage.removeItem('foodLogItems');
+
+        // Reset the label color
+        document.getElementById('cal-label').style.color = 'var(--text)';
+        document.getElementById('prot-label').style.color = 'var(--text)';
+
+        //  Reset the label text
+        document.getElementById('cal-label').textContent= '0 / 0 kcal';
+        document.getElementById('prot-label').textContent = '0g / 0g';
+        document.getElementById('foodLog').innerHTML = '<p class="food-log-empty">*No meals logged yet — food entries appear here*</p>';
+
     }
+
+     document.addEventListener('DOMContentLoaded', function() {
+        if (useMockData) {
+            // Add a test button
+            const testButton = document.createElement('button');
+            testButton.textContent = 'Add Mock Data';
+            testButton.style.cssText = 'position: fixed; top: 300px; right: 10px; z-index: 9999; padding: 10px; background: #7c5cfc; color: white; border: none; border-radius: 5px; cursor: pointer;';
+            testButton.onclick = function() {
+                const mockData = {
+                    name: 'Sample Food Item',
+                    cals: Math.floor(Math.random() * 500) + 100, // Random calorie value
+                    protein: Math.floor(Math.random() * 30) + 5   // Random protein values
+                };
+                updateFoodLog(mockData);
+            };
+            document.body.appendChild(testButton);
+        }
+    });
 </script>
 </body>
 </html>
