@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
 
+/**
+ * parser for Ollama response
+ */
 @Component
 public class OllamaResponseParser implements ResponseParser {
     

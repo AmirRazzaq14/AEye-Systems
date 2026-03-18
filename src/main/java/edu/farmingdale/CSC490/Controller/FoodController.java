@@ -38,8 +38,6 @@ public class FoodController {
     @Autowired
     private FileUtils fileUtils;
 
-    private Nutrition_log.Meal totalNutrition = new Nutrition_log.Meal();
-
     @PostMapping("/analyze")
     public ResponseEntity<Nutrition_log.Meal> analyzeFood(
             @RequestParam("image") MultipartFile image) {

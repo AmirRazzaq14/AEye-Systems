@@ -32,9 +32,11 @@ public class FoodResultParser {
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
 
             log.info("Parsing response to extracted format {}", jsonResponse);
-            
+
+            Optional<String> extractedJson;
+
             // Try the Ollama format
-            Optional<String> extractedJson = ollamaParser.extract(rootNode);
+            extractedJson = ollamaParser.extract(rootNode);
             if (extractedJson.isPresent()) {
                 return parseFoodResult(extractedJson.get());
             }

@@ -33,8 +33,6 @@ public class FoodAnalyzeService {
     @Autowired
     private ConfigLoader configLoader;
 
-    // Accumulated nutritional information
-    private Nutrition_log.Meal totalNutrition = new Nutrition_log.Meal();
 
     public FoodAnalyzeService(ImageEncoder imageEncoder,
                               FileUtils fileUtils,

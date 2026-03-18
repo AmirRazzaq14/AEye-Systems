@@ -6,6 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
 
+/**
+ * Parser for Gemini responses.
+ */
+
 @Slf4j
 @Component
 public class GeminiResponseParser implements ResponseParser {

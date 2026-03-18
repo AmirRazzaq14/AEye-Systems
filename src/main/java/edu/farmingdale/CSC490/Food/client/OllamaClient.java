@@ -2,7 +2,6 @@ package edu.farmingdale.CSC490.Food.client;
 
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
 import edu.farmingdale.CSC490.Food.exception.ApiException;
-import edu.farmingdale.CSC490.Food.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.net.URI;
@@ -12,17 +11,19 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
 
+/**
+ * Implementation of the ApiClient interface for the Ollama API.
+ */
+
 @Slf4j
 @Component
 public class OllamaClient implements ApiClient {
     
     private final HttpClient httpClient;
     private final ApiProperties apiProperties;
-    private final JsonUtils jsonUtils;
     
-    public OllamaClient(ApiProperties apiProperties, JsonUtils jsonUtils) {
+    public OllamaClient(ApiProperties apiProperties) {
         this.apiProperties = apiProperties;
-        this.jsonUtils = jsonUtils;
         this.httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
@@ -73,7 +74,7 @@ public class OllamaClient implements ApiClient {
                     "temperature": 0.0,
                     "num_predict": 200
                 }
-            }""", model, jsonUtils.escapeJson(prompt), image);
+            }""", model, prompt, image);
     }
 
     @Override

@@ -1,9 +1,7 @@
-// client/GeminiClient.java
 package edu.farmingdale.CSC490.Food.client;
 
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
 import edu.farmingdale.CSC490.Food.exception.ApiException;
-import edu.farmingdale.CSC490.Food.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.net.URI;
@@ -13,24 +11,26 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
 
+/**
+ * Implementation of the ApiClient interface for the Gemini API.
+ */
+
 @Slf4j
 @Component
 public class GeminiClient implements ApiClient {
     
     private final HttpClient httpClient;
     private final ApiProperties apiProperties;
-    private final JsonUtils jsonUtils;
     
-    public GeminiClient(ApiProperties apiProperties, JsonUtils jsonUtils) {
+    public GeminiClient(ApiProperties apiProperties) {
         this.apiProperties = apiProperties;
-        this.jsonUtils = jsonUtils;
         this.httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
     }
     
     @Override
-    public Optional<String> analyze(String encodedImage, String prompt) throws ApiException {
+    public Optional<String> analyze(String encodedImage, String promptText) throws ApiException {
         String url = apiProperties.getGemini().getUrl();
         String model = apiProperties.getGemini().getModel();
         String apiKey = apiProperties.getGemini().getKey();
@@ -38,15 +38,19 @@ public class GeminiClient implements ApiClient {
         log.info("Calling Gemini API with model {}", model);
         
         try {
+            //1.  Build the request body
             String endpoint = String.format("%s/v1beta/models/%s:generateContent?key=%s",
                 url, model, apiKey);
-                
-            String requestBody = buildRequestBody(encodedImage, prompt);
+            String requestBody = buildRequestBody(encodedImage, promptText);
+
+            //2.  Create the HTTP request
             HttpRequest request = createHttpRequest(endpoint, requestBody);
-            
+
+            //3.  Send the request and get the response
             HttpResponse<String> response = httpClient.send(request,
                 HttpResponse.BodyHandlers.ofString());
-                
+
+            //4.  Handle the response
             return handleResponse(response);
             
         } catch (Exception e) {
@@ -75,7 +79,7 @@ public class GeminiClient implements ApiClient {
                     "topP": 0.1,
                     "maxOutputTokens": 200
                 }
-            }""", jsonUtils.escapeJson(prompt), image);
+            }""", prompt, image);
     }
 
     @Override
