@@ -1,7 +1,6 @@
 package edu.farmingdale.CSC490.Food.client;
 
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
-import edu.farmingdale.CSC490.Food.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.net.URI;
@@ -93,7 +92,7 @@ public class OllamaClient implements ApiClient {
         String responseBody = response.body();
         int responseStatusCode = response.statusCode();
         if (responseStatusCode != 200) {
-            log.error("Ollama API returned error status: {}", responseStatusCode);
+            log.error("Ollama API returned error status: {}, response body: {}", responseStatusCode, responseBody);
             return Optional.empty();
         }
 

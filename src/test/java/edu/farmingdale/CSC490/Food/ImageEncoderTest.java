@@ -1,6 +1,5 @@
 package edu.farmingdale.CSC490.Food;
 
-import edu.farmingdale.CSC490.Food.exception.ImageAnalysisException;
 import edu.farmingdale.CSC490.Food.util.FileUtils;
 import edu.farmingdale.CSC490.Food.util.ImageEncoder;
 import org.junit.jupiter.api.BeforeEach;

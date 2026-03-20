@@ -1,4 +1,4 @@
-package edu.farmingdale.CSC490.Food.exception;
+package edu.farmingdale.CSC490.Food.client;
 
 import lombok.Getter;
 

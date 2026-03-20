@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class promptManager {
+public class PromptManager {
 
 
     /**
@@ -25,10 +25,10 @@ public class promptManager {
      * @param promptFile the prompt file name
      * @return the formatted prompt text
      */
-    public String getPromptFromFile(String promptFile) {
+    public Optional<String> getPromptFromFile(String promptFile) {
         log.info("Getting prompt from file");
         //1.  Read the prompt file
-        String dir  = "src/main/java/edu/farmingdale/CSC490/Food/prompt";
+        String dir = System.getProperty("user.dir") + "/src/main/java/edu/farmingdale/CSC490/Food/prompt";
         Path promptFilePath = Path.of(dir, promptFile);
         String promptText = String.valueOf(readTextFile(promptFilePath.toString()));
 
@@ -42,7 +42,7 @@ public class promptManager {
      * @param promptText the input prompt text from the front-end
      * @return the formatted prompt text
      */
-    public String getPromptFromInput(String promptText) {
+    public Optional<String> getPromptFromInput(String promptText) {
         log.info("Getting prompt from input");
         return formatPrompt(promptText);
     }
@@ -52,11 +52,11 @@ public class promptManager {
      * @param promptText The prompt text
      * @return The formatted prompt text
      */
-    private String formatPrompt(String promptText) {
+    private Optional<String> formatPrompt(String promptText) {
 
         if (promptText == null || promptText.trim().isEmpty()) {
             log.error("Received empty or null prompt text");
-            return "";
+            return Optional.empty();
         }
 
         log.info("Formatting prompt text successfully");
@@ -64,7 +64,7 @@ public class promptManager {
                 .replace("\"", "\\\"")
                 .replace("\n", "\\n")
                 .replace("\r", "\\r")
-                .replace("\t", "\\t");
+                .replace("\t", "\\t").describeConstable();
     }
     /**
      * Reads the text file

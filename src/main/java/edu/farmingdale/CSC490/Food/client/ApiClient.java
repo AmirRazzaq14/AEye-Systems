@@ -1,7 +1,6 @@
 package edu.farmingdale.CSC490.Food.client;
 
 
-import edu.farmingdale.CSC490.Food.exception.ApiException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;

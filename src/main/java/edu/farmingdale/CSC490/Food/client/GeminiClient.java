@@ -1,7 +1,6 @@
 package edu.farmingdale.CSC490.Food.client;
 
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
-import edu.farmingdale.CSC490.Food.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.net.URI;
@@ -54,6 +53,7 @@ public class GeminiClient implements ApiClient {
             return handleResponse(response);
             
         } catch (Exception e) {
+            log.error("Failed to call Gemini API", e);
             throw new ApiException("Failed to call Gemini API", e);
         }
     }
@@ -100,5 +100,6 @@ public class GeminiClient implements ApiClient {
         }
         return Optional.of(response.body());
     }
+
 
 }

@@ -31,7 +31,7 @@ public class FoodResultParser {
         try {
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
 
-            log.info("Parsing response to extracted format {}", jsonResponse);
+            log.info("Parsing response to extracted format");
 
             Optional<String> extractedJson;
 

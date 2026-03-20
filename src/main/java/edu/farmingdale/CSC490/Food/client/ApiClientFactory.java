@@ -2,7 +2,6 @@
 package edu.farmingdale.CSC490.Food.client;
 
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
-import edu.farmingdale.CSC490.Food.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
