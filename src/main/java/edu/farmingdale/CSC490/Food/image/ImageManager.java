@@ -41,10 +41,7 @@ public class ImageManager {
 
             String encoded = Base64.getEncoder().encodeToString(imageBytes);
             if (!isValidBase64(encoded)) {
-                log.error("Generated invalid Base64 string");
                 return Optional.empty();
-            }else{
-                log.info("Successfully encoded image file:{}",encoded);
             }
 
             return Optional.of(encoded);
@@ -52,6 +49,30 @@ public class ImageManager {
             log.error("Failed to process multipart file: {}", e.getMessage());
             return Optional.empty();
         }
+    }
+
+    /**
+     * Port 2 : get image from file path
+     * @param imagePath the image path from front end
+     * return the image 64-bit encoded string
+     */
+
+    public Optional<String> encodeImageFromFile(String imagePath){
+        Optional<byte[]> imageBytes = readFile(imagePath);
+
+        if (imageBytes.isEmpty()) {
+            log.error("Failed to read image file: {}", imagePath);
+            return Optional.empty();
+        }
+
+        if (imageBytes.get().length == 0) {
+            log.error("Image file is empty: {}", imagePath);
+            return Optional.empty();
+        }
+
+        String encoded = Base64.getEncoder().encodeToString(imageBytes.get());
+
+        return Optional.of(encoded);
     }
 
     /**
@@ -66,5 +87,23 @@ public class ImageManager {
         }
     }
 
+    /**
+     * a tool method , read image from file path
+     * @param filePath  the image path
+     * @return the image bytes
+     */
+    private Optional<byte[]> readFile(String filePath) {
+        try {
+            Path path = Paths.get(filePath);
+            if (!Files.exists(path)) {
+                log.error("File does not exist: {}", filePath);
+                return Optional.empty();
+            }
+            return Optional.of(Files.readAllBytes(path));
+        } catch (IOException e) {
+            log.error("Failed to read file {}: {}", filePath, e.getMessage());
+            return Optional.empty();
+        }
+    }
 
 }

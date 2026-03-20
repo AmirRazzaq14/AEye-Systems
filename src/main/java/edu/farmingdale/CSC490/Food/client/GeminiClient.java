@@ -94,11 +94,18 @@ public class GeminiClient implements ApiClient {
 
     @Override
     public Optional<String> handleResponse(HttpResponse<String> response) {
-        if (response.statusCode() != 200) {
-            log.error("Gemini API returned error status: {}", response.statusCode());
+        String responseBody = response.body();
+        int responseStatusCode = response.statusCode();
+        if (responseStatusCode != 200) {
+            log.error("Gemini API returned error status: {}, response body: {}", responseStatusCode, responseBody);
             return Optional.empty();
         }
-        return Optional.of(response.body());
+
+        if (responseBody.isEmpty()) {
+            log.error("Gemini API returned empty response");
+            return Optional.empty();
+        }
+        return Optional.of(responseBody);
     }
 
 
