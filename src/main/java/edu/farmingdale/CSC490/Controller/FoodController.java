@@ -20,8 +20,6 @@ public class FoodController {
     @Autowired
     private FoodAnalyzeService foodAnalyzeService;
 
-    @Autowired
-    private NutritionRepository nutritionRepository;
 
 
     @PostMapping("/analyze")
@@ -35,8 +33,6 @@ public class FoodController {
                 .orElse(ResponseEntity.badRequest().build());
 
     }
-
-
 
 
     @GetMapping("/health")
