@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
 
     <style>
-        /* ... (保持之前的样式不变) ... */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
@@ -25,6 +24,9 @@
             --input-bg: #f9fafb;
             --danger: #ef4444;
             --danger-light: #fee2e2;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
         }
 
         body {
@@ -311,6 +313,24 @@
             background: var(--danger-light);
         }
 
+        .btn-success {
+            padding: 0.55rem 1.25rem;
+            border: 1.5px solid var(--success);
+            border-radius: 10px;
+            background: white;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--success);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-success:hover {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
         .btn-icon {
             background: var(--blue);
             color: white;
@@ -423,6 +443,21 @@
             color: var(--muted);
             display: flex;
             gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .sync-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            background: var(--warning);
+            color: white;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .sync-badge.synced {
+            background: var(--success);
         }
 
         .food-log-delete {
@@ -473,6 +508,36 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
+        .journal-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            resize: vertical;
+            transition: all 0.2s;
+        }
+
+        .journal-input:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .journal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .journal-status {
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -497,6 +562,12 @@
             animation: slideInRight 0.3s ease;
         }
 
+        .success-popup {
+            background: var(--success-light);
+            color: var(--success);
+            border-left-color: var(--success);
+        }
+
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
@@ -513,7 +584,7 @@
             border: none;
             font-size: 1.2rem;
             cursor: pointer;
-            color: var(--danger);
+            color: inherit;
             padding: 0;
             width: 24px;
             height: 24px;
@@ -554,6 +625,14 @@
 
         .text-danger {
             color: var(--danger);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
         }
 
         @media (max-width: 720px) {
@@ -644,9 +723,11 @@
 
         <input type="file" id="fileInput" accept="image/*" style="display: none;">
 
-        <div style="margin-top: 1rem; text-align: center;">
-            <button class="btn-secondary" id="resetButton">✕ Clear All Data</button>
-        </div>
+<!--        <div class="button-group">-->
+<!--            <button class="btn-secondary" id="resetButton">✕ Clear Local Data</button>-->
+<!--            <button class="btn-secondary" id="fixDataBtn">🔧 Fix Display Issues</button>-->
+<!--            <button class="btn-success" id="syncNowBtn">🔄 Sync Now</button>-->
+<!--        </div>-->
     </div>
 
     <div class="sidebar">
@@ -674,6 +755,25 @@
             </div>
         </div>
 
+        <!-- Daily Journal Card -->
+        <div class="card">
+            <div class="food-log-header">
+                <h3>📔 Daily Journal</h3>
+                <span style="font-size: 0.75rem; color: var(--muted);" id="journalDate"></span>
+            </div>
+            <textarea
+                    id="journalInput"
+                    class="journal-input"
+                    rows="3"
+                    placeholder="How was your day? Write your thoughts here..."
+            ></textarea>
+            <div class="journal-footer">
+                <span id="journalStatus" class="journal-status"></span>
+                <button id="saveJournalBtn" class="btn-secondary" style="padding: 0.35rem 1rem;">💾 Save Journal</button>
+            </div>
+        </div>
+
+        <!-- Food Log Card -->
         <div class="card">
             <div class="food-log-header">
                 <h3>Food Log</h3>
@@ -688,7 +788,7 @@
             </div>
 
             <div id="foodLog">
-                <p class="food-log-empty">No meals logged yet — food entries appear here</p>
+                <p class="food-log-empty">Loading...</p>
             </div>
         </div>
     </div>
@@ -697,785 +797,1056 @@
 <a href="#" class="help-btn" id="helpBtn">?</a>
 
 <script>
-    // ==================== Constants & Configuration ====================
-    const NUTRITION_GOALS = {
-        calories: 2000,
-        protein: 150
-    };
-
-    const MAX_IMAGE_SIZE_MB = 5;
-    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-    const API_TIMEOUT_MS = 15000;
-
-    // ==================== App State ====================
-    let firebaseInitialized = false;
-    let firebaseInitPromise = null;
-    let cumulativeNutrition = {
-        calories: 0,
-        protein: 0
-    };
-    let currentUser = null;
-
-    // ==================== Utility Functions ====================
-    function sanitizeInput(input) {
-        if (!input) return '';
-        const div = document.createElement('div');
-        div.textContent = input;
-        return div.innerHTML;
-    }
-
-    function formatNumber(num) {
-        return Math.round(num * 10) / 10;
-    }
-
-    function isValidFoodData(foodData) {
-        // Check if foodData has valid structure
-        if (!foodData || typeof foodData !== 'object') return false;
-
-        // Check for undefined or null values
-        if (foodData.name === undefined || foodData.name === null) return false;
-        if (foodData.cals === undefined || foodData.cals === null) return false;
-        if (foodData.protein === undefined || foodData.protein === null) return false;
-
-        // Check if name is not empty (but "Unknown Food" is acceptable)
-        if (typeof foodData.name !== 'string') return false;
-
-        // Check if calories and protein are valid numbers
-        if (isNaN(foodData.cals) || isNaN(foodData.protein)) return false;
-
-        return true;
-    }
-
-    function normalizeFoodData(rawData) {
-        // Ensure all required fields exist with default values
+    // ==================== 1. CONFIGURATION MODULE ====================
+    const Config = (function() {
         return {
-            name: rawData.name && rawData.name !== 'undefined' ? rawData.name : 'Unknown Food',
-            cals: typeof rawData.cals === 'number' && !isNaN(rawData.cals) ? rawData.cals : 0,
-            protein: typeof rawData.protein === 'number' && !isNaN(rawData.protein) ? rawData.protein : 0
+            NUTRITION_GOALS: {
+                calories: 2000,
+                protein: 150
+            },
+            MAX_IMAGE_SIZE_MB: 5,
+            ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
+            API_TIMEOUT_MS: 15000,
+            STORAGE_PREFIX: 'wizcoach_nutrition_v2_'
         };
-    }
+    })();
 
-    function showErrorPopup(message) {
-        const container = document.getElementById('errorPopupContainer');
-        if (!container) {
-            const newContainer = document.createElement('div');
-            newContainer.id = 'errorPopupContainer';
-            document.body.appendChild(newContainer);
+    // ==================== 2. UTILITY MODULE ====================
+    const Utils = (function() {
+        function sanitizeInput(input) {
+            if (!input) return '';
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML;
         }
 
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-popup';
-        errorDiv.innerHTML = `
-            <span class="error-popup-icon">⚠️</span>
-            <span class="error-popup-message">${sanitizeInput(message)}</span>
-            <button class="error-popup-close" onclick="this.parentElement.remove()">×</button>
-        `;
-        document.getElementById('errorPopupContainer').appendChild(errorDiv);
+        function getTodayDate() {
+            return new Date().toISOString().split('T')[0];
+        }
 
-        setTimeout(() => {
-            if (errorDiv.parentNode) {
-                errorDiv.remove();
+        function getCurrentTimestamp() {
+            return new Date().toISOString();
+        }
+
+        function generateLocalId() {
+            return `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        function showMessage(message, isError = true) {
+            const container = document.getElementById('errorPopupContainer');
+            if (!container) {
+                const newContainer = document.createElement('div');
+                newContainer.id = 'errorPopupContainer';
+                document.body.appendChild(newContainer);
             }
-        }, 5000);
-    }
 
-    function validateImageFile(file) {
-        if (!file) {
-            throw new Error('No file selected');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `error-popup ${!isError ? 'success-popup' : ''}`;
+            messageDiv.innerHTML = `
+                <span class="error-popup-icon">${isError ? '⚠️' : '✓'}</span>
+                <span class="error-popup-message">${sanitizeInput(message)}</span>
+                <button class="error-popup-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            document.getElementById('errorPopupContainer').appendChild(messageDiv);
+
+            setTimeout(() => {
+                if (messageDiv.parentNode) messageDiv.remove();
+            }, 4000);
         }
 
-        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-            throw new Error(`Please upload a valid image file (${ALLOWED_IMAGE_TYPES.map(t => t.split('/')[1]).join(', ')})`);
+        function showError(message) {
+            showMessage(message, true);
         }
 
-        const fileSizeMB = file.size / (1024 * 1024);
-        if (fileSizeMB > MAX_IMAGE_SIZE_MB) {
-            throw new Error(`Image size should be less than ${MAX_IMAGE_SIZE_MB}MB (current: ${fileSizeMB.toFixed(1)}MB)`);
+        function showSuccess(message) {
+            showMessage(message, false);
         }
 
-        return true;
-    }
-
-    async function fetchWithTimeout(url, options, timeout = API_TIMEOUT_MS) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-        try {
-            const response = await fetch(url, {
-                ...options,
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            return response;
-        } catch (error) {
-            clearTimeout(timeoutId);
-            if (error.name === 'AbortError') {
-                throw new Error('Request timeout. Please try again.');
+        function validateImageFile(file) {
+            if (!file) throw new Error('No file selected');
+            if (!Config.ALLOWED_IMAGE_TYPES.includes(file.type)) {
+                throw new Error(`Please upload a valid image file (${Config.ALLOWED_IMAGE_TYPES.map(t => t.split('/')[1]).join(', ')})`);
             }
-            throw error;
+            const fileSizeMB = file.size / (1024 * 1024);
+            if (fileSizeMB > Config.MAX_IMAGE_SIZE_MB) {
+                throw new Error(`Image size should be less than ${Config.MAX_IMAGE_SIZE_MB}MB (current: ${fileSizeMB.toFixed(1)}MB)`);
+            }
+            return true;
         }
-    }
 
-    // ==================== Firebase Initialization ====================
-    async function initFirebase() {
-        if (firebaseInitialized) return Promise.resolve();
-        if (firebaseInitPromise) return firebaseInitPromise;
-
-        firebaseInitPromise = (async () => {
+        async function fetchWithTimeout(url, options, timeout = Config.API_TIMEOUT_MS) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
             try {
-                const response = await fetch('/api/config');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch Firebase config');
-                }
-                const config = await response.json();
-                firebase.initializeApp(config);
-                firebaseInitialized = true;
+                const response = await fetch(url, { ...options, signal: controller.signal });
+                clearTimeout(timeoutId);
+                return response;
             } catch (error) {
-                console.error('Firebase initialization failed:', error);
-                showErrorPopup('Failed to initialize app. Please refresh the page.');
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') throw new Error('Request timeout');
                 throw error;
             }
-        })();
-
-        return firebaseInitPromise;
-    }
-
-    async function getAuthToken() {
-        await initFirebase();
-        const user = firebase.auth().currentUser;
-        if (!user) {
-            throw new Error('Not logged in');
         }
-        return await user.getIdToken();
-    }
 
-    // ==================== Image Upload & Analysis ====================
-    function setUploadState(state) {
-        const zone = document.getElementById('uploadZone');
-        const processingMsg = document.getElementById('processingMessage');
-
-        if (state === 'processing') {
-            zone.classList.add('processing');
-            processingMsg.style.display = 'flex';
-        } else {
-            zone.classList.remove('processing');
-            processingMsg.style.display = 'none';
-        }
-    }
-
-    function showPreview(file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const previewImg = document.getElementById('previewImg');
-            previewImg.src = e.target.result;
-            document.getElementById('uploadZone').classList.add('has-image');
-            setUploadState('processing');
-            analyzeImage(file);
+        return {
+            sanitizeInput,
+            getTodayDate,
+            getCurrentTimestamp,
+            generateLocalId,
+            showError,
+            showSuccess,
+            validateImageFile,
+            fetchWithTimeout
         };
-        reader.readAsDataURL(file);
-    }
+    })();
 
-    async function analyzeImage(imageFile) {
-        const formData = new FormData();
-        formData.append('image', imageFile);
+    // ==================== 3. DATA MODEL MODULE ====================
+    const Models = (function() {
+        function normalizeToUnifiedFormat(input, source = 'manual') {
+            let name = 'Unknown Food';
+            let cals = '0';
+            let protein = '0';
 
-        try {
-            const response = await fetchWithTimeout('/api/food/analyze', {
+            if (input.name) name = String(input.name).trim();
+
+            if (input.cals !== undefined && input.cals !== null) {
+                cals = String(input.cals);
+            } else if (input.calories !== undefined && input.calories !== null) {
+                cals = String(input.calories);
+            }
+
+            if (input.protein !== undefined && input.protein !== null) {
+                protein = String(input.protein);
+            }
+
+            cals = isNaN(parseFloat(cals)) ? '0' : String(Math.round(parseFloat(cals)));
+            protein = isNaN(parseFloat(protein)) ? '0' : String(Math.round(parseFloat(protein)));
+
+            return {
+                id: input.id || Utils.generateLocalId(),
+                date: input.date || Utils.getTodayDate(),
+                meals: [{ name, cals, protein }],
+                notes: input.notes || '',
+                updatedAt: input.updatedAt || Utils.getCurrentTimestamp(),
+                _localId: Utils.generateLocalId(),
+                _synced: source === 'sync',
+                _source: source
+            };
+        }
+
+        function convertToBackendFormat(unifiedLog) {
+            return {
+                date: unifiedLog.date,
+                meals: unifiedLog.meals.map(meal => ({
+                    name: meal.name,
+                    cals: String(meal.cals),
+                    protein: String(meal.protein)
+                })),
+                notes: unifiedLog.notes || ''
+            };
+        }
+
+        function convertFromBackendFormat(backendLogs) {
+            if (!Array.isArray(backendLogs)) backendLogs = [backendLogs];
+
+            return backendLogs.map(log => ({
+                id: log.id,
+                date: log.date,
+                meals: (log.meals || []).map(meal => ({
+                    name: meal.name || 'Unknown Food',
+                    cals: String(meal.cals || '0'),
+                    protein: String(meal.protein || '0')
+                })),
+                notes: log.notes || '',
+                updatedAt: log.updatedAt || Utils.getCurrentTimestamp(),
+                _localId: Utils.generateLocalId(),
+                _synced: true,
+                _source: 'sync'
+            }));
+        }
+
+        function mergeMealsByDate(items) {
+            const map = new Map();
+            items.forEach(item => {
+                const date = item.date;
+                if (!map.has(date)) {
+                    map.set(date, { ...item, meals: [...item.meals] });
+                } else {
+                    const existing = map.get(date);
+                    existing.meals.push(...item.meals);
+                    existing.updatedAt = Utils.getCurrentTimestamp();
+                    existing._synced = false;
+                }
+            });
+            return Array.from(map.values());
+        }
+
+        return {
+            normalizeToUnifiedFormat,
+            convertToBackendFormat,
+            convertFromBackendFormat,
+            mergeMealsByDate
+        };
+    })();
+
+    // ==================== 4. STORAGE MODULE ====================
+    const Storage = (function() {
+        function getStorageKey(date = null) {
+            return date ? `${Config.STORAGE_PREFIX}${date}` : `${Config.STORAGE_PREFIX}all`;
+        }
+
+        async function saveToLocalStorage(nutritionLogs) {
+            try {
+                const mergedLogs = Models.mergeMealsByDate(nutritionLogs);
+                localStorage.setItem(getStorageKey(), JSON.stringify(mergedLogs));
+                mergedLogs.forEach(log => {
+                    localStorage.setItem(getStorageKey(log.date), JSON.stringify(log));
+                });
+                return true;
+            } catch (error) {
+                console.error('Error saving to local storage:', error);
+                return false;
+            }
+        }
+
+        async function loadFromLocalStorage(date = null) {
+            try {
+                if (date) {
+                    const data = localStorage.getItem(getStorageKey(date));
+                    return data ? JSON.parse(data) : null;
+                }
+                const data = localStorage.getItem(getStorageKey());
+                return data ? JSON.parse(data) : [];
+            } catch (error) {
+                console.error('Error loading from local storage:', error);
+                return date ? null : [];
+            }
+        }
+
+        async function clearLocalStorage() {
+            try {
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith(Config.STORAGE_PREFIX)) keysToRemove.push(key);
+                }
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                return true;
+            } catch (error) {
+                console.error('Error clearing local storage:', error);
+                return false;
+            }
+        }
+
+        return {
+            saveToLocalStorage,
+            loadFromLocalStorage,
+            clearLocalStorage
+        };
+    })();
+
+    // ==================== 5. API MODULE ====================
+    const API = (function() {
+        let firebaseInitialized = false;
+        let firebaseInitPromise = null;
+        let currentUser = null;
+
+        async function initFirebase() {
+            if (firebaseInitialized) return Promise.resolve();
+            if (firebaseInitPromise) return firebaseInitPromise;
+
+            firebaseInitPromise = (async () => {
+                try {
+                    const response = await Utils.fetchWithTimeout('/api/config', { method: 'GET' });
+                    if (!response.ok) throw new Error('Failed to fetch Firebase config');
+                    const config = await response.json();
+                    firebase.initializeApp(config);
+                    firebaseInitialized = true;
+                } catch (error) {
+                    console.error('Firebase initialization failed:', error);
+                    throw error;
+                }
+            })();
+            return firebaseInitPromise;
+        }
+
+        async function getAuthToken() {
+            await initFirebase();
+            const user = firebase.auth().currentUser;
+            if (!user) throw new Error('Not logged in');
+            return await user.getIdToken();
+        }
+
+        async function syncFoodToBackend(foodData) {
+            try {
+                const token = await getAuthToken();
+                const unifiedLog = Models.normalizeToUnifiedFormat(foodData, 'manual');
+                const backendData = Models.convertToBackendFormat(unifiedLog);
+
+                const response = await Utils.fetchWithTimeout('/api/nutrition-logs', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(backendData)
+                });
+
+                if (!response.ok) throw new Error(`Sync failed: ${response.status}`);
+
+                const result = await response.json();
+                if (result.id) {
+                    unifiedLog.id = result.id;
+                    unifiedLog._synced = true;
+                    const allLogs = await Storage.loadFromLocalStorage();
+                    const filteredLogs = allLogs.filter(l => l.date !== unifiedLog.date);
+                    await Storage.saveToLocalStorage([...filteredLogs, unifiedLog]);
+                }
+                return true;
+            } catch (error) {
+                console.error('Error syncing to backend:', error);
+                return false;
+            }
+        }
+
+        async function syncJournalToBackend(journalLog) {
+            try {
+                const token = await getAuthToken();
+                const backendData = {
+                    date: journalLog.date,
+                    meals: journalLog.meals || [],
+                    notes: journalLog.notes || ''
+                };
+
+                const response = await Utils.fetchWithTimeout('/api/nutrition-logs', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(backendData)
+                });
+
+                if (!response.ok) throw new Error(`Sync failed: ${response.status}`);
+
+                const result = await response.json();
+                if (result.id) {
+                    journalLog.id = result.id;
+                    journalLog._synced = true;
+                    const allLogs = await Storage.loadFromLocalStorage();
+                    const index = allLogs.findIndex(l => l.date === journalLog.date);
+                    if (index !== -1) {
+                        allLogs[index] = journalLog;
+                        await Storage.saveToLocalStorage(allLogs);
+                    }
+                }
+                return true;
+            } catch (error) {
+                console.error('Error syncing journal:', error);
+                return false;
+            }
+        }
+
+        async function loadAllFromBackend() {
+            try {
+                const token = await getAuthToken();
+                const response = await Utils.fetchWithTimeout('/api/nutrition-logs', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error(`Load failed: ${response.status}`);
+
+                const backendLogs = await response.json();
+                const unifiedLogs = Models.convertFromBackendFormat(backendLogs);
+                await Storage.saveToLocalStorage(unifiedLogs);
+                return unifiedLogs;
+            } catch (error) {
+                console.error('Error loading from backend:', error);
+                return [];
+            }
+        }
+
+        async function deleteFromBackend(logId) {
+            try {
+                if (logId && !logId.startsWith('local_')) {
+                    const token = await getAuthToken();
+                    const response = await Utils.fetchWithTimeout(`/api/nutrition-logs/${logId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) throw new Error(`Delete failed: ${response.status}`);
+                }
+                return true;
+            } catch (error) {
+                console.error('Error deleting from backend:', error);
+                return false;
+            }
+        }
+
+        async function analyzeFoodImage(imageFile) {
+            const formData = new FormData();
+            formData.append('image', imageFile);
+
+            const response = await Utils.fetchWithTimeout('/api/food/analyze', {
                 method: 'POST',
                 body: formData
             });
 
-            if (!response.ok) {
-                throw new Error(`Analysis failed: ${response.status} ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error(`Analysis failed: ${response.status}`);
 
             const contentType = response.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
                 throw new Error('Server returned invalid response format');
             }
 
-            const data = await response.json();
-
-            // Validate and normalize the API response
-            let foodData;
-            if (isValidFoodData(data)) {
-                foodData = data;
-            } else {
-                console.warn('Invalid food data from API:', data);
-                foodData = normalizeFoodData(data);
-            }
-
-            await addFoodToLog(foodData);
-        } catch (error) {
-            console.error('Analysis error:', error);
-            showErrorPopup(error.message || 'Failed to analyze food image');
-        } finally {
-            setUploadState('idle');
-        }
-    }
-
-    function handleFileSelect(file) {
-        if (!file) return;
-
-        try {
-            validateImageFile(file);
-            showPreview(file);
-        } catch (error) {
-            showErrorPopup(error.message);
-            document.getElementById('fileInput').value = '';
-        }
-    }
-
-    // ==================== Food Log Management ====================
-    function createFoodLogItem(foodData) {
-        // Validate data before creating item
-        if (!isValidFoodData(foodData)) {
-            console.error('Attempted to create invalid food log item:', foodData);
-            return null;
+            return await response.json();
         }
 
-        const item = document.createElement('div');
-        item.className = 'food-log-item';
-        item.setAttribute('data-name', foodData.name);
-        item.setAttribute('data-cals', foodData.cals);
-        item.setAttribute('data-protein', foodData.protein);
-
-        item.innerHTML = `
-            <div class="food-log-content">
-                <span class="food-log-name">${sanitizeInput(foodData.name)}</span>
-                <div class="food-log-details">
-                    <span>🔥 ${foodData.cals} kcal</span>
-                    <span>💪 ${foodData.protein}g protein</span>
-                </div>
-            </div>
-            <button class="food-log-delete" aria-label="Delete food entry">×</button>
-        `;
-
-        return item;
-    }
-
-    function updateNutritionDisplay() {
-        const calories = cumulativeNutrition.calories;
-        const protein = cumulativeNutrition.protein;
-
-        const calPercent = Math.min(100, (calories / NUTRITION_GOALS.calories) * 100);
-        const protPercent = Math.min(100, (protein / NUTRITION_GOALS.protein) * 100);
-
-        const calLabel = document.getElementById('cal-label');
-        const protLabel = document.getElementById('prot-label');
-        const calFill = document.getElementById('cal-fill');
-        const protFill = document.getElementById('prot-fill');
-
-        calLabel.textContent = `${Math.round(calories)} / ${NUTRITION_GOALS.calories} kcal`;
-        protLabel.textContent = `${Math.round(protein)}g / ${NUTRITION_GOALS.protein}g`;
-
-        if (calories > NUTRITION_GOALS.calories) {
-            calLabel.classList.add('text-danger');
-        } else {
-            calLabel.classList.remove('text-danger');
+        function onAuthStateChanged(callback) {
+            return firebase.auth().onAuthStateChanged(callback);
         }
 
-        if (protein > NUTRITION_GOALS.protein) {
-            protLabel.classList.add('text-danger');
-        } else {
-            protLabel.classList.remove('text-danger');
-        }
-
-        requestAnimationFrame(() => {
-            calFill.style.width = calPercent + '%';
-            protFill.style.width = protPercent + '%';
-        });
-    }
-
-    async function addFoodToLog(foodData) {
-        // Validate input data
-        if (!isValidFoodData(foodData)) {
-            console.error('Invalid food data rejected:', foodData);
-            showErrorPopup('Invalid food data received. Please try again.');
-            return;
-        }
-
-        const logContainer = document.getElementById('foodLog');
-        const emptyMsg = logContainer.querySelector('.food-log-empty');
-
-        // Check for duplicates
-        const existingItems = logContainer.querySelectorAll('.food-log-item');
-        const isDuplicate = Array.from(existingItems).some(item => {
-            return item.getAttribute('data-name') === foodData.name &&
-                   parseInt(item.getAttribute('data-cals')) === foodData.cals &&
-                   parseInt(item.getAttribute('data-protein')) === foodData.protein;
-        });
-
-        if (isDuplicate) {
-            showErrorPopup(`${foodData.name} is already in your food log`);
-            return;
-        }
-
-        // Remove empty message if present
-        if (emptyMsg) emptyMsg.remove();
-
-        // Update cumulative nutrition
-        cumulativeNutrition.calories += foodData.cals;
-        cumulativeNutrition.protein += foodData.protein;
-
-        // Create and append new item
-        const item = createFoodLogItem(foodData);
-        if (item) {
-            logContainer.appendChild(item);
-        } else {
-            throw new Error('Failed to create food log item');
-        }
-
-        // Update UI
-        updateNutritionDisplay();
-
-        // Save to storage
-        await saveFoodLogToLocal(foodData);
-        await saveFoodLogToBackend(foodData);
-
-        // Scroll to new item
-        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    async function deleteFoodLog(button) {
-        const item = button.closest('.food-log-item');
-        if (!item) return;
-
-        const name = item.getAttribute('data-name');
-        const cals = parseInt(item.getAttribute('data-cals'));
-        const protein = parseInt(item.getAttribute('data-protein'));
-
-        // Update cumulative nutrition
-        cumulativeNutrition.calories -= cals;
-        cumulativeNutrition.protein -= protein;
-
-        // Remove from DOM
-        item.remove();
-
-        // Update UI
-        updateNutritionDisplay();
-
-        // Check if log is empty
-        const logContainer = document.getElementById('foodLog');
-        if (logContainer.children.length === 0) {
-            logContainer.innerHTML = '<p class="food-log-empty">No meals logged yet — food entries appear here</p>';
-        }
-
-        // Remove from local storage
-        await removeFoodLogFromLocal(name, cals, protein);
-        //  delete from backend
-        await deleteFoodLogFromBackend(name, cals, protein);
-    }
-
-    // ==================== Local Storage Management ====================
-    function getTodayStorageKey() {
-        const today = new Date().toISOString().split('T')[0];
-        return `food_logs_${today}`;
-    }
-
-    async function saveFoodLogToLocal(foodData) {
-        try {
-            const storageKey = getTodayStorageKey();
-            const savedLogs = localStorage.getItem(storageKey);
-            const logs = savedLogs ? JSON.parse(savedLogs) : [];
-
-            // Only save valid data
-            if (isValidFoodData(foodData)) {
-                logs.push(foodData);
-                localStorage.setItem(storageKey, JSON.stringify(logs));
-            }
-        } catch (error) {
-            console.error('Error saving to local storage:', error);
-        }
-    }
-
-    async function removeFoodLogFromLocal(name, cals, protein) {
-        try {
-            const storageKey = getTodayStorageKey();
-            const savedLogs = localStorage.getItem(storageKey);
-            if (savedLogs) {
-                let logs = JSON.parse(savedLogs);
-                logs = logs.filter(log =>
-                    !(log.name === name && log.cals === cals && log.protein === protein)
-                );
-                localStorage.setItem(storageKey, JSON.stringify(logs));
-            }
-        } catch (error) {
-            console.error('Error removing from local storage:', error);
-        }
-    }
-
-    async function loadFoodLogsFromLocal() {
-        try {
-            const storageKey = getTodayStorageKey();
-            const savedLogs = localStorage.getItem(storageKey);
-            if (!savedLogs) return;
-
-            const logs = JSON.parse(savedLogs);
-            if (logs.length === 0) return;
-
-            // Reset cumulative nutrition
-            cumulativeNutrition = { calories: 0, protein: 0 };
-
-            // Clear existing logs
-            const logContainer = document.getElementById('foodLog');
-            logContainer.innerHTML = '';
-
-            let validLogsCount = 0;
-
-            // Add all valid logs
-            for (const log of logs) {
-                // Validate and normalize each log entry
-                let validLog = log;
-                if (!isValidFoodData(log)) {
-                    console.warn('Found corrupted log entry, fixing:', log);
-                    validLog = normalizeFoodData(log);
-                }
-
-                cumulativeNutrition.calories += validLog.cals;
-                cumulativeNutrition.protein += validLog.protein;
-                const item = createFoodLogItem(validLog);
-                if (item) {
-                    logContainer.appendChild(item);
-                    validLogsCount++;
-                }
-            }
-
-            if (validLogsCount === 0) {
-                logContainer.innerHTML = '<p class="food-log-empty">No meals logged yet — food entries appear here</p>';
-            }
-
-            updateNutritionDisplay();
-        } catch (error) {
-            console.error('Error loading from local storage:', error);
-        }
-    }
-    // ==================== Backend API Integration ====================
-    async function saveFoodLogToBackend(foodData) {
-        try {
-            const token = await getAuthToken();
-            const logData = {
-                date: new Date().toISOString().split('T')[0],
-                meals: [{
-                    name: foodData.name,
-                    calories: foodData.cals,
-                    protein: foodData.protein
-                }],
-                notes: "Logged via Nutrition Vision"
-            };
-
-            const response = await fetchWithTimeout('/api/nutrition-logs', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(logData)
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Failed to save: ${response.status} - ${errorText}`);
-            }
-        } catch (error) {
-            console.error('Error saving to backend:', error);
-        }
-    }
-
-    async function fetchFoodLogsFromBackend() {
-        try {
-            const token = await getAuthToken();
-            const response = await fetchWithTimeout('/api/nutrition-logs', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch food logs');
-            }
-
-            const logs = await response.json();
-
-            //Filter out corrupted data
-            const validLogs = logs.filter(log => {
-                const isValid = log.name &&
-                               log.name !== 'undefined' &&
-                               log.name !== 'null' &&
-                               log.name !== 'Unknown Food' &&
-                               typeof log.calories === 'number' &&
-                               !isNaN(log.calories) &&
-                               typeof log.protein === 'number' &&
-                               !isNaN(log.protein);
-
-                if (!isValid) {
-                    console.warn('Filtered out corrupted log:', log);
-                }
-                return isValid;
-            });
-
-            // Merge with existing logs (avoid duplicates)
-            const existingLogs = new Set();
-            document.querySelectorAll('.food-log-item').forEach(item => {
-                const key = `${item.getAttribute('data-name')}-${item.getAttribute('data-cals')}-${item.getAttribute('data-protein')}`;
-                existingLogs.add(key);
-            });
-
-            for (const log of validLogs) {
-                // Validate backend data
-                let validLog = log;
-                if (!isValidFoodData(log)) {
-                    console.warn('Invalid data from backend, normalizing:', log);
-                    validLog = normalizeFoodData(log);
-                }
-
-                const logKey = `${validLog.name}-${validLog.cals}-${validLog.protein}`;
-                if (!existingLogs.has(logKey)) {
-                    await addFoodToLog(validLog);
-                    existingLogs.add(logKey);
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching from backend:', error);
-        }
-    }
-
-    async function deleteFoodLogFromBackend(name, cals, protein) {
-        try {
-            const token = await getAuthToken();
-            const today = new Date().toISOString().split('T')[0];
-
-            const response = await fetchWithTimeout(`/api/nutrition-logs/${today}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: name,
-                    calories: cals,
-                    protein: protein
-                })
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Failed to delete from backend: ${response.status} - ${errorText}`);
-            }
-
-            console.log("Successfully deleted from backend");
-        } catch (error) {
-            console.error('Error deleting from backend:', error);
-            showErrorPopup(error.message || 'Failed to delete record from server');
-        }
-    }
-
-
-    // ==================== Manual Food Entry ====================
-    function toggleManualEntry() {
-        const form = document.getElementById('manualEntryForm');
-        const btn = document.getElementById('addFoodBtn');
-
-        if (form.classList.contains('hidden')) {
-            form.classList.remove('hidden');
-            btn.textContent = '−';
-            document.getElementById('foodName').focus();
-        } else {
-            form.classList.add('hidden');
-            btn.textContent = '+';
-        }
-    }
-
-    async function addManualFood() {
-        const nameInput = document.getElementById('foodName');
-        const caloriesInput = document.getElementById('foodCalories');
-        const proteinInput = document.getElementById('foodProtein');
-
-        const name = nameInput.value.trim();
-        const cals = parseInt(caloriesInput.value) || 0;
-        const protein = parseInt(proteinInput.value) || 0;
-
-        if (!name && cals === 0 && protein === 0) {
-            showErrorPopup('Please enter at least one field (name, calories, or protein)');
-            return;
-        }
-
-        const foodData = {
-            name: name || 'Manual Entry',
-            cals: cals,
-            protein: protein
+        return {
+            initFirebase,
+            getAuthToken,
+            syncFoodToBackend,
+            syncJournalToBackend,
+            loadAllFromBackend,
+            deleteFromBackend,
+            analyzeFoodImage,
+            onAuthStateChanged
         };
+    })();
 
-        await addFoodToLog(foodData);
+    // ==================== 6. FOOD SERVICE MODULE ====================
+    const FoodService = (function() {
+        let cumulativeNutrition = { calories: 0, protein: 0 };
 
-        // Clear inputs
-        nameInput.value = '';
-        caloriesInput.value = '';
-        proteinInput.value = '';
+        async function addFoodLog(inputData, source = 'manual') {
+            try {
+                const unifiedLog = Models.normalizeToUnifiedFormat(inputData, source);
+                const existingLogs = await Storage.loadFromLocalStorage();
+                const today = Utils.getTodayDate();
+                const todayLogIndex = existingLogs.findIndex(l => l.date === today);
 
-        // Close form
-        toggleManualEntry();
-    }
+                // Preserve existing journal content
+                const currentJournal = document.getElementById('journalInput')?.value || '';
 
-    // ==================== Reset Functionality ====================
-    async function resetAllData() {
-        if (!confirm('Are you sure you want to clear all food logs for today? This action cannot be undone.')) {
-            return;
-        }
+                if (todayLogIndex !== -1) {
+                    const existingNotes = existingLogs[todayLogIndex].notes || '';
+                    existingLogs[todayLogIndex].meals.push(...unifiedLog.meals);
+                    existingLogs[todayLogIndex].updatedAt = Utils.getCurrentTimestamp();
+                    existingLogs[todayLogIndex]._synced = false;
 
-        try {
-            // Reset cumulative nutrition
-            cumulativeNutrition = { calories: 0, protein: 0 };
+                    if (existingNotes) {
+                        existingLogs[todayLogIndex].notes = existingNotes;
+                    } else if (currentJournal) {
+                        existingLogs[todayLogIndex].notes = currentJournal;
+                    }
 
-            // Clear food log display
-            const logContainer = document.getElementById('foodLog');
-            logContainer.innerHTML = '<p class="food-log-empty">No meals logged yet — food entries appear here</p>';
-
-            // Clear preview
-            document.getElementById('uploadZone').classList.remove('has-image');
-            document.getElementById('previewImg').src = '';
-            document.getElementById('fileInput').value = '';
-
-            // Update nutrition display
-            updateNutritionDisplay();
-
-            // Clear local storage for today
-            const storageKey = getTodayStorageKey();
-            localStorage.removeItem(storageKey);
-
-            showErrorPopup('All data cleared successfully');
-        } catch (error) {
-            console.error('Error resetting data:', error);
-            showErrorPopup('Failed to clear data');
-        }
-    }
-
-    // ==================== Event Handlers ====================
-    function handleDragOver(e) {
-        e.preventDefault();
-        document.getElementById('uploadZone').classList.add('drag-over');
-    }
-
-    function handleDragLeave(e) {
-        document.getElementById('uploadZone').classList.remove('drag-over');
-    }
-
-    function handleDrop(e) {
-        e.preventDefault();
-        document.getElementById('uploadZone').classList.remove('drag-over');
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            handleFileSelect(file);
-        } else if (file) {
-            showErrorPopup('Please drop an image file');
-        }
-    }
-
-    // ==================== Initialization ====================
-    async function initializeApp() {
-        try {
-            await initFirebase();
-
-            firebase.auth().onAuthStateChanged(async (user) => {
-                if (!user) {
-                    window.location.href = 'login.html';
-                    return;
+                    await Storage.saveToLocalStorage(existingLogs);
+                } else {
+                    if (currentJournal) unifiedLog.notes = currentJournal;
+                    unifiedLog._synced = false;
+                    await Storage.saveToLocalStorage([...existingLogs, unifiedLog]);
                 }
 
-                currentUser = user;
+                await UI.updateAll();
 
-                // Load data
-                await loadFoodLogsFromLocal();
-                await fetchFoodLogsFromBackend();
-            });
-        } catch (error) {
-            console.error('Initialization failed:', error);
-            showErrorPopup('Failed to initialize app. Please refresh the page.');
+                // Sync to backend in background
+                const updatedLogs = await Storage.loadFromLocalStorage();
+                const updatedTodayLog = updatedLogs.find(l => l.date === today);
+                if (updatedTodayLog && updatedTodayLog.notes) {
+                    await API.syncJournalToBackend(updatedTodayLog);
+                }
+                API.syncFoodToBackend(unifiedLog).catch(err => console.warn('Background sync failed:', err));
+
+                return unifiedLog;
+            } catch (error) {
+                console.error('Error adding food log:', error);
+                Utils.showError('Failed to add food: ' + error.message);
+                throw error;
+            }
         }
-    }
 
-    // ==================== Setup Event Listeners ====================
-    function setupEventListeners() {
-        // Upload zone
-        const uploadZone = document.getElementById('uploadZone');
-        const fileInput = document.getElementById('fileInput');
-        const uploadButton = document.getElementById('uploadButton');
+        async function deleteFoodLog(mealIndex) {
+            try {
+                const logs = await Storage.loadFromLocalStorage();
+                const today = Utils.getTodayDate();
+                const todayLog = logs.find(l => l.date === today);
 
-        uploadZone.addEventListener('click', (e) => {
-            if (e.target === uploadButton || uploadButton.contains(e.target)) {
+                if (!todayLog || !todayLog.meals[mealIndex]) return false;
+
+                await API.deleteFromBackend(todayLog.id);
+                todayLog.meals.splice(mealIndex, 1);
+
+                if (todayLog.meals.length === 0 && !todayLog.notes) {
+                    const updatedLogs = logs.filter(l => l.date !== today);
+                    await Storage.saveToLocalStorage(updatedLogs);
+                } else {
+                    todayLog._synced = false;
+                    await Storage.saveToLocalStorage(logs);
+                }
+
+                await UI.updateAll();
+                Utils.showSuccess('Food entry deleted');
+                return true;
+            } catch (error) {
+                console.error('Error deleting food log:', error);
+                Utils.showError('Failed to delete: ' + error.message);
+                return false;
+            }
+        }
+
+        async function getTodayNutrition() {
+            const logs = await Storage.loadFromLocalStorage();
+            const today = Utils.getTodayDate();
+            const todayLog = logs.find(l => l.date === today);
+
+            if (!todayLog || !todayLog.meals) {
+                return { calories: 0, protein: 0 };
+            }
+
+            const total = todayLog.meals.reduce((acc, meal) => ({
+                calories: acc.calories + (parseFloat(meal.cals) || 0),
+                protein: acc.protein + (parseFloat(meal.protein) || 0)
+            }), { calories: 0, protein: 0 });
+
+            cumulativeNutrition = total;
+            return total;
+        }
+
+        function getCumulativeNutrition() {
+            return cumulativeNutrition;
+        }
+
+        return {
+            addFoodLog,
+            deleteFoodLog,
+            getTodayNutrition,
+            getCumulativeNutrition
+        };
+    })();
+
+    // ==================== 7. JOURNAL SERVICE MODULE ====================
+    const JournalService = (function() {
+        async function updateJournal(content, syncToBackend = true) {
+            try {
+                const logs = await Storage.loadFromLocalStorage();
+                const today = Utils.getTodayDate();
+                const todayLogIndex = logs.findIndex(l => l.date === today);
+
+                let updatedLog;
+
+                if (todayLogIndex !== -1) {
+                    logs[todayLogIndex].notes = content;
+                    logs[todayLogIndex].updatedAt = Utils.getCurrentTimestamp();
+                    logs[todayLogIndex]._synced = false;
+                    updatedLog = logs[todayLogIndex];
+                    await Storage.saveToLocalStorage(logs);
+                } else if (content.trim()) {
+                    updatedLog = {
+                        id: Utils.generateLocalId(),
+                        date: today,
+                        meals: [],
+                        notes: content,
+                        updatedAt: Utils.getCurrentTimestamp(),
+                        _localId: Utils.generateLocalId(),
+                        _synced: false,
+                        _source: 'journal'
+                    };
+                    await Storage.saveToLocalStorage([...logs, updatedLog]);
+                } else {
+                    return null;
+                }
+
+                // Update UI
+                const journalInput = document.getElementById('journalInput');
+                if (journalInput && journalInput.value !== content) {
+                    journalInput.value = content;
+                }
+
+                // Sync to backend
+                if (syncToBackend && updatedLog && content.trim()) {
+                    await API.syncJournalToBackend(updatedLog);
+                }
+
+                return updatedLog;
+            } catch (error) {
+                console.error('Error updating journal:', error);
+                throw error;
+            }
+        }
+
+        async function loadJournal() {
+            try {
+                const logs = await Storage.loadFromLocalStorage();
+                const today = Utils.getTodayDate();
+                const todayLog = logs.find(l => l.date === today);
+                return todayLog ? todayLog.notes || '' : '';
+            } catch (error) {
+                console.error('Error loading journal:', error);
+                return '';
+            }
+        }
+
+        async function saveJournal() {
+            const journalContent = document.getElementById('journalInput').value;
+            const saveBtn = document.getElementById('saveJournalBtn');
+            const statusSpan = document.getElementById('journalStatus');
+            const originalText = saveBtn.textContent;
+
+            if (!journalContent.trim()) {
+                if (statusSpan) {
+                    statusSpan.textContent = 'Empty journal, nothing to save';
+                    setTimeout(() => { if (statusSpan.textContent === 'Empty journal, nothing to save') statusSpan.textContent = ''; }, 2000);
+                }
                 return;
             }
-            fileInput.click();
-        });
 
-        uploadButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fileInput.click();
-        });
+            try {
+                saveBtn.textContent = 'Saving...';
+                saveBtn.disabled = true;
+                if (statusSpan) {
+                    statusSpan.textContent = 'Saving...';
+                    statusSpan.style.color = 'var(--warning)';
+                }
 
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) handleFileSelect(file);
-        });
+                await updateJournal(journalContent, true);
 
-        // Drag and drop
-        uploadZone.addEventListener('dragover', handleDragOver);
-        uploadZone.addEventListener('dragleave', handleDragLeave);
-        uploadZone.addEventListener('drop', handleDrop);
-
-        // Manual entry
-        document.getElementById('addFoodBtn').addEventListener('click', toggleManualEntry);
-        document.getElementById('saveManualFoodBtn').addEventListener('click', addManualFood);
-
-        // Reset and fix buttons
-        document.getElementById('resetButton').addEventListener('click', resetAllData);
-
-        // Help button
-        document.getElementById('helpBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            showErrorPopup('📖 Help: Upload food images to analyze nutrition, or manually add meals using the + button. Your data is saved locally and synced to your account.');
-        });
-
-        // Event delegation for delete buttons
-        document.getElementById('foodLog').addEventListener('click', (e) => {
-            const deleteBtn = e.target.closest('.food-log-delete');
-            if (deleteBtn) {
-                deleteFoodLog(deleteBtn);
+                if (statusSpan) {
+                    statusSpan.textContent = 'Saved!';
+                    statusSpan.style.color = 'var(--success)';
+                    setTimeout(() => { if (statusSpan.textContent === 'Saved!') statusSpan.textContent = ''; }, 2000);
+                }
+                Utils.showSuccess('Journal saved!');
+            } catch (error) {
+                console.error('Error saving journal:', error);
+                if (statusSpan) {
+                    statusSpan.textContent = 'Save failed';
+                    statusSpan.style.color = 'var(--danger)';
+                    setTimeout(() => { if (statusSpan.textContent === 'Save failed') statusSpan.textContent = ''; }, 3000);
+                }
+                Utils.showError('Failed to save journal');
+            } finally {
+                saveBtn.textContent = originalText;
+                saveBtn.disabled = false;
             }
-        });
+        }
 
-        // Enter key support
-        const inputs = ['foodName', 'foodCalories', 'foodProtein'];
-        inputs.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addManualFood();
+        return {
+            updateJournal,
+            loadJournal,
+            saveJournal
+        };
+    })();
+
+    // ==================== 8. UI MODULE ====================
+    const UI = (function() {
+        async function updateNutritionDisplay() {
+            const nutrition = await FoodService.getTodayNutrition();
+            const goals = Config.NUTRITION_GOALS;
+
+            const calPercent = Math.min(100, (nutrition.calories / goals.calories) * 100);
+            const protPercent = Math.min(100, (nutrition.protein / goals.protein) * 100);
+
+            const calLabel = document.getElementById('cal-label');
+            const protLabel = document.getElementById('prot-label');
+            const calFill = document.getElementById('cal-fill');
+            const protFill = document.getElementById('prot-fill');
+
+            calLabel.textContent = `${Math.round(nutrition.calories)} / ${goals.calories} kcal`;
+            protLabel.textContent = `${Math.round(nutrition.protein)}g / ${goals.protein}g`;
+
+            if (nutrition.calories > goals.calories) {
+                calLabel.classList.add('text-danger');
+            } else {
+                calLabel.classList.remove('text-danger');
+            }
+
+            if (nutrition.protein > goals.protein) {
+                protLabel.classList.add('text-danger');
+            } else {
+                protLabel.classList.remove('text-danger');
+            }
+
+            calFill.style.width = calPercent + '%';
+            protFill.style.width = protPercent + '%';
+        }
+
+        async function updateFoodLogDisplay() {
+            const logs = await Storage.loadFromLocalStorage();
+            const today = Utils.getTodayDate();
+            const todayLog = logs.find(l => l.date === today);
+            const logContainer = document.getElementById('foodLog');
+
+            if (!todayLog || !todayLog.meals || todayLog.meals.length === 0) {
+                logContainer.innerHTML = '<p class="food-log-empty">No meals logged yet — food entries appear here</p>';
+                return;
+            }
+
+            logContainer.innerHTML = '';
+
+            todayLog.meals.forEach((meal, index) => {
+                const item = document.createElement('div');
+                item.className = 'food-log-item';
+                item.setAttribute('data-meal-index', index);
+
+                item.innerHTML = `
+                    <div class="food-log-content">
+                        <span class="food-log-name">${Utils.sanitizeInput(meal.name)}</span>
+                        <div class="food-log-details">
+                            <span>🔥 ${meal.cals} kcal</span>
+                            <span>💪 ${meal.protein}g protein</span>
+                        </div>
+                    </div>
+                    <button class="food-log-delete" aria-label="Delete food entry">×</button>
+                `;
+
+                logContainer.appendChild(item);
+            });
+        }
+
+        async function updateJournalDisplay() {
+            const journalInput = document.getElementById('journalInput');
+            const journalDateSpan = document.getElementById('journalDate');
+
+            if (journalInput) {
+                const journal = await JournalService.loadJournal();
+                if (journalInput.value !== journal) {
+                    journalInput.value = journal;
+                }
+            }
+
+            if (journalDateSpan) {
+                journalDateSpan.textContent = Utils.getTodayDate();
+            }
+        }
+
+        async function updateAll() {
+            await updateNutritionDisplay();
+            await updateFoodLogDisplay();
+            await updateJournalDisplay();
+        }
+
+        function setUploadState(state) {
+            const zone = document.getElementById('uploadZone');
+            const processingMsg = document.getElementById('processingMessage');
+
+            if (state === 'processing') {
+                zone.classList.add('processing');
+                processingMsg.style.display = 'flex';
+            } else {
+                zone.classList.remove('processing');
+                processingMsg.style.display = 'none';
+            }
+        }
+
+        function showPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('uploadZone').classList.add('has-image');
+                setUploadState('processing');
+                handleImageAnalysis(file);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function handleImageAnalysis(file) {
+            try {
+                const data = await API.analyzeFoodImage(file);
+                await FoodService.addFoodLog({
+                    name: data.name || 'Unknown Food',
+                    cals: String(data.cals || 0),
+                    protein: String(data.protein || 0)
+                }, 'vision');
+                Utils.showSuccess('Food analyzed and added to log!');
+            } catch (error) {
+                console.error('Analysis error:', error);
+                Utils.showError(error.message || 'Failed to analyze food image');
+            } finally {
+                setUploadState('idle');
+            }
+        }
+
+        function handleFileSelect(file) {
+            if (!file) return;
+            try {
+                Utils.validateImageFile(file);
+                showPreview(file);
+            } catch (error) {
+                Utils.showError(error.message);
+                document.getElementById('fileInput').value = '';
+            }
+        }
+
+        return {
+            updateAll,
+            setUploadState,
+            showPreview,
+            handleFileSelect,
+            updateNutritionDisplay,
+            updateFoodLogDisplay,
+            updateJournalDisplay
+        };
+    })();
+
+    // ==================== 9. EVENT HANDLERS MODULE ====================
+    const Events = (function() {
+        let autoSaveTimeout = null;
+
+        function setupUploadEvents() {
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            const uploadButton = document.getElementById('uploadButton');
+
+            uploadZone.addEventListener('click', (e) => {
+                if (e.target === uploadButton || uploadButton.contains(e.target)) return;
+                fileInput.click();
+            });
+
+            uploadButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) UI.handleFileSelect(e.target.files[0]);
+            });
+
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('drag-over');
+            });
+
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('drag-over');
+            });
+
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    UI.handleFileSelect(file);
+                } else if (file) {
+                    Utils.showError('Please drop an image file');
+                }
+            });
+        }
+
+        function setupFoodEvents() {
+            const addFoodBtn = document.getElementById('addFoodBtn');
+            const manualForm = document.getElementById('manualEntryForm');
+            const saveManualBtn = document.getElementById('saveManualFoodBtn');
+            const resetBtn = document.getElementById('resetButton');
+            const fixDataBtn = document.getElementById('fixDataBtn');
+            const syncNowBtn = document.getElementById('syncNowBtn');
+
+            if (addFoodBtn) {
+                addFoodBtn.addEventListener('click', () => {
+                    manualForm.classList.toggle('hidden');
+                    addFoodBtn.textContent = manualForm.classList.contains('hidden') ? '+' : '−';
+                    if (!manualForm.classList.contains('hidden')) {
+                        document.getElementById('foodName').focus();
                     }
                 });
             }
-        });
-    }
 
-    // Set active navigation link
-    function setActiveNavLink() {
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.getAttribute('href') === 'nutrition.html') {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
+            if (saveManualBtn) {
+                saveManualBtn.addEventListener('click', async () => {
+                    const name = document.getElementById('foodName').value.trim();
+                    const cals = document.getElementById('foodCalories').value;
+                    const protein = document.getElementById('foodProtein').value;
+
+                    if (!name && !cals && !protein) {
+                        Utils.showError('Please enter at least one field');
+                        return;
+                    }
+
+                    await FoodService.addFoodLog({
+                        name: name || 'Manual Entry',
+                        cals: cals || '0',
+                        protein: protein || '0'
+                    }, 'manual');
+
+                    document.getElementById('foodName').value = '';
+                    document.getElementById('foodCalories').value = '';
+                    document.getElementById('foodProtein').value = '';
+                    manualForm.classList.add('hidden');
+                    addFoodBtn.textContent = '+';
+                    Utils.showSuccess('Food added successfully!');
+                });
             }
-        });
-    }
 
-    // ==================== Start Application ====================
+            if (resetBtn) {
+                resetBtn.addEventListener('click', async () => {
+                    if (!confirm('Are you sure you want to clear ALL local data? Synced data will remain on server.')) return;
+                    await Storage.clearLocalStorage();
+                    await UI.updateAll();
+                    Utils.showSuccess('Local data cleared. Reloading...');
+                    setTimeout(() => location.reload(), 1500);
+                });
+            }
+
+            if (fixDataBtn) {
+                fixDataBtn.addEventListener('click', async () => {
+                    Utils.showSuccess('Checking for corrupted data...');
+                    const logs = await Storage.loadFromLocalStorage();
+                    let fixed = false;
+
+                    logs.forEach(log => {
+                        if (log.meals) {
+                            log.meals = log.meals.filter(meal => {
+                                const isValid = meal.name && meal.name !== 'undefined' && meal.name !== 'null' &&
+                                               meal.cals !== undefined && meal.protein !== undefined;
+                                if (!isValid) fixed = true;
+                                return isValid;
+                            });
+                        }
+                    });
+
+                    if (fixed) {
+                        await Storage.saveToLocalStorage(logs);
+                        await UI.updateAll();
+                        Utils.showSuccess('Corrupted data fixed!');
+                    } else {
+                        Utils.showSuccess('No corrupted data found!');
+                    }
+                });
+            }
+
+            if (syncNowBtn) {
+                syncNowBtn.addEventListener('click', async () => {
+                    Utils.showSuccess('Syncing data...');
+                    await API.loadAllFromBackend();
+                    await UI.updateAll();
+                    Utils.showSuccess('Sync completed!');
+                });
+            }
+
+            // Event delegation for delete buttons
+            document.getElementById('foodLog').addEventListener('click', async (e) => {
+                const deleteBtn = e.target.closest('.food-log-delete');
+                if (deleteBtn) {
+                    const item = deleteBtn.closest('.food-log-item');
+                    const index = parseInt(item.getAttribute('data-meal-index'));
+                    if (!isNaN(index)) await FoodService.deleteFoodLog(index);
+                }
+            });
+
+            // Enter key support for manual entry
+            ['foodName', 'foodCalories', 'foodProtein'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') saveManualBtn.click();
+                    });
+                }
+            });
+        }
+
+        function setupJournalEvents() {
+            const journalInput = document.getElementById('journalInput');
+            const saveJournalBtn = document.getElementById('saveJournalBtn');
+
+            if (saveJournalBtn) {
+                saveJournalBtn.addEventListener('click', JournalService.saveJournal);
+            }
+
+            if (journalInput) {
+                journalInput.addEventListener('input', () => {
+                    const statusSpan = document.getElementById('journalStatus');
+                    if (statusSpan && journalInput.value.trim()) {
+                        statusSpan.textContent = 'Unsaved changes';
+                        statusSpan.style.color = 'var(--warning)';
+
+                        if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+                        autoSaveTimeout = setTimeout(() => {
+                            if (statusSpan.textContent === 'Unsaved changes') {
+                                statusSpan.textContent = '';
+                            }
+                        }, 2000);
+                    }
+                });
+            }
+        }
+
+        function setupHelpEvent() {
+            const helpBtn = document.getElementById('helpBtn');
+            if (helpBtn) {
+                helpBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    Utils.showSuccess('📖 Help: Upload food images to analyze nutrition, or manually add meals. Data is synced to your account.');
+                });
+            }
+        }
+
+        function setupAllEvents() {
+            setupUploadEvents();
+            setupFoodEvents();
+            setupJournalEvents();
+            setupHelpEvent();
+        }
+
+        return { setupAllEvents };
+    })();
+
+    // ==================== 10. APP INITIALIZATION ====================
+    const App = (function() {
+        async function initialize() {
+            try {
+                await API.initFirebase();
+
+                API.onAuthStateChanged(async (user) => {
+                    if (!user) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    // Load data from local storage first, then sync from backend
+                    const localData = await Storage.loadFromLocalStorage();
+                    if (localData.length === 0) {
+                        await API.loadAllFromBackend();
+                    }
+
+                    // Update UI
+                    await UI.updateAll();
+
+                    // Setup event handlers
+                    Events.setupAllEvents();
+
+                    Utils.showSuccess('Ready! Add your meals to get started.');
+                });
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                Utils.showError('Failed to initialize app. Please refresh the page.');
+            }
+        }
+
+        function setActiveNavLink() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === 'nutrition.html') {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        function start() {
+            setActiveNavLink();
+            initialize();
+        }
+
+        return { start };
+    })();
+
+    // Start the application
     document.addEventListener('DOMContentLoaded', () => {
-        setActiveNavLink();
-        setupEventListeners();
-        initializeApp();
+        App.start();
     });
 </script>
 </body>
