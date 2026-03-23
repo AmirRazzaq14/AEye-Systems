@@ -1167,11 +1167,11 @@
             }
         }
 
-        async function deleteFromBackend(logId) {
+        async function deleteFromBackend(date) {
             try {
-                if (logId && !logId.startsWith('local_')) {
+                if (date) {
                     const token = await getAuthToken();
-                    const response = await Utils.fetchWithTimeout(`/api/nutrition-logs/${logId}`, {
+                    const response = await Utils.fetchWithTimeout(`/api/nutrition-logs/${date}`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -1183,6 +1183,41 @@
                 return false;
             }
         }
+
+        async function updateLogOnBackend(updatedLog) {
+        try {
+            const token = await getAuthToken();
+            const backendData = Models.convertToBackendFormat(updatedLog);
+
+            const response = await Utils.fetchWithTimeout(`/api/nutrition-logs/${updatedLog.date}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(backendData)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Update failed: ${response.status} - ${errorText}`);
+            }
+
+            // Mark as synced
+            updatedLog._synced = true;
+            const allLogs = await Storage.loadFromLocalStorage();
+            const index = allLogs.findIndex(l => l.date === updatedLog.date);
+            if (index !== -1) {
+                allLogs[index] = updatedLog;
+                await Storage.saveToLocalStorage(allLogs);
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Error updating log on backend:', error);
+            return false;
+        }
+    }
 
         async function analyzeFoodImage(imageFile) {
             const formData = new FormData();
@@ -1214,6 +1249,7 @@
             syncJournalToBackend,
             loadAllFromBackend,
             deleteFromBackend,
+            updateLogOnBackend,
             analyzeFoodImage,
             onAuthStateChanged
         };
@@ -1272,25 +1308,61 @@
 
         async function deleteFoodLog(mealIndex) {
             try {
+                // 1. Load current data
                 const logs = await Storage.loadFromLocalStorage();
                 const today = Utils.getTodayDate();
                 const todayLog = logs.find(l => l.date === today);
 
-                if (!todayLog || !todayLog.meals[mealIndex]) return false;
+                // 2. Validate
+                if (!todayLog) {
+                    Utils.showError('No food log found for today');
+                    return false;
+                }
 
-                await API.deleteFromBackend(todayLog.id);
+                if (!todayLog.meals[mealIndex]) {
+                    Utils.showError('Meal not found');
+                    return false;
+                }
+
+                // 3. Save deleted meal info (for logging)
+                const deletedMeal = todayLog.meals[mealIndex];
+                console.log(`Deleting meal: ${deletedMeal.name} (${deletedMeal.cals} kcal)`);
+
+                // 4. Remove meal from local array
                 todayLog.meals.splice(mealIndex, 1);
 
-                if (todayLog.meals.length === 0 && !todayLog.notes) {
+                // 5. Determine if the entire log should be deleted
+                const hasNoMeals = todayLog.meals.length === 0;
+                const hasNoJournal = !todayLog.notes || todayLog.notes.trim() === '';
+                const shouldDeleteEntireLog = hasNoMeals && hasNoJournal;
+
+                // 6. Save to local storage
+                if (shouldDeleteEntireLog) {
+                    // Remove the entire day's log
                     const updatedLogs = logs.filter(l => l.date !== today);
                     await Storage.saveToLocalStorage(updatedLogs);
                 } else {
+                    // Update existing log
+                    todayLog.updatedAt = Utils.getCurrentTimestamp();
                     todayLog._synced = false;
                     await Storage.saveToLocalStorage(logs);
                 }
 
+                // 7. Update backend (only if it was synced before)
+                if (todayLog.id && !todayLog.id.startsWith('local_')) {
+                    if (shouldDeleteEntireLog) {
+                        // Delete entire log from backend
+                        await API.deleteFromBackend(todayLog.date);
+                    } else {
+                        // Update log with remaining meals
+                        await API.updateLogOnBackend(todayLog);
+                    }
+                }
+
+                // 8. Update UI
                 await UI.updateAll();
-                Utils.showSuccess('Food entry deleted');
+                Utils.showSuccess(`Removed ${deletedMeal.name}`);
+
                 return true;
             } catch (error) {
                 console.error('Error deleting food log:', error);
