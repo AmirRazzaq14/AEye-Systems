@@ -28,9 +28,10 @@ public class FoodController {
 
         log.info("Analyze the image : {}", image.getOriginalFilename());
 
-        Optional<Nutrition_log.Meal> result = foodAnalyzeService.analyze(image);
-        return result.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+        Nutrition_log.Meal result = foodAnalyzeService.analyze(image);
+        return Optional.ofNullable(result).isPresent()
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().build();
 
     }
 

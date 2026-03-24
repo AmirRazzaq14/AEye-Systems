@@ -2,6 +2,7 @@
 package edu.farmingdale.CSC490.Food.client;
 
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
+import edu.farmingdale.CSC490.Food.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,7 @@ public class ApiClientFactory {
             return ollamaClient;
         } else {
             log.error("Unknown model type: {}", server);
-            throw new ApiException("Unknown model type: " + server);
+            throw new ApiException(10300,"Unknown model", "type: " + server);
         }
     }
 }

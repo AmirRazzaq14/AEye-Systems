@@ -3,6 +3,8 @@ package edu.farmingdale.CSC490.Food.parser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
+import edu.farmingdale.CSC490.Food.config.ApiProperties;
+import edu.farmingdale.CSC490.Food.exception.promptException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
@@ -14,55 +16,58 @@ public class FoodResultParser {
     private final ObjectMapper objectMapper;
     private final OllamaResponseParser ollamaParser;
     private final GeminiResponseParser geminiParser;
+    private final ApiProperties apiProperties;
     
     public FoodResultParser(OllamaResponseParser ollamaParser, 
-                           GeminiResponseParser geminiParser) {
+                           GeminiResponseParser geminiParser,
+                            ApiProperties apiProperties) {
         this.objectMapper = new ObjectMapper();
         this.ollamaParser = ollamaParser;
         this.geminiParser = geminiParser;
+        this.apiProperties  = apiProperties;
     }
     
-    public Optional<Nutrition_log.Meal> parse(String jsonResponse) {
+    public Nutrition_log.Meal parse(String jsonResponse) {
+
+        log.info("===Parsing JSON response===");
         if (jsonResponse == null || jsonResponse.trim().isEmpty()) {
             log.warn("Empty JSON response received");
-            return Optional.empty();
+            throw new promptException(10400,"Empty JSON response", "");
         }
         
         try {
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
 
-            log.info("Parsing response to extracted format");
+            String server = apiProperties.getServer();
 
-            Optional<String> extractedJson;
+            if(server.equals("ollama")){
+                log.info("Parse to Ollama Form");
+                return Optional.ofNullable(ollamaParser.extract(rootNode))
+                        .map(this::parseFoodResult)
+                        .orElseThrow(() -> new promptException(10401, "Failed to parse JSON response from Ollama Form", ""));
+            }else if (server.equals("gemini")){
+                log.info("Parse to Gemini Form");
+                return Optional.ofNullable(geminiParser.extract(rootNode))
+                        .map(this::parseFoodResult)
+                        .orElseThrow(() -> new promptException(10404, "Failed to parse JSON response from Gemini Form", ""));
+            }
 
-            // Try the Ollama format
-            extractedJson = ollamaParser.extract(rootNode);
-            if (extractedJson.isPresent()) {
-                return parseFoodResult(extractedJson.get());
-            }
-            
-            // Try the Gemini format
-            extractedJson = geminiParser.extract(rootNode);
-            if (extractedJson.isPresent()) {
-                return parseFoodResult(extractedJson.get());
-            }
-            
-            log.warn("Could not extract result from response");
-            return Optional.empty();
+            throw new promptException(10405, "Invalid server type: " + server,"");
             
         } catch (Exception e) {
             log.error("Failed to parse JSON response: {}", e.getMessage());
-            return Optional.empty();
+            throw new promptException(10402, "Failed to parse JSON response", e.getMessage());
         }
     }
     
-    private Optional<Nutrition_log.Meal> parseFoodResult(String json) {
+    private Nutrition_log.Meal parseFoodResult(String json) {
+        log.info("===Parsing Food Result===");
         try {
-            Nutrition_log.Meal result = objectMapper.readValue(json, Nutrition_log.Meal.class);
-            return Optional.ofNullable(result);
-        } catch (Exception e) {
-            log.error("Failed to parse FoodResult from JSON: {}", e.getMessage());
-            return Optional.empty();
+            return objectMapper.readValue(json, Nutrition_log.Meal.class);
+        }catch (Exception e){
+            log.error("Failed to parse food result: {}", e.getMessage());
+            throw new promptException(10403, "Failed to parse food result", e.getMessage());
         }
+
     }
 }

@@ -1,6 +1,8 @@
 package edu.farmingdale.CSC490.Food.client;
 
 
+import edu.farmingdale.CSC490.Food.exception.ApiException;
+
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
@@ -13,9 +15,9 @@ public interface ApiClient {
      * @return The analysis result, or an empty optional if there was an error.
      * @throws ApiException If there was an error calling the API.
      */
-    Optional<String> analyze(String encodedImage, String promptText) throws ApiException;
+    String analyze(String encodedImage, String promptText) throws ApiException;
 
     String buildRequestBody(String image, String prompt);
     HttpRequest createHttpRequest(String endpoint, String requestBody);
-    Optional<String> handleResponse(HttpResponse<String> response);
+    String handleResponse(HttpResponse<String> response);
 }

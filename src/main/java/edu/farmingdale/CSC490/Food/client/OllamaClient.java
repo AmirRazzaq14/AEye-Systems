@@ -1,6 +1,7 @@
 package edu.farmingdale.CSC490.Food.client;
 
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
+import edu.farmingdale.CSC490.Food.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.net.URI;
@@ -8,7 +9,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Optional;
 
 /**
  * Implementation of the ApiClient interface for the Ollama API.
@@ -39,24 +39,31 @@ public class OllamaClient implements ApiClient {
      * @throws ApiException If there was an error calling the API.
      */
     @Override
-    public Optional<String> analyze(String encodedImage, String promptText) throws ApiException {
+    public String analyze(String encodedImage, String promptText) throws ApiException {
         String url = apiProperties.getOllama().getUrl();
-        String model = apiProperties.getOllama().getModel();
         
-        log.info("Calling Ollama API at {} with model {}", url, model);
+        log.info("===Calling Ollama API===");
         
         try {
+            log.info("1.  Build the request body");
             String requestBody = buildRequestBody(encodedImage, promptText);
+
+            log.info("2.  Create the HTTP request");
             HttpRequest request = createHttpRequest(url, requestBody);
-            
+
+            log.info("3.  Send the request and get the response");
             HttpResponse<String> response = httpClient.send(request, 
                 HttpResponse.BodyHandlers.ofString());
 
-            return handleResponse(response);
+            log.info("4.  Handle the response");
+            String result =  handleResponse(response);
+
+            log.info("5.  Return the result");
+            return result;
             
         } catch (Exception e) {
             log.error("Error calling Ollama API", e);
-            throw new ApiException("Failed to call Ollama API", e);
+            throw new ApiException(10320,"Failed to call Ollama API", e.getMessage());
         }
     }
 
@@ -88,19 +95,20 @@ public class OllamaClient implements ApiClient {
     }
 
     @Override
-    public Optional<String> handleResponse(HttpResponse<String> response) {
+    public String handleResponse(HttpResponse<String> response) {
         String responseBody = response.body();
         int responseStatusCode = response.statusCode();
         if (responseStatusCode != 200) {
-            log.error("Ollama API returned error status: {}, response body: {}", responseStatusCode, responseBody);
-            return Optional.empty();
+            String  errorMessage = String.format("Ollama API returned error status: %d, response body: %s", responseStatusCode, responseBody);
+            log.error(errorMessage);
+            throw new ApiException(10321,"Ollama API returned error", errorMessage);
         }
 
         if (responseBody.isEmpty()) {
             log.error("Ollama API returned empty response");
-            return Optional.empty();
+            throw new ApiException(10322,"Ollama API returned empty response", "");
         }
-        return Optional.of(responseBody);
+        return responseBody;
     }
 
 }

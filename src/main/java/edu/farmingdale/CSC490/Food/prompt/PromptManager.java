@@ -1,5 +1,6 @@
 package edu.farmingdale.CSC490.Food.prompt;
 
+import edu.farmingdale.CSC490.Food.exception.promptException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -25,15 +26,16 @@ public class PromptManager {
      * @param promptFile the prompt file name
      * @return the formatted prompt text
      */
-    public Optional<String> getPromptFromFile(String promptFile) {
-        log.info("Getting prompt from file");
-        //1.  Read the prompt file
-        String dir = System.getProperty("user.dir") + "/src/main/java/edu/farmingdale/CSC490/Food/prompt";
-        Path promptFilePath = Path.of(dir, promptFile);
-        String promptText = String.valueOf(readTextFile(promptFilePath.toString()));
+    public String getPromptFromFile(String promptFile) {
+        log.info("===Getting prompt from file===");
+        log.info("1.  Read the prompt file");
+        String promptText = readTextFile(promptFile);
 
-        //2.  Format the prompt and return
-        return formatPrompt(promptText);
+        log.info("2.  Format the prompt");
+        String formattedPrompt = formatPrompt(promptText);
+
+        log.info("3.  Return the formatted prompt");
+        return formattedPrompt;
     }
 
     /**
@@ -42,9 +44,12 @@ public class PromptManager {
      * @param promptText the input prompt text from the front-end
      * @return the formatted prompt text
      */
-    public Optional<String> getPromptFromInput(String promptText) {
-        log.info("Getting prompt from input");
-        return formatPrompt(promptText);
+    public String getPromptFromInput(String promptText) {
+        log.info("===Getting prompt from input==");
+        log.info("1.  Format the prompt");
+        String formattedPrompt = formatPrompt(promptText);
+        log.info("2.  Return the formatted prompt");
+        return formattedPrompt;
     }
 
     /**
@@ -52,36 +57,39 @@ public class PromptManager {
      * @param promptText The prompt text
      * @return The formatted prompt text
      */
-    private Optional<String> formatPrompt(String promptText) {
+    private String formatPrompt(String promptText) {
 
         if (promptText == null || promptText.trim().isEmpty()) {
             log.error("Received empty or null prompt text");
-            return Optional.empty();
+            throw new promptException(10200,  "Received empty or null prompt text", "");
         }
 
-        log.info("Formatting prompt text successfully");
         return promptText.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
                 .replace("\n", "\\n")
                 .replace("\r", "\\r")
-                .replace("\t", "\\t").describeConstable();
+                .replace("\t", "\\t");
     }
     /**
      * Reads the text file
-     * @param filePath The file path
+     * @param promptFile The file path
      * @return The text file content
      */
-    private Optional<String> readTextFile(String filePath) {
+    private String readTextFile(String promptFile) {
+        String dir = System.getProperty("user.dir") + "/src/main/java/edu/farmingdale/CSC490/Food/prompt";
+        Path promptFilePath = Path.of(dir, promptFile);
+        String filePath = promptFilePath.toString();
+
         try {
             Path path = Paths.get(filePath);
             if (!Files.exists(path)) {
                 log.error("Text File does not exist: {}", filePath);
-                return Optional.empty();
+                throw new promptException(10201,  "Text File does not exist", "");
             }
-            return Optional.of(Files.readString(path).trim());
+            return Files.readString(path).trim();
         } catch (IOException e) {
             log.error("Failed to read text file {}: {}", filePath, e.getMessage());
-            return Optional.empty();
+            throw new promptException(10202,  "Failed to read text file", "");
         }
     }
 }
