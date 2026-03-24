@@ -1077,7 +1077,7 @@
             return await user.getIdToken();
         }
 
-        async function syncFoodToBackend(foodData) {
+        async function syncLogToBackend(foodData) {
             try {
                 const token = await getAuthToken();
                 const unifiedLog = Models.normalizeToUnifiedFormat(foodData, 'manual');
@@ -1109,43 +1109,6 @@
             }
         }
 
-        async function syncJournalToBackend(journalLog) {
-            try {
-                const token = await getAuthToken();
-                const backendData = {
-                    date: journalLog.date,
-                    meals: journalLog.meals || [],
-                    notes: journalLog.notes || ''
-                };
-
-                const response = await Utils.fetchWithTimeout('/api/nutrition-logs', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(backendData)
-                });
-
-                if (!response.ok) throw new Error(`Sync failed: ${response.status}`);
-
-                const result = await response.json();
-                if (result.id) {
-                    journalLog.id = result.id;
-                    journalLog._synced = true;
-                    const allLogs = await Storage.loadFromLocalStorage();
-                    const index = allLogs.findIndex(l => l.date === journalLog.date);
-                    if (index !== -1) {
-                        allLogs[index] = journalLog;
-                        await Storage.saveToLocalStorage(allLogs);
-                    }
-                }
-                return true;
-            } catch (error) {
-                console.error('Error syncing journal:', error);
-                return false;
-            }
-        }
 
         async function loadAllFromBackend() {
             try {
@@ -1245,8 +1208,7 @@
         return {
             initFirebase,
             getAuthToken,
-            syncFoodToBackend,
-            syncJournalToBackend,
+            syncLogToBackend,
             loadAllFromBackend,
             deleteFromBackend,
             updateLogOnBackend,
@@ -1294,9 +1256,9 @@
                 const updatedLogs = await Storage.loadFromLocalStorage();
                 const updatedTodayLog = updatedLogs.find(l => l.date === today);
                 if (updatedTodayLog && updatedTodayLog.notes) {
-                    await API.syncJournalToBackend(updatedTodayLog);
+                    await API.syncLogToBackend(updatedTodayLog);
                 }
-                API.syncFoodToBackend(unifiedLog).catch(err => console.warn('Background sync failed:', err));
+                API.syncLogToBackend(unifiedLog).catch(err => console.warn('Background sync failed:', err));
 
                 return unifiedLog;
             } catch (error) {
@@ -1441,7 +1403,7 @@
 
                 // Sync to backend
                 if (syncToBackend && updatedLog && content.trim()) {
-                    await API.syncJournalToBackend(updatedLog);
+                    await API.syncLogToBackend(updatedLog);
                 }
 
                 return updatedLog;
