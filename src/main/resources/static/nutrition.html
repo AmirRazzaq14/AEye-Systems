@@ -723,11 +723,6 @@
 
         <input type="file" id="fileInput" accept="image/*" style="display: none;">
 
-<!--        <div class="button-group">-->
-<!--            <button class="btn-secondary" id="resetButton">✕ Clear Local Data</button>-->
-<!--            <button class="btn-secondary" id="fixDataBtn">🔧 Fix Display Issues</button>-->
-<!--            <button class="btn-success" id="syncNowBtn">🔄 Sync Now</button>-->
-<!--        </div>-->
     </div>
 
     <div class="sidebar">
@@ -1675,9 +1670,6 @@
             const addFoodBtn = document.getElementById('addFoodBtn');
             const manualForm = document.getElementById('manualEntryForm');
             const saveManualBtn = document.getElementById('saveManualFoodBtn');
-            const resetBtn = document.getElementById('resetButton');
-            const fixDataBtn = document.getElementById('fixDataBtn');
-            const syncNowBtn = document.getElementById('syncNowBtn');
 
             if (addFoodBtn) {
                 addFoodBtn.addEventListener('click', () => {
@@ -1725,41 +1717,6 @@
                 });
             }
 
-            if (fixDataBtn) {
-                fixDataBtn.addEventListener('click', async () => {
-                    Utils.showSuccess('Checking for corrupted data...');
-                    const logs = await Storage.loadFromLocalStorage();
-                    let fixed = false;
-
-                    logs.forEach(log => {
-                        if (log.meals) {
-                            log.meals = log.meals.filter(meal => {
-                                const isValid = meal.name && meal.name !== 'undefined' && meal.name !== 'null' &&
-                                               meal.cals !== undefined && meal.protein !== undefined;
-                                if (!isValid) fixed = true;
-                                return isValid;
-                            });
-                        }
-                    });
-
-                    if (fixed) {
-                        await Storage.saveToLocalStorage(logs);
-                        await UI.updateAll();
-                        Utils.showSuccess('Corrupted data fixed!');
-                    } else {
-                        Utils.showSuccess('No corrupted data found!');
-                    }
-                });
-            }
-
-            if (syncNowBtn) {
-                syncNowBtn.addEventListener('click', async () => {
-                    Utils.showSuccess('Syncing data...');
-                    await API.loadAllFromBackend();
-                    await UI.updateAll();
-                    Utils.showSuccess('Sync completed!');
-                });
-            }
 
             // Event delegation for delete buttons
             document.getElementById('foodLog').addEventListener('click', async (e) => {
