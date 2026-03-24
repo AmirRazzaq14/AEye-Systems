@@ -756,7 +756,7 @@
                 <h3>📔 Daily Journal</h3>
                 <span style="font-size: 0.75rem; color: var(--muted);" id="journalDate"></span>
             </div>
-            <textarea
+            <label for="journalInput"></label><textarea
                     id="journalInput"
                     class="journal-input"
                     rows="3"
@@ -764,7 +764,6 @@
             ></textarea>
             <div class="journal-footer">
                 <span id="journalStatus" class="journal-status"></span>
-                <button id="saveJournalBtn" class="btn-secondary" style="padding: 0.35rem 1rem;">💾 Save Journal</button>
             </div>
         </div>
 
@@ -1427,10 +1426,6 @@
             const originalText = saveBtn.textContent;
 
             if (!journalContent.trim()) {
-                if (statusSpan) {
-                    statusSpan.textContent = 'Empty journal, nothing to save';
-                    setTimeout(() => { if (statusSpan.textContent === 'Empty journal, nothing to save') statusSpan.textContent = ''; }, 2000);
-                }
                 return;
             }
 
@@ -1707,15 +1702,6 @@
                 });
             }
 
-            if (resetBtn) {
-                resetBtn.addEventListener('click', async () => {
-                    if (!confirm('Are you sure you want to clear ALL local data? Synced data will remain on server.')) return;
-                    await Storage.clearLocalStorage();
-                    await UI.updateAll();
-                    Utils.showSuccess('Local data cleared. Reloading...');
-                    setTimeout(() => location.reload(), 1500);
-                });
-            }
 
 
             // Event delegation for delete buttons
@@ -1738,28 +1724,48 @@
                 }
             });
         }
-
+        let originalJournalContent = '';
         function setupJournalEvents() {
             const journalInput = document.getElementById('journalInput');
-            const saveJournalBtn = document.getElementById('saveJournalBtn');
-
-            if (saveJournalBtn) {
-                saveJournalBtn.addEventListener('click', JournalService.saveJournal);
-            }
 
             if (journalInput) {
-                journalInput.addEventListener('input', () => {
+                journalInput.addEventListener('input', async () => {
                     const statusSpan = document.getElementById('journalStatus');
-                    if (statusSpan && journalInput.value.trim()) {
+                    if (statusSpan) {
                         statusSpan.textContent = 'Unsaved changes';
                         statusSpan.style.color = 'var(--warning)';
 
+                        // Clear any existing timeout
                         if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
-                        autoSaveTimeout = setTimeout(() => {
-                            if (statusSpan.textContent === 'Unsaved changes') {
-                                statusSpan.textContent = '';
+
+                        // Set a new timeout for auto-save
+                        autoSaveTimeout = setTimeout(async () => {
+                            try {
+                                const content = journalInput.value;
+                                // Only save if content has changed
+                                if (content !== originalJournalContent) {
+                                    await JournalService.updateJournal(content, true);
+                                    if (statusSpan) {
+                                        statusSpan.textContent = 'Saved!';
+                                        statusSpan.style.color = 'var(--success)';
+                                        setTimeout(() => {
+                                            if (statusSpan.textContent === 'Saved!')
+                                                statusSpan.textContent = '';
+                                        }, 2000);
+                                    }
+                                    originalJournalContent = content;
+                                }
+                            } catch (error) {
+                                if (statusSpan) {
+                                    statusSpan.textContent = 'Save failed';
+                                    statusSpan.style.color = 'var(--danger)';
+                                    setTimeout(() => {
+                                        if (statusSpan.textContent === 'Save failed')
+                                            statusSpan.textContent = '';
+                                    }, 3000);
+                                }
                             }
-                        }, 2000);
+                        }, 2000); // Auto-save after 2 seconds of inactivity
                     }
                 });
             }
