@@ -5,37 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WizCoach – Nutrition</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
         :root {
             --purple: #7c5cfc;
-            --purple-light: #a78bfa;
             --blue: #3b82f6;
-            --blue-dark: #2563eb;
             --text: #1a1a2e;
             --muted: #6b7280;
             --border: #e5e7eb;
-            --card-bg: #ffffff;
-            --input-bg: #f9fafb;
             --danger: #ef4444;
-            --danger-light: #fee2e2;
             --success: #10b981;
-            --success-light: #d1fae5;
             --warning: #f59e0b;
         }
-
         body {
             font-family: 'DM Sans', sans-serif;
             background: linear-gradient(135deg, #e8ecf5 0%, #f0eeff 50%, #e8f0ff 100%);
             min-height: 100vh;
             color: var(--text);
         }
-
         nav {
             display: flex;
             align-items: center;
@@ -49,650 +38,170 @@
             top: 0;
             z-index: 100;
         }
-
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            text-decoration: none;
-        }
-
+        .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
         .nav-logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--purple), var(--purple-light));
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--purple), #a78bfa);
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 3px 8px rgba(124,92,252,0.3);
+            display: flex; align-items: center; justify-content: center;
         }
-
-        .nav-logo-icon svg {
-            width: 20px;
-            height: 20px;
-            stroke: white;
-            fill: none;
-            stroke-width: 2.5;
-        }
-
-        .nav-logo-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
+        .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; }
+        .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+        .nav-links { display: flex; align-items: center; gap: 0.25rem; }
         .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.45rem 1rem;
-            border-radius: 8px;
-            font-size: 0.88rem;
-            font-weight: 500;
-            color: var(--muted);
-            text-decoration: none;
-            transition: all 0.15s;
+            display: flex; align-items: center; gap: 0.4rem;
+            padding: 0.45rem 1rem; border-radius: 8px;
+            font-size: 0.88rem; font-weight: 500; color: var(--muted);
+            text-decoration: none; transition: all 0.15s;
         }
-
-        .nav-link:hover {
-            color: var(--text);
-            background: #f3f4f6;
-        }
-
-        .nav-link.active {
-            background: var(--blue);
-            color: white;
-            font-weight: 600;
-        }
-
-        .nav-link svg {
-            width: 16px;
-            height: 16px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-        }
-
+        .nav-link:hover { color: var(--text); background: #f3f4f6; }
+        .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
+        .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
         .page {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 1.5rem;
-            animation: fadeUp 0.5s ease both;
-            align-items: start;
+            max-width: 1100px; margin: 2rem auto; padding: 0 2rem;
+            display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem;
+            animation: fadeUp 0.5s ease both; align-items: start;
         }
-
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
         .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 1.5rem;
+            background: white; border-radius: 20px; padding: 1.5rem;
             box-shadow: 0 4px 24px rgba(0,0,0,0.07);
         }
-
-        .card h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 1.25rem;
-        }
-
+        .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; }
         .upload-zone {
-            border: 2px dashed #c7d2fe;
-            border-radius: 14px;
-            background: #f8f9ff;
-            padding: 3rem 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            position: relative;
-            min-height: 320px;
+            border: 2px dashed #c7d2fe; border-radius: 14px; background: #f8f9ff;
+            padding: 3rem 2rem; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 0.75rem;
+            cursor: pointer; transition: all 0.2s; text-align: center;
+            position: relative; min-height: 320px;
         }
-
-        .upload-zone:hover {
-            border-color: var(--blue);
-            background: #eff6ff;
-            transform: scale(1.01);
-        }
-
-        .upload-zone.drag-over {
-            border-color: var(--blue);
-            background: #dbeafe;
-            transform: scale(1.02);
-        }
-
-        .upload-zone.processing {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-
+        .upload-zone:hover { border-color: var(--blue); background: #eff6ff; transform: scale(1.01); }
+        .upload-zone.drag-over { border-color: var(--blue); background: #dbeafe; transform: scale(1.02); }
+        .upload-zone.processing { pointer-events: none; opacity: 0.7; }
         .upload-icon-wrap {
-            width: 56px;
-            height: 56px;
-            background: #dbeafe;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 56px; height: 56px; background: #dbeafe;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
         }
-
-        .upload-icon-wrap svg {
-            width: 26px;
-            height: 26px;
-            stroke: var(--blue);
-            fill: none;
-            stroke-width: 1.8;
-        }
-
-        .upload-zone h4 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .upload-zone p {
-            font-size: 0.82rem;
-            color: var(--muted);
-        }
-
-        .upload-zone.has-image .upload-icon-wrap,
-        .upload-zone.has-image h4,
-        .upload-zone.has-image p,
-        .upload-zone.has-image .btn-upload {
-            display: none;
-        }
-
-        .preview-img-container {
-            display: none;
-            width: 100%;
-            max-height: 260px;
-            text-align: center;
-        }
-
-        .upload-zone.has-image .preview-img-container {
-            display: block;
-        }
-
-        .preview-img-container img {
-            width: 100%;
-            max-height: 200px;
-            object-fit: contain;
-            border-radius: 12px;
-        }
-
+        .upload-icon-wrap svg { width: 26px; height: 26px; stroke: var(--blue); fill: none; stroke-width: 1.8; }
+        .upload-zone h4 { font-size: 1rem; font-weight: 700; color: var(--text); }
+        .upload-zone p { font-size: 0.82rem; color: var(--muted); }
+        .preview-img-container { display: none; width: 100%; max-height: 260px; text-align: center; }
+        .upload-zone.has-image .upload-icon-wrap, .upload-zone.has-image h4, .upload-zone.has-image p { display: none; }
+        .upload-zone.has-image .preview-img-container { display: block; }
+        .preview-img-container img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 12px; }
         .processing-message {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(248, 249, 255, 0.95);
-            border-radius: 14px;
-            z-index: 10;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            gap: 1rem; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(248, 249, 255, 0.95); border-radius: 14px; z-index: 10;
         }
-
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e5e7eb;
-            border-top: 4px solid var(--blue);
-            border-radius: 50%;
+            width: 40px; height: 40px; border: 4px solid #e5e7eb;
+            border-top: 4px solid var(--blue); border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .btn-primary {
-            background: linear-gradient(135deg, var(--blue), #60a5fa);
-            color: white;
-            padding: 0.65rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            font-family: inherit;
-            font-size: 0.88rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+            background: linear-gradient(135deg, var(--blue), #60a5fa); color: white;
+            padding: 0.65rem 1.5rem; border: none; border-radius: 10px;
+            font-family: inherit; font-size: 0.88rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
             box-shadow: 0 3px 10px rgba(59,130,246,0.35);
         }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 14px rgba(59,130,246,0.45);
-        }
-
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(59,130,246,0.45); }
         .btn-secondary {
-            padding: 0.55rem 1.25rem;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            background: white;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--muted);
-            cursor: pointer;
-            transition: all 0.15s;
+            padding: 0.55rem 1.25rem; border: 1.5px solid var(--border); border-radius: 10px;
+            background: white; font-family: inherit; font-size: 0.85rem; font-weight: 600;
+            color: var(--muted); cursor: pointer; transition: all 0.15s;
         }
-
-        .btn-secondary:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-            background: var(--danger-light);
-        }
-
-        .btn-success {
-            padding: 0.55rem 1.25rem;
-            border: 1.5px solid var(--success);
-            border-radius: 10px;
-            background: white;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--success);
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-success:hover {
-            background: var(--success-light);
-            border-color: var(--success);
-        }
-
+        .btn-secondary:hover { border-color: var(--danger); color: var(--danger); background: #fee2e2; }
         .btn-icon {
-            background: var(--blue);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--blue); color: white; border: none; border-radius: 50%;
+            width: 36px; height: 36px; font-size: 1.5rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; display: inline-flex;
+            align-items: center; justify-content: center;
         }
-
-        .btn-icon:hover {
-            background: var(--blue-dark);
-            transform: scale(1.05);
-        }
-
-        .nutrition-row {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .nutrition-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.4rem;
-        }
-
-        .nutrition-meta span:first-child {
-            font-size: 0.85rem;
-            color: var(--muted);
-        }
-
-        .nutrition-meta span:last-child {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .track {
-            height: 6px;
-            background: #e5e7eb;
-            border-radius: 99px;
-            overflow: hidden;
-        }
-
+        .btn-icon:hover { background: #2563eb; transform: scale(1.05); }
+        .nutrition-row { display: flex; flex-direction: column; gap: 1rem; }
+        .nutrition-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+        .nutrition-meta span:first-child { font-size: 0.85rem; color: var(--muted); }
+        .nutrition-meta span:last-child { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+        .track { height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
         .track-fill {
-            height: 100%;
-            border-radius: 99px;
+            height: 100%; border-radius: 99px;
             background: linear-gradient(90deg, var(--blue), #60a5fa);
-            width: 0%;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .food-log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .food-log-empty {
-            text-align: center;
-            color: var(--muted);
-            font-size: 0.85rem;
-            font-style: italic;
-            padding: 1.5rem 0;
-        }
-
+        .food-log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .food-log-empty { text-align: center; color: var(--muted); font-size: 0.85rem; font-style: italic; padding: 1.5rem 0; }
         .food-log-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 0; border-bottom: 1px solid var(--border); transition: background 0.2s;
         }
-
-        .food-log-item:hover {
-            background: #f9fafb;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-            margin: 0 -0.5rem;
-            border-radius: 8px;
-        }
-
-        .food-log-item:last-child {
-            border-bottom: none;
-        }
-
-        .food-log-content {
-            flex: 1;
-        }
-
-        .food-log-name {
-            font-weight: 600;
-            color: var(--text);
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-
-        .food-log-details {
-            font-size: 0.75rem;
-            color: var(--muted);
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .sync-badge {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
-            background: var(--warning);
-            color: white;
-            border-radius: 20px;
-            display: inline-block;
-        }
-
-        .sync-badge.synced {
-            background: var(--success);
-        }
-
+        .food-log-item:hover { background: #f9fafb; padding-left: 0.5rem; padding-right: 0.5rem; margin: 0 -0.5rem; border-radius: 8px; }
+        .food-log-item:last-child { border-bottom: none; }
+        .food-log-content { flex: 1; }
+        .food-log-name { font-weight: 600; color: var(--text); display: block; margin-bottom: 0.25rem; }
+        .food-log-details { font-size: 0.75rem; color: var(--muted); display: flex; gap: 0.75rem; flex-wrap: wrap; }
         .food-log-delete {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: #9ca3af;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            background: none; border: none; font-size: 1.2rem; color: #9ca3af;
+            cursor: pointer; transition: all 0.2s; width: 28px; height: 28px;
+            border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
         }
-
-        .food-log-delete:hover {
-            color: var(--danger);
-            background: var(--danger-light);
-            transform: scale(1.1);
-        }
-
+        .food-log-delete:hover { color: var(--danger); background: #fee2e2; transform: scale(1.1); }
         .manual-entry {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            background: #f9fafb;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
+            display: flex; flex-direction: column; gap: 0.75rem;
+            background: #f9fafb; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;
         }
-
         .manual-entry input {
-            padding: 0.75rem 1rem;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 0.88rem;
-            font-family: 'DM Sans', sans-serif;
-            color: var(--text);
-            background: #ffffff;
-            outline: none;
-            transition: all 0.2s;
+            padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 12px;
+            font-size: 0.88rem; font-family: 'DM Sans', sans-serif; color: var(--text);
+            background: #ffffff; outline: none; transition: all 0.2s;
         }
-
-        .manual-entry input:focus {
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
+        .manual-entry input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         .journal-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            resize: vertical;
-            transition: all 0.2s;
+            width: 100%; padding: 0.75rem; border: 1.5px solid var(--border);
+            border-radius: 12px; font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem; line-height: 1.5; resize: vertical; transition: all 0.2s;
         }
-
-        .journal-input:focus {
-            outline: none;
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .journal-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 0.5rem;
-        }
-
-        .journal-status {
-            font-size: 0.7rem;
-            color: var(--muted);
-        }
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        .error-popup {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--danger-light);
-            color: var(--danger);
-            padding: 1rem 1.25rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 300px;
-            border-left: 4px solid var(--danger);
-            animation: slideInRight 0.3s ease;
-        }
-
-        .success-popup {
-            background: var(--success-light);
-            color: var(--success);
-            border-left-color: var(--success);
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .error-popup-close {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: inherit;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-        }
-
-        .help-btn {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            width: 44px;
-            height: 44px;
-            background: var(--text);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-
-        .help-btn:hover {
-            background: var(--purple);
-            transform: scale(1.05);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .text-danger {
-            color: var(--danger);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-
+        .journal-input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .journal-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 0.5rem; }
+        .journal-status { font-size: 0.7rem; color: var(--muted); }
+        .sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
+        .hidden { display: none; }
+        .text-danger { color: var(--danger); }
         @media (max-width: 720px) {
-            .page {
-                grid-template-columns: 1fr;
-            }
-            nav {
-                padding: 0 1rem;
-            }
-            .nav-logo-name {
-                display: none;
-            }
-            .error-popup {
-                left: 20px;
-                right: 20px;
-                min-width: auto;
-            }
+            .page { grid-template-columns: 1fr; }
+            nav { padding: 0 1rem; }
+            .nav-logo-name { display: none; }
         }
     </style>
 </head>
 <body>
-
 <nav>
     <a href="dashboard.html" class="nav-logo">
         <div class="nav-logo-icon">
-            <svg viewBox="0 0 24 24">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <span class="nav-logo-name">WizCoach</span>
     </a>
     <div class="nav-links">
         <a href="dashboard.html" class="nav-link">
-            <svg viewBox="0 0 24 24">
-                <rect x="3" y="3" width="7" height="7" rx="1"/>
-                <rect x="14" y="3" width="7" height="7" rx="1"/>
-                <rect x="3" y="14" width="7" height="7" rx="1"/>
-                <rect x="14" y="14" width="7" height="7" rx="1"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             Dashboard
         </a>
         <a href="motion.html" class="nav-link">
-            <svg viewBox="0 0 24 24">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             Motion
         </a>
         <a href="nutrition.html" class="nav-link active">
-            <svg viewBox="0 0 24 24">
-                <path d="M12 22s-8-4.5-8-11.8A8 8 0 01 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 01 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg>
             Nutrition
         </a>
         <a href="ai-coach.html" class="nav-link">
-            <svg viewBox="0 0 24 24">
-                <rect x="3" y="8" width="18" height="12" rx="3"/>
-                <path d="M12 8V4"/>
-                <circle cx="8" cy="14" r="1.5" fill="currentColor"/>
-                <circle cx="16" cy="14" r="1.5" fill="currentColor"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
             AI Coach
         </a>
     </div>
@@ -701,13 +210,9 @@
 <div class="page">
     <div class="card">
         <h3>Food Detection</h3>
-
         <div class="upload-zone" id="uploadZone">
             <div class="upload-icon-wrap">
-                <svg viewBox="0 0 24 24">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                    <circle cx="12" cy="13" r="4"/>
-                </svg>
+                <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </div>
             <h4>Upload Food Image</h4>
             <p>Take a photo or upload an image of your meal</p>
@@ -720,67 +225,41 @@
             </div>
             <button class="btn-primary" id="uploadButton">Upload Image</button>
         </div>
-
         <input type="file" id="fileInput" accept="image/*" style="display: none;">
-
     </div>
 
     <div class="sidebar">
         <div class="card">
             <h3>Today's Nutrition</h3>
-            <div class="nutrition-row">
-                <div>
-                    <div class="nutrition-meta">
-                        <span>Calories</span>
-                        <span id="cal-label">0 / 2000 kcal</span>
-                    </div>
-                    <div class="track">
-                        <div class="track-fill" id="cal-fill"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="nutrition-meta">
-                        <span>Protein</span>
-                        <span id="prot-label">0g / 150g</span>
-                    </div>
-                    <div class="track">
-                        <div class="track-fill" id="prot-fill"></div>
-                    </div>
-                </div>
+            <div class="nutrition-row" id="nutritionStats">
             </div>
         </div>
 
-        <!-- Daily Journal Card -->
         <div class="card">
             <div class="food-log-header">
                 <h3>📔 Daily Journal</h3>
                 <span style="font-size: 0.75rem; color: var(--muted);" id="journalDate"></span>
             </div>
-            <label for="journalInput"></label><textarea
-                    id="journalInput"
-                    class="journal-input"
-                    rows="3"
-                    placeholder="How was your day? Write your thoughts here..."
-            ></textarea>
+            <textarea id="journalInput" class="journal-input" rows="3" placeholder="How was your day? Write your thoughts here..."></textarea>
             <div class="journal-footer">
                 <span id="journalStatus" class="journal-status"></span>
             </div>
         </div>
 
-        <!-- Food Log Card -->
         <div class="card">
             <div class="food-log-header">
                 <h3>Food Log</h3>
-                <button class="btn-icon" id="addFoodBtn" aria-label="Add food">+</button>
+                <button class="btn-icon" id="addFoodBtn">+</button>
+<!--                <button class="btn-icon" id="deleteTodayBtn" title="Delete today's data">×</button>-->
             </div>
-
             <div id="manualEntryForm" class="manual-entry hidden">
-                <input type="text" id="foodName" placeholder="Food name (e.g., Grilled Chicken)">
-                <input type="number" id="foodCalories" placeholder="Calories (kcal)" min="0" step="1">
-                <input type="number" id="foodProtein" placeholder="Protein (g)" min="0" step="1">
-                <button class="btn-primary" id="saveManualFoodBtn">Add to Log</button>
+                <input type="text" id="foodName" placeholder="Food name">
+                <input type="number" id="foodCals" placeholder="Calories (kcal)" min="0">
+                <input type="number" id="foodProtein" placeholder="Protein (g)" min="0">
+                <input type="number" id="foodCarb" placeholder="Carbs (g)" min="0">
+                <input type="number" id="foodFat" placeholder="Fat (g)" min="0">
+                <button class="btn-primary" id="saveManualBtn">Add to Log</button>
             </div>
-
             <div id="foodLog">
                 <p class="food-log-empty">Loading...</p>
             </div>
@@ -788,1063 +267,348 @@
     </div>
 </div>
 
-<a href="#" class="help-btn" id="helpBtn">?</a>
-
 <script>
-    // ==================== 1. CONFIGURATION MODULE ====================
-    const Config = (function() {
-        return {
-            NUTRITION_GOALS: {
-                calories: 2000,
-                protein: 150
-            },
-            MAX_IMAGE_SIZE_MB: 5,
-            ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
-            API_TIMEOUT_MS: 15000,
-            STORAGE_PREFIX: 'wizcoach_nutrition_v2_'
-        };
-    })();
 
-    // ==================== 2. UTILITY MODULE ====================
-    const Utils = (function() {
-        function sanitizeInput(input) {
-            if (!input) return '';
-            const div = document.createElement('div');
-            div.textContent = input;
-            return div.innerHTML;
-        }
-
-        function getTodayDate() {
-            return new Date().toISOString().split('T')[0];
-        }
-
-        function getCurrentTimestamp() {
-            return new Date().toISOString();
-        }
-
-        function generateLocalId() {
-            return `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        }
-
-        function showMessage(message, isError = true) {
-            const container = document.getElementById('errorPopupContainer');
-            if (!container) {
-                const newContainer = document.createElement('div');
-                newContainer.id = 'errorPopupContainer';
-                document.body.appendChild(newContainer);
-            }
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `error-popup ${!isError ? 'success-popup' : ''}`;
-            messageDiv.innerHTML = `
-                <span class="error-popup-icon">${isError ? '⚠️' : '✓'}</span>
-                <span class="error-popup-message">${sanitizeInput(message)}</span>
-                <button class="error-popup-close" onclick="this.parentElement.remove()">×</button>
-            `;
-            document.getElementById('errorPopupContainer').appendChild(messageDiv);
-
-            setTimeout(() => {
-                if (messageDiv.parentNode) messageDiv.remove();
-            }, 4000);
-        }
-
-        function showError(message) {
-            showMessage(message, true);
-        }
-
-        function showSuccess(message) {
-            showMessage(message, false);
-        }
-
-        function validateImageFile(file) {
-            if (!file) throw new Error('No file selected');
-            if (!Config.ALLOWED_IMAGE_TYPES.includes(file.type)) {
-                throw new Error(`Please upload a valid image file (${Config.ALLOWED_IMAGE_TYPES.map(t => t.split('/')[1]).join(', ')})`);
-            }
-            const fileSizeMB = file.size / (1024 * 1024);
-            if (fileSizeMB > Config.MAX_IMAGE_SIZE_MB) {
-                throw new Error(`Image size should be less than ${Config.MAX_IMAGE_SIZE_MB}MB (current: ${fileSizeMB.toFixed(1)}MB)`);
-            }
-            return true;
-        }
-
-        async function fetchWithTimeout(url, options, timeout = Config.API_TIMEOUT_MS) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeout);
-            try {
-                const response = await fetch(url, { ...options, signal: controller.signal });
-                clearTimeout(timeoutId);
-                return response;
-            } catch (error) {
-                clearTimeout(timeoutId);
-                if (error.name === 'AbortError') throw new Error('Request timeout');
-                throw error;
-            }
-        }
-
-        return {
-            sanitizeInput,
-            getTodayDate,
-            getCurrentTimestamp,
-            generateLocalId,
-            showError,
-            showSuccess,
-            validateImageFile,
-            fetchWithTimeout
-        };
-    })();
-
-    // ==================== 3. DATA MODEL MODULE ====================
-    const Models = (function() {
-        function normalizeToUnifiedFormat(input, source = 'manual') {
-            let name = 'Unknown Food';
-            let cals = '0';
-            let protein = '0';
-
-            if (input.name) name = String(input.name).trim();
-
-            if (input.cals !== undefined && input.cals !== null) {
-                cals = String(input.cals);
-            } else if (input.calories !== undefined && input.calories !== null) {
-                cals = String(input.calories);
-            }
-
-            if (input.protein !== undefined && input.protein !== null) {
-                protein = String(input.protein);
-            }
-
-            cals = isNaN(parseFloat(cals)) ? '0' : String(Math.round(parseFloat(cals)));
-            protein = isNaN(parseFloat(protein)) ? '0' : String(Math.round(parseFloat(protein)));
-
-            return {
-                id: input.id || Utils.generateLocalId(),
-                date: input.date || Utils.getTodayDate(),
-                meals: [{ name, cals, protein }],
-                notes: input.notes || '',
-                updatedAt: input.updatedAt || Utils.getCurrentTimestamp(),
-                _localId: Utils.generateLocalId(),
-                _synced: source === 'sync',
-                _source: source
-            };
-        }
-
-        function convertToBackendFormat(unifiedLog) {
-            return {
-                date: unifiedLog.date,
-                meals: unifiedLog.meals.map(meal => ({
-                    name: meal.name,
-                    cals: String(meal.cals),
-                    protein: String(meal.protein)
-                })),
-                notes: unifiedLog.notes || ''
-            };
-        }
-
-        function convertFromBackendFormat(backendLogs) {
-            if (!Array.isArray(backendLogs)) backendLogs = [backendLogs];
-
-            return backendLogs.map(log => ({
-                id: log.id,
-                date: log.date,
-                meals: (log.meals || []).map(meal => ({
-                    name: meal.name || 'Unknown Food',
-                    cals: String(meal.cals || '0'),
-                    protein: String(meal.protein || '0')
-                })),
-                notes: log.notes || '',
-                updatedAt: log.updatedAt || Utils.getCurrentTimestamp(),
-                _localId: Utils.generateLocalId(),
-                _synced: true,
-                _source: 'sync'
-            }));
-        }
-
-        function mergeMealsByDate(items) {
-            const map = new Map();
-            items.forEach(item => {
-                const date = item.date;
-                if (!map.has(date)) {
-                    map.set(date, { ...item, meals: [...item.meals] });
-                } else {
-                    const existing = map.get(date);
-                    existing.meals.push(...item.meals);
-                    existing.updatedAt = Utils.getCurrentTimestamp();
-                    existing._synced = false;
-                }
-            });
-            return Array.from(map.values());
-        }
-
-        return {
-            normalizeToUnifiedFormat,
-            convertToBackendFormat,
-            convertFromBackendFormat,
-            mergeMealsByDate
-        };
-    })();
-
-    // ==================== 4. STORAGE MODULE ====================
-    const Storage = (function() {
-        function getStorageKey(date = null) {
-            return date ? `${Config.STORAGE_PREFIX}${date}` : `${Config.STORAGE_PREFIX}all`;
-        }
-
-        async function saveToLocalStorage(nutritionLogs) {
-            try {
-                const mergedLogs = Models.mergeMealsByDate(nutritionLogs);
-                localStorage.setItem(getStorageKey(), JSON.stringify(mergedLogs));
-                mergedLogs.forEach(log => {
-                    localStorage.setItem(getStorageKey(log.date), JSON.stringify(log));
-                });
-                return true;
-            } catch (error) {
-                console.error('Error saving to local storage:', error);
-                return false;
-            }
-        }
-
-        async function loadFromLocalStorage(date = null) {
-            try {
-                if (date) {
-                    const data = localStorage.getItem(getStorageKey(date));
-                    return data ? JSON.parse(data) : null;
-                }
-                const data = localStorage.getItem(getStorageKey());
-                return data ? JSON.parse(data) : [];
-            } catch (error) {
-                console.error('Error loading from local storage:', error);
-                return date ? null : [];
-            }
-        }
-
-        async function clearLocalStorage() {
-            try {
-                const keysToRemove = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && key.startsWith(Config.STORAGE_PREFIX)) keysToRemove.push(key);
-                }
-                keysToRemove.forEach(key => localStorage.removeItem(key));
-                return true;
-            } catch (error) {
-                console.error('Error clearing local storage:', error);
-                return false;
-            }
-        }
-
-        return {
-            saveToLocalStorage,
-            loadFromLocalStorage,
-            clearLocalStorage
-        };
-    })();
-
-    // ==================== 5. API MODULE ====================
-    const API = (function() {
-        let firebaseInitialized = false;
-        let firebaseInitPromise = null;
-        let currentUser = null;
-
-        async function initFirebase() {
-            if (firebaseInitialized) return Promise.resolve();
-            if (firebaseInitPromise) return firebaseInitPromise;
-
-            firebaseInitPromise = (async () => {
-                try {
-                    const response = await Utils.fetchWithTimeout('/api/config', { method: 'GET' });
-                    if (!response.ok) throw new Error('Failed to fetch Firebase config');
-                    const config = await response.json();
-                    firebase.initializeApp(config);
-                    firebaseInitialized = true;
-                } catch (error) {
-                    console.error('Firebase initialization failed:', error);
-                    throw error;
-                }
-            })();
-            return firebaseInitPromise;
-        }
-
-        async function getAuthToken() {
-            await initFirebase();
+    const API = {
+        async fetch(path, options = {}) {
             const user = firebase.auth().currentUser;
             if (!user) throw new Error('Not logged in');
-            return await user.getIdToken();
-        }
+            const token = await user.getIdToken();
 
-        async function syncLogToBackend(foodData) {
-            try {
-                const token = await getAuthToken();
-                const unifiedLog = Models.normalizeToUnifiedFormat(foodData, 'manual');
-                const backendData = Models.convertToBackendFormat(unifiedLog);
-
-                const response = await Utils.fetchWithTimeout('/api/nutrition-logs', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(backendData)
-                });
-
-                if (!response.ok) throw new Error(`Sync failed: ${response.status}`);
-
-                const result = await response.json();
-                if (result.id) {
-                    unifiedLog.id = result.id;
-                    unifiedLog._synced = true;
-                    const allLogs = await Storage.loadFromLocalStorage();
-                    const filteredLogs = allLogs.filter(l => l.date !== unifiedLog.date);
-                    await Storage.saveToLocalStorage([...filteredLogs, unifiedLog]);
-                }
-                return true;
-            } catch (error) {
-                console.error('Error syncing to backend:', error);
-                return false;
-            }
-        }
-
-
-        async function loadAllFromBackend() {
-            try {
-                const token = await getAuthToken();
-                const response = await Utils.fetchWithTimeout('/api/nutrition-logs', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (!response.ok) throw new Error(`Load failed: ${response.status}`);
-
-                const backendLogs = await response.json();
-                const unifiedLogs = Models.convertFromBackendFormat(backendLogs);
-                await Storage.saveToLocalStorage(unifiedLogs);
-                return unifiedLogs;
-            } catch (error) {
-                console.error('Error loading from backend:', error);
-                return [];
-            }
-        }
-
-        async function deleteFromBackend(date) {
-            try {
-                if (date) {
-                    const token = await getAuthToken();
-                    const response = await Utils.fetchWithTimeout(`/api/nutrition-logs/${date}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (!response.ok) throw new Error(`Delete failed: ${response.status}`);
-                }
-                return true;
-            } catch (error) {
-                console.error('Error deleting from backend:', error);
-                return false;
-            }
-        }
-
-        async function updateLogOnBackend(updatedLog) {
-        try {
-            const token = await getAuthToken();
-            const backendData = Models.convertToBackendFormat(updatedLog);
-
-            const response = await Utils.fetchWithTimeout(`/api/nutrition-logs/${updatedLog.date}`, {
-                method: 'PUT',
+            const res = await fetch(`/api/nutrition-logs${path}`, {
+                ...options,
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(backendData)
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Update failed: ${response.status} - ${errorText}`);
-            }
+            if (!res.ok) throw new Error(`API Error: ${res.status}`);
+            return res.json();
+        },
+            
+        getToday(){return new Date().toISOString().split('T')[0];},
 
-            // Mark as synced
-            updatedLog._synced = true;
-            const allLogs = await Storage.loadFromLocalStorage();
-            const index = allLogs.findIndex(l => l.date === updatedLog.date);
-            if (index !== -1) {
-                allLogs[index] = updatedLog;
-                await Storage.saveToLocalStorage(allLogs);
-            }
+        getTodayLog() { return this.fetch(`/${getToday()}`, { method: 'GET' }); },
+        addMeal(meal) { return this.fetch(`/meals/${getToday()}`, { method: 'POST', body: JSON.stringify(meal) }); },
+        deleteMeal(mealId) { return this.fetch(`/meals/${getToday()}/${mealId}`, { method: 'DELETE' }); },
+        saveNotes(notes) { return this.fetch(`/notes/${getToday()}`, { method: 'POST', body: JSON.stringify({ notes }) }); },
 
-            return true;
-        } catch (error) {
-            console.error('Error updating log on backend:', error);
-            return false;
-        }
-    }
+        deleteTodayLog() { return this.fetch(`/${getToday()}`, { method: 'DELETE' }); },
 
-        async function analyzeFoodImage(imageFile) {
+        async analyzeImage(file) {
             const formData = new FormData();
-            formData.append('image', imageFile);
+            formData.append('image', file);
+            const user = firebase.auth().currentUser;
+            const token = await user.getIdToken();
 
-            const response = await Utils.fetchWithTimeout('/api/food/analyze', {
+            const res = await fetch('/api/nutrition-logs/analyze-image', {
                 method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
-
-            if (!response.ok) throw new Error(`Analysis failed: ${response.status}`);
-
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error('Server returned invalid response format');
-            }
-
-            return await response.json();
+            if (!res.ok) throw new Error('Analysis failed');
+            return res.json(); // Returns to the Meal object
         }
+    };
 
-        function onAuthStateChanged(callback) {
-            return firebase.auth().onAuthStateChanged(callback);
-        }
+    const UI = {
+        data: null,
 
-        return {
-            initFirebase,
-            getAuthToken,
-            syncLogToBackend,
-            loadAllFromBackend,
-            deleteFromBackend,
-            updateLogOnBackend,
-            analyzeFoodImage,
-            onAuthStateChanged
-        };
-    })();
+        init() {
+            this.bindEvents();
+            this.load();
+        },
 
-    // ==================== 6. FOOD SERVICE MODULE ====================
-    const FoodService = (function() {
-        let cumulativeNutrition = { calories: 0, protein: 0 };
-
-        async function addFoodLog(inputData, source = 'manual') {
-            try {
-                const unifiedLog = Models.normalizeToUnifiedFormat(inputData, source);
-                const existingLogs = await Storage.loadFromLocalStorage();
-                const today = Utils.getTodayDate();
-                const todayLogIndex = existingLogs.findIndex(l => l.date === today);
-
-                // Preserve existing journal content
-                const currentJournal = document.getElementById('journalInput')?.value || '';
-
-                if (todayLogIndex !== -1) {
-                    const existingNotes = existingLogs[todayLogIndex].notes || '';
-                    existingLogs[todayLogIndex].meals.push(...unifiedLog.meals);
-                    existingLogs[todayLogIndex].updatedAt = Utils.getCurrentTimestamp();
-                    existingLogs[todayLogIndex]._synced = false;
-
-                    if (existingNotes) {
-                        existingLogs[todayLogIndex].notes = existingNotes;
-                    } else if (currentJournal) {
-                        existingLogs[todayLogIndex].notes = currentJournal;
-                    }
-
-                    await Storage.saveToLocalStorage(existingLogs);
-                } else {
-                    if (currentJournal) unifiedLog.notes = currentJournal;
-                    unifiedLog._synced = false;
-                    await Storage.saveToLocalStorage([...existingLogs, unifiedLog]);
-                }
-
-                await UI.updateAll();
-
-                // Sync to backend in background
-                const updatedLogs = await Storage.loadFromLocalStorage();
-                const updatedTodayLog = updatedLogs.find(l => l.date === today);
-                if (updatedTodayLog && updatedTodayLog.notes) {
-                    await API.syncLogToBackend(updatedTodayLog);
-                }
-                API.syncLogToBackend(unifiedLog).catch(err => console.warn('Background sync failed:', err));
-
-                return unifiedLog;
-            } catch (error) {
-                console.error('Error adding food log:', error);
-                Utils.showError('Failed to add food: ' + error.message);
-                throw error;
-            }
-        }
-
-        async function deleteFoodLog(mealIndex) {
-            try {
-                // 1. Load current data
-                const logs = await Storage.loadFromLocalStorage();
-                const today = Utils.getTodayDate();
-                const todayLog = logs.find(l => l.date === today);
-
-                // 2. Validate
-                if (!todayLog) {
-                    Utils.showError('No food log found for today');
-                    return false;
-                }
-
-                if (!todayLog.meals[mealIndex]) {
-                    Utils.showError('Meal not found');
-                    return false;
-                }
-
-                // 3. Save deleted meal info (for logging)
-                const deletedMeal = todayLog.meals[mealIndex];
-                console.log(`Deleting meal: ${deletedMeal.name} (${deletedMeal.cals} kcal)`);
-
-                // 4. Remove meal from local array
-                todayLog.meals.splice(mealIndex, 1);
-
-                // 5. Determine if the entire log should be deleted
-                const hasNoMeals = todayLog.meals.length === 0;
-                const hasNoJournal = !todayLog.notes || todayLog.notes.trim() === '';
-                const shouldDeleteEntireLog = hasNoMeals && hasNoJournal;
-
-                // 6. Save to local storage
-                if (shouldDeleteEntireLog) {
-                    // Remove the entire day's log
-                    const updatedLogs = logs.filter(l => l.date !== today);
-                    await Storage.saveToLocalStorage(updatedLogs);
-                } else {
-                    // Update existing log
-                    todayLog.updatedAt = Utils.getCurrentTimestamp();
-                    todayLog._synced = false;
-                    await Storage.saveToLocalStorage(logs);
-                }
-
-                // 7. Update backend (only if it was synced before)
-                if (todayLog.id && !todayLog.id.startsWith('local_')) {
-                    if (shouldDeleteEntireLog) {
-                        // Delete entire log from backend
-                        await API.deleteFromBackend(todayLog.date);
-                    } else {
-                        // Update log with remaining meals
-                        await API.updateLogOnBackend(todayLog);
-                    }
-                }
-
-                // 8. Update UI
-                await UI.updateAll();
-                Utils.showSuccess(`Removed ${deletedMeal.name}`);
-
-                return true;
-            } catch (error) {
-                console.error('Error deleting food log:', error);
-                Utils.showError('Failed to delete: ' + error.message);
-                return false;
-            }
-        }
-
-        async function getTodayNutrition() {
-            const logs = await Storage.loadFromLocalStorage();
-            const today = Utils.getTodayDate();
-            const todayLog = logs.find(l => l.date === today);
-
-            if (!todayLog || !todayLog.meals) {
-                return { calories: 0, protein: 0 };
-            }
-
-            const total = todayLog.meals.reduce((acc, meal) => ({
-                calories: acc.calories + (parseFloat(meal.cals) || 0),
-                protein: acc.protein + (parseFloat(meal.protein) || 0)
-            }), { calories: 0, protein: 0 });
-
-            cumulativeNutrition = total;
-            return total;
-        }
-
-        function getCumulativeNutrition() {
-            return cumulativeNutrition;
-        }
-
-        return {
-            addFoodLog,
-            deleteFoodLog,
-            getTodayNutrition,
-            getCumulativeNutrition
-        };
-    })();
-
-    // ==================== 7. JOURNAL SERVICE MODULE ====================
-    const JournalService = (function() {
-        async function updateJournal(content, syncToBackend = true) {
-            try {
-                const logs = await Storage.loadFromLocalStorage();
-                const today = Utils.getTodayDate();
-                const todayLogIndex = logs.findIndex(l => l.date === today);
-
-                let updatedLog;
-
-                if (todayLogIndex !== -1) {
-                    logs[todayLogIndex].notes = content;
-                    logs[todayLogIndex].updatedAt = Utils.getCurrentTimestamp();
-                    logs[todayLogIndex]._synced = false;
-                    updatedLog = logs[todayLogIndex];
-                    await Storage.saveToLocalStorage(logs);
-                } else if (content.trim()) {
-                    updatedLog = {
-                        id: Utils.generateLocalId(),
-                        date: today,
-                        meals: [],
-                        notes: content,
-                        updatedAt: Utils.getCurrentTimestamp(),
-                        _localId: Utils.generateLocalId(),
-                        _synced: false,
-                        _source: 'journal'
-                    };
-                    await Storage.saveToLocalStorage([...logs, updatedLog]);
-                } else {
-                    return null;
-                }
-
-                // Update UI
-                const journalInput = document.getElementById('journalInput');
-                if (journalInput && journalInput.value !== content) {
-                    journalInput.value = content;
-                }
-
-                // Sync to backend
-                if (syncToBackend && updatedLog && content.trim()) {
-                    await API.syncLogToBackend(updatedLog);
-                }
-
-                return updatedLog;
-            } catch (error) {
-                console.error('Error updating journal:', error);
-                throw error;
-            }
-        }
-
-        async function loadJournal() {
-            try {
-                const logs = await Storage.loadFromLocalStorage();
-                const today = Utils.getTodayDate();
-                const todayLog = logs.find(l => l.date === today);
-                return todayLog ? todayLog.notes || '' : '';
-            } catch (error) {
-                console.error('Error loading journal:', error);
-                return '';
-            }
-        }
-
-        async function saveJournal() {
-            const journalContent = document.getElementById('journalInput').value;
-            const saveBtn = document.getElementById('saveJournalBtn');
-            const statusSpan = document.getElementById('journalStatus');
-            const originalText = saveBtn.textContent;
-
-            if (!journalContent.trim()) {
-                return;
-            }
+        async load() {
+            console.log('[LOAD] Fetching today\'s nutrition data');
 
             try {
-                saveBtn.textContent = 'Saving...';
-                saveBtn.disabled = true;
-                if (statusSpan) {
-                    statusSpan.textContent = 'Saving...';
-                    statusSpan.style.color = 'var(--warning)';
-                }
-
-                await updateJournal(journalContent, true);
-
-                if (statusSpan) {
-                    statusSpan.textContent = 'Saved!';
-                    statusSpan.style.color = 'var(--success)';
-                    setTimeout(() => { if (statusSpan.textContent === 'Saved!') statusSpan.textContent = ''; }, 2000);
-                }
-                Utils.showSuccess('Journal saved!');
-            } catch (error) {
-                console.error('Error saving journal:', error);
-                if (statusSpan) {
-                    statusSpan.textContent = 'Save failed';
-                    statusSpan.style.color = 'var(--danger)';
-                    setTimeout(() => { if (statusSpan.textContent === 'Save failed') statusSpan.textContent = ''; }, 3000);
-                }
-                Utils.showError('Failed to save journal');
-            } finally {
-                saveBtn.textContent = originalText;
-                saveBtn.disabled = false;
+                
+                console.log('[LOAD] Requesting data for date:', API.getToday());
+                this.data = await API.getTodayLog();
+                this.data.meals = this.data.meals || [];
+                console.log('[LOAD] Data fetched successfully:', this.data);
+                this.render();
+            } catch (err) {
+                console.error('[LOAD] Failed to fetch data:', err);
+                alert('Failed to load data: ' + err.message);
             }
-        }
+        },
 
-        return {
-            updateJournal,
-            loadJournal,
-            saveJournal
-        };
-    })();
+        render() {
+            console.log('[RENDER] Rendering UI with nutrition data');
+            const { totalNutrition, targetNutrition, meals, notes } = this.data;
 
-    // ==================== 8. UI MODULE ====================
-    const UI = (function() {
-        async function updateNutritionDisplay() {
-            const nutrition = await FoodService.getTodayNutrition();
-            const goals = Config.NUTRITION_GOALS;
+            // Render nutrition progress
+            console.log('[RENDER] Rendering total nutrition:', totalNutrition);
+            console.log('[RENDER] Rendering target nutrition:', targetNutrition);
 
-            const calPercent = Math.min(100, (nutrition.calories / goals.calories) * 100);
-            const protPercent = Math.min(100, (nutrition.protein / goals.protein) * 100);
-
-            const calLabel = document.getElementById('cal-label');
-            const protLabel = document.getElementById('prot-label');
-            const calFill = document.getElementById('cal-fill');
-            const protFill = document.getElementById('prot-fill');
-
-            calLabel.textContent = `${Math.round(nutrition.calories)} / ${goals.calories} kcal`;
-            protLabel.textContent = `${Math.round(nutrition.protein)}g / ${goals.protein}g`;
-
-            if (nutrition.calories > goals.calories) {
-                calLabel.classList.add('text-danger');
-            } else {
-                calLabel.classList.remove('text-danger');
-            }
-
-            if (nutrition.protein > goals.protein) {
-                protLabel.classList.add('text-danger');
-            } else {
-                protLabel.classList.remove('text-danger');
-            }
-
-            calFill.style.width = calPercent + '%';
-            protFill.style.width = protPercent + '%';
-        }
-
-        async function updateFoodLogDisplay() {
-            const logs = await Storage.loadFromLocalStorage();
-            const today = Utils.getTodayDate();
-            const todayLog = logs.find(l => l.date === today);
-            const logContainer = document.getElementById('foodLog');
-
-            if (!todayLog || !todayLog.meals || todayLog.meals.length === 0) {
-                logContainer.innerHTML = '<p class="food-log-empty">No meals logged yet — food entries appear here</p>';
-                return;
-            }
-
-            logContainer.innerHTML = '';
-
-            todayLog.meals.forEach((meal, index) => {
-                const item = document.createElement('div');
-                item.className = 'food-log-item';
-                item.setAttribute('data-meal-index', index);
-
-                item.innerHTML = `
-                    <div class="food-log-content">
-                        <span class="food-log-name">${Utils.sanitizeInput(meal.name)}</span>
-                        <div class="food-log-details">
-                            <span>🔥 ${meal.cals} kcal</span>
-                            <span>💪 ${meal.protein}g protein</span>
+            // Render nutrition progress
+            const statsHtml = ['cals', 'protein', 'carb', 'fat'].map(key => {
+                const current = parseFloat(totalNutrition?.[key] || 0);
+                const target = parseFloat(targetNutrition?.[key] || 1);
+                const percent = Math.min(100, (current / target) * 100);
+                const over = current > target;
+                return `
+                    <div>
+                        <div class="nutrition-meta">
+                            <span>${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                            <span class="${over ? 'text-danger' : ''}">${Math.round(current)} / ${Math.round(target)} ${key === 'cals' ? 'kcal' : 'g'}</span>
                         </div>
+                        <div class="track"><div class="track-fill" style="width: ${percent}%"></div></div>
                     </div>
-                    <button class="food-log-delete" aria-label="Delete food entry">×</button>
                 `;
+            }).join('');
+            document.getElementById('nutritionStats').innerHTML = statsHtml;
 
-                logContainer.appendChild(item);
-            });
-        }
+            // Render food logs
+            const logContainer = document.getElementById('foodLog');
+            if (!meals || meals.length === 0) {
+                console.log('[RENDER] No meals found');
+                logContainer.innerHTML = '<p class="food-log-empty">No meals logged yet</p>';
+                return;
+            }
 
-        async function updateJournalDisplay() {
+            console.log('[RENDER] Rendering meals list, count:', meals.length);
+            console.log('[RENDER] Meals data:', meals);
+            logContainer.innerHTML = meals.map(m => {
+                console.log('[RENDER] Rendering meal item:', m);
+                return `            <div class="food-log-item" data-id="${m.mealId}">
+                        <div class="food-log-content">
+                            <span class="food-log-name">${this.escape(m.name)}</span>
+                            <div class="food-log-details">
+                                <span>🔥 ${m.cals} kcal</span>
+                                <span>💪 ${m.protein}g</span>
+                                <span>🍞 ${m.carb}g</span>
+                                <span>🥑 ${m.fat}g</span>
+                            </div>
+                        </div>
+                        <button class="food-log-delete" onclick="UI.deleteMeal('${m.mealId}')">×</button>
+                    </div>
+                `;
+            }).join('');
+
+
+            // Render the diary
             const journalInput = document.getElementById('journalInput');
-            const journalDateSpan = document.getElementById('journalDate');
-
-            if (journalInput) {
-                const journal = await JournalService.loadJournal();
-                if (journalInput.value !== journal) {
-                    journalInput.value = journal;
-                }
+            if (journalInput.value !== (notes || '')) {
+                journalInput.value = notes || '';
             }
+            document.getElementById('journalDate').textContent = API.getToday();
+        },
 
-            if (journalDateSpan) {
-                journalDateSpan.textContent = Utils.getTodayDate();
-            }
-        }
-
-        async function updateAll() {
-            await updateNutritionDisplay();
-            await updateFoodLogDisplay();
-            await updateJournalDisplay();
-        }
-
-        function setUploadState(state) {
-            const zone = document.getElementById('uploadZone');
-            const processingMsg = document.getElementById('processingMessage');
-
-            if (state === 'processing') {
-                zone.classList.add('processing');
-                processingMsg.style.display = 'flex';
-            } else {
-                zone.classList.remove('processing');
-                processingMsg.style.display = 'none';
-            }
-        }
-
-        function showPreview(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('previewImg').src = e.target.result;
-                document.getElementById('uploadZone').classList.add('has-image');
-                setUploadState('processing');
-                handleImageAnalysis(file);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function handleImageAnalysis(file) {
-            try {
-                const data = await API.analyzeFoodImage(file);
-                await FoodService.addFoodLog({
-                    name: data.name || 'Unknown Food',
-                    cals: String(data.cals || 0),
-                    protein: String(data.protein || 0)
-                }, 'vision');
-                Utils.showSuccess('Food analyzed and added to log!');
-            } catch (error) {
-                console.error('Analysis error:', error);
-                Utils.showError(error.message || 'Failed to analyze food image');
-            } finally {
-                setUploadState('idle');
-            }
-        }
-
-        function handleFileSelect(file) {
-            if (!file) return;
-            try {
-                Utils.validateImageFile(file);
-                showPreview(file);
-            } catch (error) {
-                Utils.showError(error.message);
-                document.getElementById('fileInput').value = '';
-            }
-        }
-
-        return {
-            updateAll,
-            setUploadState,
-            showPreview,
-            handleFileSelect,
-            updateNutritionDisplay,
-            updateFoodLogDisplay,
-            updateJournalDisplay
-        };
-    })();
-
-    // ==================== 9. EVENT HANDLERS MODULE ====================
-    const Events = (function() {
-        let autoSaveTimeout = null;
-
-        function setupUploadEvents() {
+        bindEvents() {
+            // Upload an image
             const uploadZone = document.getElementById('uploadZone');
             const fileInput = document.getElementById('fileInput');
-            const uploadButton = document.getElementById('uploadButton');
 
             uploadZone.addEventListener('click', (e) => {
-                if (e.target === uploadButton || uploadButton.contains(e.target)) return;
-                fileInput.click();
+                if (e.target.id !== 'uploadButton') fileInput.click();
             });
-
-            uploadButton.addEventListener('click', (e) => {
+            document.getElementById('uploadButton').addEventListener('click', (e) => {
                 e.stopPropagation();
                 fileInput.click();
             });
 
-            fileInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) UI.handleFileSelect(e.target.files[0]);
-            });
+            fileInput.addEventListener('change', (e) => this.handleImage(e.target.files[0]));
 
             uploadZone.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 uploadZone.classList.add('drag-over');
             });
-
-            uploadZone.addEventListener('dragleave', () => {
-                uploadZone.classList.remove('drag-over');
-            });
-
+            uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
             uploadZone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 uploadZone.classList.remove('drag-over');
                 const file = e.dataTransfer.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    UI.handleFileSelect(file);
-                } else if (file) {
-                    Utils.showError('Please drop an image file');
-                }
+                if (file?.type.startsWith('image/')) this.handleImage(file);
             });
-        }
 
-        function setupFoodEvents() {
-            const addFoodBtn = document.getElementById('addFoodBtn');
+            // Add manually
+            const addBtn = document.getElementById('addFoodBtn');
             const manualForm = document.getElementById('manualEntryForm');
-            const saveManualBtn = document.getElementById('saveManualFoodBtn');
-
-            if (addFoodBtn) {
-                addFoodBtn.addEventListener('click', () => {
-                    manualForm.classList.toggle('hidden');
-                    addFoodBtn.textContent = manualForm.classList.contains('hidden') ? '+' : '−';
-                    if (!manualForm.classList.contains('hidden')) {
-                        document.getElementById('foodName').focus();
-                    }
-                });
-            }
-
-            if (saveManualBtn) {
-                saveManualBtn.addEventListener('click', async () => {
-                    const name = document.getElementById('foodName').value.trim();
-                    const cals = document.getElementById('foodCalories').value;
-                    const protein = document.getElementById('foodProtein').value;
-
-                    if (!name && !cals && !protein) {
-                        Utils.showError('Please enter at least one field');
-                        return;
-                    }
-
-                    await FoodService.addFoodLog({
-                        name: name || 'Manual Entry',
-                        cals: cals || '0',
-                        protein: protein || '0'
-                    }, 'manual');
-
-                    document.getElementById('foodName').value = '';
-                    document.getElementById('foodCalories').value = '';
-                    document.getElementById('foodProtein').value = '';
-                    manualForm.classList.add('hidden');
-                    addFoodBtn.textContent = '+';
-                    Utils.showSuccess('Food added successfully!');
-                });
-            }
-
-
-
-            // Event delegation for delete buttons
-            document.getElementById('foodLog').addEventListener('click', async (e) => {
-                const deleteBtn = e.target.closest('.food-log-delete');
-                if (deleteBtn) {
-                    const item = deleteBtn.closest('.food-log-item');
-                    const index = parseInt(item.getAttribute('data-meal-index'));
-                    if (!isNaN(index)) await FoodService.deleteFoodLog(index);
-                }
+            addBtn.addEventListener('click', () => {
+                manualForm.classList.toggle('hidden');
+                addBtn.textContent = manualForm.classList.contains('hidden') ? '+' : '−';
             });
 
-            // Enter key support for manual entry
-            ['foodName', 'foodCalories', 'foodProtein'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') saveManualBtn.click();
-                    });
-                }
-            });
-        }
-        let originalJournalContent = '';
-        function setupJournalEvents() {
+            document.getElementById('saveManualBtn').addEventListener('click', () => this.addManual());
+
+            // The diary is automatically saved
+            let timeout;
             const journalInput = document.getElementById('journalInput');
+            const status = document.getElementById('journalStatus');
 
-            if (journalInput) {
-                journalInput.addEventListener('input', async () => {
-                    const statusSpan = document.getElementById('journalStatus');
-                    if (statusSpan) {
-                        statusSpan.textContent = 'Unsaved changes';
-                        statusSpan.style.color = 'var(--warning)';
-
-                        // Clear any existing timeout
-                        if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
-
-                        // Set a new timeout for auto-save
-                        autoSaveTimeout = setTimeout(async () => {
-                            try {
-                                const content = journalInput.value;
-                                // Only save if content has changed
-                                if (content !== originalJournalContent) {
-                                    await JournalService.updateJournal(content, true);
-                                    if (statusSpan) {
-                                        statusSpan.textContent = 'Saved!';
-                                        statusSpan.style.color = 'var(--success)';
-                                        setTimeout(() => {
-                                            if (statusSpan.textContent === 'Saved!')
-                                                statusSpan.textContent = '';
-                                        }, 2000);
-                                    }
-                                    originalJournalContent = content;
-                                }
-                            } catch (error) {
-                                if (statusSpan) {
-                                    statusSpan.textContent = 'Save failed';
-                                    statusSpan.style.color = 'var(--danger)';
-                                    setTimeout(() => {
-                                        if (statusSpan.textContent === 'Save failed')
-                                            statusSpan.textContent = '';
-                                    }, 3000);
-                                }
-                            }
-                        }, 2000); // Auto-save after 2 seconds of inactivity
-                    }
-                });
-            }
-        }
-
-        function setupHelpEvent() {
-            const helpBtn = document.getElementById('helpBtn');
-            if (helpBtn) {
-                helpBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    Utils.showSuccess('📖 Help: Upload food images to analyze nutrition, or manually add meals. Data is synced to your account.');
-                });
-            }
-        }
-
-        function setupAllEvents() {
-            setupUploadEvents();
-            setupFoodEvents();
-            setupJournalEvents();
-            setupHelpEvent();
-        }
-
-        return { setupAllEvents };
-    })();
-
-    // ==================== 10. APP INITIALIZATION ====================
-    const App = (function() {
-        async function initialize() {
-            try {
-                await API.initFirebase();
-
-                API.onAuthStateChanged(async (user) => {
-                    if (!user) {
-                        window.location.href = 'login.html';
-                        return;
-                    }
-
-                    // Load data from local storage first, then sync from backend
-                    const localData = await Storage.loadFromLocalStorage();
-                    if (localData.length === 0) {
-                        await API.loadAllFromBackend();
-                    }
-
-                    // Update UI
-                    await UI.updateAll();
-
-                    // Setup event handlers
-                    Events.setupAllEvents();
-
-                    Utils.showSuccess('Ready! Add your meals to get started.');
-                });
-            } catch (error) {
-                console.error('Initialization failed:', error);
-                Utils.showError('Failed to initialize app. Please refresh the page.');
-            }
-        }
-
-        function setActiveNavLink() {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.getAttribute('href') === 'nutrition.html') {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
+            journalInput.addEventListener('input', () => {
+                console.log('[JOURNAL] Journal content changed');
+                status.textContent = 'Unsaved...';
+                status.style.color = 'var(--warning)';
+                clearTimeout(timeout);
+                timeout = setTimeout(() => this.saveJournal(), 1500);
             });
+
+<!--            //  Delete today log-->
+<!--            document.getElementById('deleteTodayBtn').addEventListener('click', () => {-->
+<!--                if (confirm('Delete all today\'s nutrition data?')) {-->
+<!--                    this.deleteTodayLog();-->
+<!--                }   -->
+<!--            });-->
+        },
+
+        async handleImage(file) {
+            console.log('[IMAGE] User selected image:', file.name);
+            if (!file) return;
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                console.warn('[IMAGE] Unsupported image type:', file.type);
+                alert('Please upload a valid image (JPEG, PNG, WebP)');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                console.warn('[IMAGE] Image size exceeds limit:', file.size / 1024 / 1024, 'MB');
+                alert('Image size should be less than 5MB');
+                return;
+            }
+
+            // PREVIEW
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                console.log('[IMAGE] Preview loaded');
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('uploadZone').classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+
+            // analysis
+            document.getElementById('uploadZone').classList.add('processing');
+            try {
+                const result = await API.analyzeImage(file);
+                console.log('[IMAGE] Image analysis completed');
+
+               const meal = {
+                    mealId: result.mealId || result.id || 'meals_' + Date.getTime(),
+                    name: result.name || 'Analyzed Food',
+                    cals: String(result.cals || result.calories || '0'),
+                    protein: String(result.protein || '0'),
+                    carb: String(result.carb || result.carbs || '0'),
+                    fat: String(result.fat || '0')
+                };
+
+                await API.addMeal(meal);
+
+                await this.load(); // Reload today's data
+            } catch (err) {
+                console.error('[IMAGE] Image analysis failed:', err);
+                alert('Analysis failed: ' + err.message);
+            } finally {
+                document.getElementById('uploadZone').classList.remove('processing');
+            }
+        },
+
+        async addManual() {
+            console.log('[MANUAL] User clicked add meal button');
+            const meal = {
+                mealId: 'meals_' + new Date().getTime(),
+                name: document.getElementById('foodName').value.trim() || 'Manual Entry',
+                cals: document.getElementById('foodCals').value || '0',
+                protein: document.getElementById('foodProtein').value || '0',
+                carb: document.getElementById('foodCarb').value || '0',
+                fat: document.getElementById('foodFat').value || '0'
+            };
+            console.log('[MANUAL] Submitting meal data:', meal);
+
+            try {
+                await API.addMeal(meal);
+                console.log('[MANUAL] Meal added successfully');
+                await this.load();
+                // Clear the form
+                ['foodName', 'foodCals', 'foodProtein', 'foodCarb', 'foodFat'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+                document.getElementById('manualEntryForm').classList.add('hidden');
+                document.getElementById('addFoodBtn').textContent = '+';
+            } catch (err) {
+                console.error('[MANUAL] Failed to add meal:', err);
+                alert('Failed to add: ' + err.message);
+            }
+        },
+
+        async deleteMeal(mealId) {
+            console.log('[DELETE] User clicked delete meal, ID:', mealId);
+            if (!confirm('Delete this meal?')) return;
+            try {
+                await API.deleteMeal(mealId);
+                console.log('[DELETE] Meal deleted successfully');
+                await this.load();
+            } catch (err) {
+                console.error('[DELETE] Failed to delete meal:', err);
+                alert('Failed to delete: ' + err.message);
+                await this.load();
+            }
+        },
+
+        async saveJournal() {
+            const notes = document.getElementById('journalInput').value;
+            const status = document.getElementById('journalStatus');
+            console.log('[JOURNAL] Saving journal content:', notes);
+
+            try {
+                await API.saveNotes(notes);
+                status.textContent = 'Saved!';
+                status.style.color = 'var(--success)';
+                setTimeout(() => status.textContent = '', 2000);
+            } catch (err) {
+                console.error('[JOURNAL] Failed to save:', err);
+                status.textContent = 'Save failed';
+                status.style.color = 'var(--danger)';
+            }
+        },
+
+        async deleteTodayLog() {
+            console.log('[DELETE] User clicked delete today\'s data button');
+            try {
+                await API.deleteTodayLog();
+                console.log('[DELETE] Today\'s data deleted successfully');
+                await this.load();
+                alert('Today\'s nutrition data has been deleted');
+            } catch (err) {
+                console.error('[DELETE] Failed to delete today\'s data:', err);
+                alert('Failed to delete today\'s data: ' + err.message);
+            }
+        },
+
+        escape(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
+    };
 
-        function start() {
-            setActiveNavLink();
-            initialize();
+    // Initialize Firebase and launch it
+    async function init() {
+        console.log('[INIT] DOMContentLoaded event triggered, initializing Firebase');
+        try {
+            const res = await fetch('/api/config');
+            console.log('[INIT] API config fetched:', res);
+            const config = await res.json();
+            firebase.initializeApp(config);
+
+            firebase.auth().onAuthStateChanged(user => {
+                console.log('[AUTH] Auth state changed:', user ? 'User signed in' : 'No user');
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                UI.init();
+            });
+        } catch (err) {
+            console.error('[INIT] Initialization failed:', err.message);
+            alert('Initialization failed: ' + err.message);
         }
+    }
 
-        return { start };
-    })();
-
-    // Start the application
-    document.addEventListener('DOMContentLoaded', () => {
-        App.start();
-    });
+    document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>

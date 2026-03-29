@@ -28,6 +28,22 @@ public class NutritionLogService {
     public void deleteLog(String uid, String date) throws Exception {
         repo.delete(uid, date);
     }
+
+    public void saveMeal(String uid, String dateKey, Nutrition_log.Meal meal) throws Exception {
+        repo.saveMeal(uid, dateKey, meal);
+    }
+
+    public void deleteMeal(String uid, String date, String id) throws Exception {
+        repo.deleteMeal(uid, date, id);
+    }
+
+    public void saveNotes(String uid, String dateKey, String notes) throws Exception {
+        repo.saveNotes(uid, dateKey,notes);
+    }
+
+
+
+
 }
 
 

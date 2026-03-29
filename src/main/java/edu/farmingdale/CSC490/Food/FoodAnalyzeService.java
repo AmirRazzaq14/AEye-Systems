@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 
 @Slf4j
 @Component
@@ -60,6 +62,7 @@ public class FoodAnalyzeService {
 
             log.info("6.  Parsing API response");
             Nutrition_log.Meal result = resultParser.parse(apiResponse);
+            result.setMealId("meals_"+ System.currentTimeMillis());
 
             log.info("7.  Returning result");
             return result;
