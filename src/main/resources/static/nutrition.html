@@ -240,7 +240,7 @@
                 <h3>📔 Daily Journal</h3>
                 <span style="font-size: 0.75rem; color: var(--muted);" id="journalDate"></span>
             </div>
-            <textarea id="journalInput" class="journal-input" rows="3" placeholder="How was your day? Write your thoughts here..."></textarea>
+            <label for="journalInput"></label><textarea id="journalInput" class="journal-input" rows="3" placeholder="How was your day? Write your thoughts here..."></textarea>
             <div class="journal-footer">
                 <span id="journalStatus" class="journal-status"></span>
             </div>
@@ -253,11 +253,11 @@
 <!--                <button class="btn-icon" id="deleteTodayBtn" title="Delete today's data">×</button>-->
             </div>
             <div id="manualEntryForm" class="manual-entry hidden">
-                <input type="text" id="foodName" placeholder="Food name">
-                <input type="number" id="foodCals" placeholder="Calories (kcal)" min="0">
-                <input type="number" id="foodProtein" placeholder="Protein (g)" min="0">
-                <input type="number" id="foodCarb" placeholder="Carbs (g)" min="0">
-                <input type="number" id="foodFat" placeholder="Fat (g)" min="0">
+                <label for="foodName"></label><input type="text" id="foodName" placeholder="Food name">
+                <label for="foodCals"></label><input type="number" id="foodCals" placeholder="Calories (kcal)" min="0">
+                <label for="foodProtein"></label><input type="number" id="foodProtein" placeholder="Protein (g)" min="0">
+                <label for="foodCarb"></label><input type="number" id="foodCarb" placeholder="Carbs (g)" min="0">
+                <label for="foodFat"></label><input type="number" id="foodFat" placeholder="Fat (g)" min="0">
                 <button class="btn-primary" id="saveManualBtn">Add to Log</button>
             </div>
             <div id="foodLog">
@@ -472,7 +472,7 @@
             }
 
             // PREVIEW
-            const reader = new FileReader();
+            const reader = new FileReader();f
             reader.onload = (e) => {
                 console.log('[IMAGE] Preview loaded');
                 document.getElementById('previewImg').src = e.target.result;
