@@ -39,6 +39,7 @@ build/
 
 ### Secrets ###
 src/main/resources/firebase-key.json
-src/main/resources/application.properties
 *.env
 .env
+src/main/resources/application.properties
+
