@@ -16,9 +16,16 @@
       --border: #e5e7eb; --card-bg: #ffffff;
     }
 
+    @keyframes page-bg-drift {
+      0%, 100% { background-position: 0% 40%; }
+      50% { background-position: 100% 60%; }
+    }
+
     body {
       font-family: 'DM Sans', sans-serif;
-      background: linear-gradient(135deg, #e8ecf5 0%, #f0eeff 50%, #e8f0ff 100%);
+      background: linear-gradient(125deg, #e0e8f4 0%, #f0eeff 25%, #e8ecfc 50%, #eef6ff 75%, #e8ecf5 100%);
+      background-size: 240% 240%;
+      animation: page-bg-drift 22s ease-in-out infinite;
       min-height: 100vh; color: var(--text);
     }
 
@@ -74,7 +81,14 @@
       padding: 1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.07);
     }
 
-    .card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
+    .card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem; }
+
+    .recent-ex-hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
 
     /* MOTION CARD */
     .motion-card { grid-column: 1; }
@@ -201,14 +215,28 @@
     .ex-text p  { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
     .ex-time    { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
 
+    @keyframes tips-gradient-flow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
     /* Tips card */
     .tips-card {
-      background: linear-gradient(135deg, #3b82f6, #7c5cfc, #a855f7);
+      background: linear-gradient(120deg, #2563eb, #3b82f6, #6366f1, #7c5cfc, #a855f7, #2563eb);
+      background-size: 320% 320%;
+      animation: tips-gradient-flow 12s ease infinite;
       border-radius: 20px; padding: 1.25rem;
       box-shadow: 0 4px 20px rgba(124,92,252,0.3);
     }
 
-    .tips-card h3 { font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.875rem; }
+    .tips-card h3 { font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.35rem; }
+
+    .workout-tips-sub {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
 
     .tip-item {
       display: flex; align-items: flex-start; gap: 0.5rem;
@@ -217,18 +245,52 @@
     }
 
     .tip-item:last-child { margin-bottom: 0; }
-    .tip-dot { margin-top: 0.35rem; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.7); flex-shrink: 0; }
+
+    @keyframes tip-dot-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.65; }
+      50% { transform: scale(1.35); opacity: 1; box-shadow: 0 0 8px rgba(255,255,255,0.9); }
+    }
+
+    .tip-dot {
+      margin-top: 0.35rem; width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(255,255,255,0.85); flex-shrink: 0;
+      animation: tip-dot-pulse 2.4s ease-in-out infinite;
+    }
+
+    #workoutTipsBody .tip-item:nth-child(1) .tip-dot { animation-delay: 0s; }
+    #workoutTipsBody .tip-item:nth-child(2) .tip-dot { animation-delay: 0.2s; }
+    #workoutTipsBody .tip-item:nth-child(3) .tip-dot { animation-delay: 0.4s; }
+    #workoutTipsBody .tip-item:nth-child(4) .tip-dot { animation-delay: 0.6s; }
+    #workoutTipsBody .tip-item:nth-child(5) .tip-dot { animation-delay: 0.8s; }
+    #workoutTipsBody .tip-item:nth-child(6) .tip-dot { animation-delay: 1s; }
 
     /* Help */
+    @keyframes help-btn-glow {
+      0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+      50% { box-shadow: 0 4px 22px rgba(124,92,252,0.55), 0 0 0 1px rgba(124,92,252,0.2); }
+    }
+
     .help-btn {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
       width: 40px; height: 40px; background: #1a1a2e; color: white;
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
       font-size: 1rem; font-weight: 700; cursor: pointer;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: background 0.2s; text-decoration: none;
+      animation: help-btn-glow 4s ease-in-out infinite;
     }
 
     .help-btn:hover { background: var(--purple); }
+
+    @media (prefers-reduced-motion: reduce) {
+      body,
+      .tips-card,
+      .tip-dot,
+      .help-btn,
+      .wiz-video-wrap::after,
+      .wiz-countdown-text {
+        animation: none !important;
+      }
+    }
 
     @media (max-width: 760px) {
       .page { grid-template-columns: 1fr; }
@@ -328,6 +390,19 @@
       gap: 1.25rem;
     }
 
+    @keyframes wiz-frame-pulse {
+      0%, 100% {
+        box-shadow:
+          inset 0 0 0 1px rgba(34, 197, 94, 0.25),
+          inset 0 0 28px rgba(34, 197, 94, 0.08);
+      }
+      50% {
+        box-shadow:
+          inset 0 0 0 1px rgba(59, 130, 246, 0.45),
+          inset 0 0 40px rgba(59, 130, 246, 0.12);
+      }
+    }
+
     .wiz-video-wrap {
       position: relative;
       border-radius: 20px;
@@ -337,6 +412,50 @@
       min-height: 260px;
     }
 
+    .wiz-video-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      pointer-events: none;
+      z-index: 5;
+      animation: wiz-frame-pulse 4s ease-in-out infinite;
+    }
+
+    .wiz-countdown-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse 70% 55% at 50% 45%, rgba(34, 197, 94, 0.22) 0%, rgba(0, 0, 0, 0.58) 65%, rgba(0, 0, 0, 0.72) 100%);
+      border-radius: 20px;
+      pointer-events: none;
+    }
+
+    .wiz-countdown-text {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(3.5rem, 14vw, 5.5rem);
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 0 40px rgba(34, 197, 94, 0.7), 0 4px 20px rgba(0, 0, 0, 0.8);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      animation: wiz-count-pop 0.35s ease-out, wiz-count-glow 1.1s ease-in-out infinite 0.35s;
+    }
+
+    @keyframes wiz-count-pop {
+      from { transform: scale(0.5); opacity: 0.4; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes wiz-count-glow {
+      0%, 100% { text-shadow: 0 0 35px rgba(34, 197, 94, 0.55), 0 4px 20px rgba(0, 0, 0, 0.85); }
+      50% { text-shadow: 0 0 55px rgba(34, 197, 94, 0.95), 0 0 25px rgba(255, 255, 255, 0.35), 0 4px 20px rgba(0, 0, 0, 0.85); }
+    }
+
     .wiz-video,
     .wiz-canvas {
       position: absolute;
@@ -344,7 +463,10 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      z-index: 2;
     }
+
+    .wiz-canvas { z-index: 3; }
 
     .wiz-skeleton-panel {
       border-radius: 20px;
@@ -373,45 +495,16 @@
       letter-spacing: 0.12em;
     }
 
-    .wiz-coach-row {
-      display: flex;
-      align-items: center;
-      gap: 0.9rem;
-      padding: 0.9rem 1rem;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.96);
-      border: 1px solid rgba(148,163,184,0.45);
-      box-shadow: 0 12px 40px rgba(15,23,42,0.9);
-    }
-
-    .wiz-coach-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      overflow: hidden;
-      flex-shrink: 0;
-      background: radial-gradient(circle at top, #22c55e 0%, #16a34a 40%, #15803d 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .wiz-coach-avatar img {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      object-fit: cover;
-    }
-
-    .wiz-coach-text {
-      font-size: 0.9rem;
-      color: #e5e7eb;
-    }
-
     .wiz-stats-row {
       display: grid;
-      grid-template-columns: 2.2fr repeat(3, 1fr);
-      gap: 0.75rem;
+      grid-template-columns: 1.6fr repeat(5, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    @media (max-width: 720px) {
+      .wiz-stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     .wiz-stat-card {
@@ -472,6 +565,164 @@
         grid-template-columns: 1fr;
       }
     }
+
+    .wiz-workout-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 1rem 0 0.25rem;
+    }
+
+    .wiz-workout-btn {
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      border: 2px solid rgba(167, 139, 250, 0.75);
+      background: rgba(88, 28, 135, 0.35);
+      color: #ddd6fe;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
+    }
+
+    .wiz-workout-btn:hover {
+      border-color: #facc15;
+      background: rgba(124, 92, 252, 0.45);
+      color: #fef9c3;
+    }
+
+    .wiz-workout-btn.active {
+      border-color: #facc15;
+      background: linear-gradient(145deg, rgba(124, 92, 252, 0.4), rgba(91, 33, 182, 0.5));
+      color: #fef08a;
+      box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.45), 0 4px 14px rgba(124, 92, 252, 0.25);
+    }
+
+    .wiz-workout-hint {
+      font-size: 0.78rem;
+      color: #9ca3af;
+      margin-top: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .wiz-stat-card.wiz-stat-active {
+      border-color: rgba(34,197,94,0.55);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.25), 0 12px 40px rgba(15,23,42,0.9);
+    }
+
+    .wiz-coach-guidance {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .wiz-workout-hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 1 42%;
+      min-width: 0;
+      margin-bottom: 0;
+      padding: 0.75rem 1rem 1rem;
+      min-height: 120px;
+      border-radius: 16px;
+      background: linear-gradient(
+        155deg,
+        rgba(255, 255, 255, 0.52),
+        rgba(237, 233, 254, 0.42)
+      );
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 4px 28px rgba(15, 23, 42, 0.07);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .wiz-workout-hero img {
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      max-height: 200px;
+      object-fit: contain;
+      object-position: center center;
+      border-radius: 12px;
+      filter: drop-shadow(0 8px 20px rgba(15, 23, 42, 0.12));
+    }
+
+    .wiz-coach-speech {
+      flex: 1 1 52%;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      padding: 1.05rem 1.2rem 1.1rem 1.35rem;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #312e81 0%, #1e1b4b 45%, #0f172a 100%);
+      border: 1px solid rgba(250, 204, 21, 0.35);
+      box-shadow:
+        0 12px 40px rgba(15, 23, 42, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .wiz-coach-speech::before {
+      content: '';
+      position: absolute;
+      left: -9px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 11px solid transparent;
+      border-right-color: #312e81;
+      border-left: 0;
+    }
+
+    .wiz-coach-speech-kicker {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #fef08a;
+      margin-bottom: 0.45rem;
+      font-weight: 700;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+    }
+
+    .wiz-coach-speech-text {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.55;
+      font-weight: 500;
+      color: #f8fafc;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    }
+
+    @media (max-width: 720px) {
+      .wiz-coach-guidance {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .wiz-workout-hero {
+        flex: 1 1 auto;
+        max-height: none;
+      }
+
+      .wiz-workout-hero img {
+        max-height: 200px;
+      }
+
+      .wiz-coach-speech::before {
+        left: 50%;
+        top: -10px;
+        transform: translateX(-50%);
+        border: 11px solid transparent;
+        border-bottom-color: #312e81;
+        border-top: 0;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -497,10 +748,12 @@
       <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg>
       Nutrition
     </a>
-<!--    <a href="body.html" class="nav-link">-->
-<!--      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>-->
-<!--      Body-->
-<!--    </a>-->
+      <!--
+    <a href="body.html" class="nav-link">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Body
+    </a>
+      -->
     <a href="ai-coach.html" class="nav-link">
       <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
       AI Coach
@@ -521,10 +774,30 @@
       <small style="color: var(--muted);">AI-powered motion coach</small>
     </div>
 
+    <div class="wiz-coach-guidance" id="wizCoachGuidance">
+      <div class="wiz-workout-hero" id="wizWorkoutHero">
+        <img id="wizWorkoutHeroImg" src="wiz-workout-squat.png?v=8" alt="WizCoach demonstrating squats"/>
+      </div>
+      <div class="wiz-coach-speech" role="status" aria-live="polite" aria-atomic="true">
+        <span class="wiz-coach-speech-kicker">WizCoach</span>
+        <p id="wizCoachFeedback" class="wiz-coach-speech-text">
+          👋 Pick an exercise and start the camera — I’ll guide you through each rep.
+        </p>
+      </div>
+    </div>
+
     <div class="wiz-camera-card">
       <!-- Idle / permission states -->
       <section id="wizIdleState" class="wiz-state-card">
         <p>Your AI coach will watch your form and count your reps.</p>
+        <p class="wiz-workout-hint">Choose which exercise to track. The camera only counts that movement until you change it.</p>
+        <div id="wizWorkoutPickerIdle" class="wiz-workout-picker" role="group" aria-label="Exercise to track">
+          <button type="button" class="wiz-workout-btn active" data-workout="squat">Squats</button>
+          <button type="button" class="wiz-workout-btn" data-workout="pushup">Pushups</button>
+          <button type="button" class="wiz-workout-btn" data-workout="arm_raise">Arm raises</button>
+          <button type="button" class="wiz-workout-btn" data-workout="walk_in_place">Walk in place</button>
+          <button type="button" class="wiz-workout-btn" data-workout="jumping_jack">Jumping jacks</button>
+        </div>
         <button id="wizStartButton" type="button" class="wiz-primary-button">
           Allow camera &amp; start
         </button>
@@ -549,24 +822,27 @@
 
       <!-- Ready state: full camera UI -->
       <section id="wizReadyState" class="hidden">
+        <div class="wiz-workout-picker" id="wizWorkoutPickerReady" role="group" aria-label="Exercise to track">
+          <button type="button" class="wiz-workout-btn active" data-workout="squat">Squats</button>
+          <button type="button" class="wiz-workout-btn" data-workout="pushup">Pushups</button>
+          <button type="button" class="wiz-workout-btn" data-workout="arm_raise">Arm raises</button>
+          <button type="button" class="wiz-workout-btn" data-workout="walk_in_place">Walk in place</button>
+          <button type="button" class="wiz-workout-btn" data-workout="jumping_jack">Jumping jacks</button>
+        </div>
+        <p class="wiz-workout-hint" style="text-align:center;color:#6b7280;margin:0 0 0.5rem;">Switch anytime — rep counts are kept per exercise.</p>
+
         <div class="wiz-video-and-skeleton">
           <div class="wiz-video-wrap">
             <video id="wizVideo" class="wiz-video" playsinline muted></video>
             <canvas id="wizCanvas" class="wiz-canvas"></canvas>
+            <div id="wizCountdownOverlay" class="wiz-countdown-overlay hidden" aria-live="polite" aria-atomic="true">
+              <span id="wizCountdownText" class="wiz-countdown-text"></span>
+            </div>
           </div>
 
           <div class="wiz-skeleton-panel">
             <canvas id="wizMiniSkeleton" class="wiz-skeleton-canvas"></canvas>
             <span class="wiz-skeleton-label">How WizCoach sees your body</span>
-          </div>
-        </div>
-
-        <div class="wiz-coach-row" style="margin-top: 1rem;">
-          <div class="wiz-coach-avatar">
-            <img src="wizcoach-logo.png" alt="Coach avatar"/>
-          </div>
-          <div class="wiz-coach-text">
-            <p id="wizCoachFeedback">👋 Ready to start your workout!</p>
           </div>
         </div>
 
@@ -579,19 +855,29 @@
             <span id="wizMotionValue" class="wiz-stat-value">0%</span>
           </div>
 
-          <div class="wiz-stat-card">
+          <div class="wiz-stat-card" id="wizStatSquat">
             <span class="wiz-stat-label">Squats</span>
             <span id="wizSquatCount" class="wiz-stat-value">0</span>
           </div>
 
-          <div class="wiz-stat-card">
+          <div class="wiz-stat-card" id="wizStatPushup">
             <span class="wiz-stat-label">Pushups</span>
             <span id="wizPushupCount" class="wiz-stat-value">0</span>
           </div>
 
-          <div class="wiz-stat-card">
+          <div class="wiz-stat-card" id="wizStatArmRaise">
             <span class="wiz-stat-label">Arm raises</span>
             <span id="wizArmRaiseCount" class="wiz-stat-value">0</span>
+          </div>
+
+          <div class="wiz-stat-card" id="wizStatWalk">
+            <span class="wiz-stat-label">Steps</span>
+            <span id="wizWalkCount" class="wiz-stat-value">0</span>
+          </div>
+
+          <div class="wiz-stat-card" id="wizStatJack">
+            <span class="wiz-stat-label">Jacks</span>
+            <span id="wizJackCount" class="wiz-stat-value">0</span>
           </div>
         </div>
 
@@ -605,21 +891,20 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
 
-    <!-- Recent Exercises -->
+    <!-- Recent Exercises (camera-detected reps) -->
     <div class="card">
-      <h3>Recent Exercises</h3>
+      <h3>Recent exercises</h3>
+      <p class="recent-ex-hint">Reps detected during your live camera session show below.</p>
       <div id="exerciseLog">
-        <p class="exercise-empty" id="exerciseEmpty">*No exercises recorded yet*</p>
+        <p class="exercise-empty" id="exerciseEmpty">No camera reps logged yet.</p>
       </div>
     </div>
 
-    <!-- Tips -->
-    <div class="tips-card">
-      <h3>Tips for Better Tracking</h3>
-      <div class="tip-item"><div class="tip-dot"></div><span>*Ensure good lighting in your space*</span></div>
-      <div class="tip-item"><div class="tip-dot"></div><span>*Stay within camera frame*</span></div>
-      <div class="tip-item"><div class="tip-dot"></div><span>*Wear contrasting colors*</span></div>
-      <div class="tip-item"><div class="tip-dot"></div><span>*Follow the on-screen feedback*</span></div>
+    <!-- Tips (copy updates with selected exercise) -->
+    <div class="tips-card" id="workoutTipsCard">
+      <h3 id="workoutTipsHeading">Tips for better tracking</h3>
+      <p id="workoutTipsSub" class="workout-tips-sub"></p>
+      <div id="workoutTipsBody"></div>
     </div>
 
   </div>
@@ -657,12 +942,51 @@
   let wizStartButton, wizRetryButton;
   let wizIdleState, wizAskingState, wizDeniedState, wizErrorState, wizReadyState;
   let wizDeniedError, wizGenericError, wizCoachFeedbackEl;
-  let wizMotionFill, wizMotionValue, wizSquatCountEl, wizPushupCountEl, wizArmRaiseCountEl;
+
+  /** Coach bubble: avoid flicker by holding each non-forced line for a minimum time. */
+  const COACH_HOLD_PHASE_MS = 2800;
+  const COACH_HOLD_REP_MS = 3800;
+  const COACH_HOLD_SYSTEM_MS = 2400;
+  let coachMessageLockUntilMs = 0;
+  let coachLastFacingForGate = true;
+  let coachHadPoseForGate = false;
+
+  function resetCoachMessageGate() {
+    coachMessageLockUntilMs = 0;
+  }
+
+  /**
+   * @param {string} text
+   * @param {{ force?: boolean, holdMs?: number, refreshLock?: boolean }} [opts]
+   */
+  function setCoachMessage(text, opts = {}) {
+    const now = performance.now();
+    const force = opts.force === true;
+    const holdMs = opts.holdMs ?? COACH_HOLD_PHASE_MS;
+    if (!wizCoachFeedbackEl) return;
+    if (force) {
+      const prev = wizCoachFeedbackEl.textContent;
+      wizCoachFeedbackEl.textContent = text;
+      if (prev !== text || opts.refreshLock === true) {
+        coachMessageLockUntilMs = now + holdMs;
+      }
+      return;
+    }
+    if (now < coachMessageLockUntilMs) return;
+    if (wizCoachFeedbackEl.textContent === text) return;
+    wizCoachFeedbackEl.textContent = text;
+    coachMessageLockUntilMs = now + holdMs;
+  }
+  let wizMotionFill, wizMotionValue, wizSquatCountEl, wizPushupCountEl, wizArmRaiseCountEl, wizWalkCountEl, wizJackCountEl;
   let wizExerciseIndicator, wizExerciseLabel;
 
   let stream = null;
   let detector = null;
   let animationFrameId = 0;
+
+  /** False during 3-2-1; rep counting and phase tracking only run when true. */
+  let repTrackingEnabled = false;
+  let countdownTimeoutIds = [];
 
   let prevFrame = null;
   let motionCtx = null;
@@ -684,7 +1008,39 @@
   let squatCount = 0;
   let pushupCount = 0;
   let armRaiseCount = 0;
-  let currentExercise = 'none';
+  let walkInPlaceCount = 0;
+  let jumpingJackCount = 0;
+  /** User-selected exercise only — detection runs for this type until changed. */
+  let selectedWorkout = 'squat';
+
+  /** EMA of nose Y while standing (knees straight); used for squat head-lowering check. */
+  let squatHeadBaselineY = null;
+
+  /** Pushup (face camera): smoothed average elbow angle; dampens jitter that caused multi-counts. */
+  let pushupSmoothedAvgElbowDeg = null;
+  /** Pushup: ignore repeat counts within this window after a rep (ms). */
+  let pushupRepCooldownUntilMs = 0;
+
+  /**
+   * Jumping jack: pose open/close (ankle spread + arms), not vertical jump — 2D cams rarely show true “air time”.
+   */
+  let jjInternalOpen = false;
+  let jjSmoothedAnkleSpread = null;
+  let jjRepCooldownUntilMs = 0;
+
+  /** Arm raise: smoothed (shoulderY − wristY); hysteresis + cooldown reduce double counts. */
+  let armRaiseSmoothedLift = null;
+  let armRaiseInternalArmsUp = false;
+  let armRaiseRepCooldownUntilMs = 0;
+
+  function countForWorkout(type) {
+    if (type === 'squat') return squatCount;
+    if (type === 'pushup') return pushupCount;
+    if (type === 'arm_raise') return armRaiseCount;
+    if (type === 'walk_in_place') return walkInPlaceCount;
+    if (type === 'jumping_jack') return jumpingJackCount;
+    return 0;
+  }
 
   function setCameraStatus(status) {
     cameraStatus = status;
@@ -766,6 +1122,9 @@
     return ratio > 0.35;
   }
 
+  /**
+   * Squat: facing camera, knee bend + head vs standing baseline.
+   */
   function detectSquat(pose) {
     const lHip = getKeypoint(pose, 'left_hip');
     const rHip = getKeypoint(pose, 'right_hip');
@@ -773,6 +1132,8 @@
     const rKnee = getKeypoint(pose, 'right_knee');
     const lAnkle = getKeypoint(pose, 'left_ankle');
     const rAnkle = getKeypoint(pose, 'right_ankle');
+    const lSh = getKeypoint(pose, 'left_shoulder');
+    const rSh = getKeypoint(pose, 'right_shoulder');
 
     let kneeAngleSum = 0;
     let sides = 0;
@@ -794,47 +1155,167 @@
     trySide(lHip, lKnee, lAnkle);
     trySide(rHip, rKnee, rAnkle);
 
-    if (sides === 0) return { phase: 'unknown', confidence: 0 };
+    if (sides === 0 || !lHip || !rHip || !lSh || !rSh) return { phase: 'unknown', confidence: 0 };
 
     const avgKneeAngle = kneeAngleSum / sides;
-    if (avgKneeAngle < 160) return { phase: 'down', confidence: minScore };
-    if (avgKneeAngle > 175) return { phase: 'up', confidence: minScore };
-    return { phase: 'transitioning', confidence: minScore };
-  }
+    const midShY = (lSh.y + rSh.y) / 2;
+    const midHipY = (lHip.y + rHip.y) / 2;
+    const torsoLen = Math.max(Math.abs(midHipY - midShY), 45);
 
-  function detectPushup(pose) {
-    const lShoulder = getKeypoint(pose, 'left_shoulder');
-    const lElbow = getKeypoint(pose, 'left_elbow');
-    const lWrist = getKeypoint(pose, 'left_wrist');
-    const lHip = getKeypoint(pose, 'left_hip');
-    const rShoulder = getKeypoint(pose, 'right_shoulder');
-    const rElbow = getKeypoint(pose, 'right_elbow');
-    const rWrist = getKeypoint(pose, 'right_wrist');
-    const rHip = getKeypoint(pose, 'right_hip');
+    const nose = getKeypoint(pose, 'nose');
+    const lEye = getKeypoint(pose, 'left_eye');
+    const rEye = getKeypoint(pose, 'right_eye');
 
-    const side = (() => {
-      const lOk = (lShoulder?.score || 0) > 0.08 && (lElbow?.score || 0) > 0.08 && (lWrist?.score || 0) > 0.08;
-      const rOk = (rShoulder?.score || 0) > 0.08 && (rElbow?.score || 0) > 0.08 && (rWrist?.score || 0) > 0.08;
-      if (lOk && lShoulder && lElbow && lWrist) return { shoulder: lShoulder, elbow: lElbow, wrist: lWrist, hip: lHip };
-      if (rOk && rShoulder && rElbow && rWrist) return { shoulder: rShoulder, elbow: rElbow, wrist: rWrist, hip: rHip };
-      return null;
-    })();
-
-    if (!side) return { phase: 'unknown', confidence: 0 };
-
-    const { shoulder, elbow, wrist, hip } = side;
-    const conf = Math.min(shoulder.score || 0, elbow.score || 0, wrist.score || 0, hip?.score || 1);
-
-    if (hip && (hip.score || 0) > 0.08) {
-      const dy = Math.abs(shoulder.y - hip.y);
-      if (dy > 180) return { phase: 'unknown', confidence: conf * 0.5 };
+    let headY = null;
+    let headConf = 0;
+    if (nose && (nose.score || 0) > 0.22) {
+      headY = nose.y;
+      headConf = nose.score || 0;
+    } else {
+      const eyes = [];
+      if (lEye && (lEye.score || 0) > 0.2) eyes.push(lEye);
+      if (rEye && (rEye.score || 0) > 0.2) eyes.push(rEye);
+      if (eyes.length) {
+        headY = eyes.reduce((s, e) => s + e.y, 0) / eyes.length;
+        headConf = Math.min(...eyes.map(e => e.score || 0));
+      }
     }
 
-    const elbowAngle = angle(shoulder, elbow, wrist);
-    if (elbowAngle <= 0) return { phase: 'unknown', confidence: conf };
-    if (elbowAngle < 120) return { phase: 'down', confidence: conf };
-    if (elbowAngle > 140) return { phase: 'up', confidence: conf };
-    return { phase: 'transitioning', confidence: conf };
+    const shoulderSpan = Math.max(distance(lSh, rSh), 30);
+    const faceTol = shoulderSpan * 0.55;
+    if (headY != null && nose && (nose.score || 0) > 0.22) {
+      const minX = Math.min(lSh.x, rSh.x) - faceTol;
+      const maxX = Math.max(lSh.x, rSh.x) + faceTol;
+      if (nose.x < minX || nose.x > maxX) {
+        return { phase: 'unknown', confidence: 0 };
+      }
+    }
+
+    const KNEES_UP = avgKneeAngle > 169;
+    const KNEES_DEEP = avgKneeAngle < 150;
+    const dropNeed = torsoLen * 0.065;
+    const restoreMax = torsoLen * 0.042;
+
+    if (KNEES_UP && headY != null) {
+      if (squatHeadBaselineY === null) squatHeadBaselineY = headY;
+      else squatHeadBaselineY = squatHeadBaselineY * 0.9 + headY * 0.1;
+    }
+
+    const hasBaseline = squatHeadBaselineY != null && headY != null;
+    const headLowered = hasBaseline && headY > squatHeadBaselineY + dropNeed;
+    const headBackUp = hasBaseline && headY <= squatHeadBaselineY + restoreMax;
+
+    let conf = Math.min(minScore, headConf || minScore);
+
+    if (hasBaseline) {
+      if (KNEES_DEEP && headLowered) {
+        return { phase: 'down', confidence: conf };
+      }
+      if (KNEES_UP && headBackUp) {
+        return { phase: 'up', confidence: conf };
+      }
+      if (KNEES_UP && !headBackUp) {
+        return { phase: 'transitioning', confidence: conf * 0.92 };
+      }
+      if (KNEES_DEEP || headLowered) {
+        return { phase: 'transitioning', confidence: conf * 0.88 };
+      }
+      return { phase: 'unknown', confidence: conf * 0.45 };
+    }
+
+    if (avgKneeAngle < 152) return { phase: 'down', confidence: conf * 0.65 };
+    if (avgKneeAngle > 172) return { phase: 'up', confidence: conf * 0.65 };
+    return { phase: 'transitioning', confidence: conf * 0.6 };
+  }
+
+  /**
+   * Pushups while facing the camera: both arms must track; average elbow angle is EMA-smoothed.
+   * Rejects narrow profile (not facing), mismatched arms, and non-plank poses to reduce burst false reps.
+   */
+  function detectPushup(pose) {
+    const lSh = getKeypoint(pose, 'left_shoulder');
+    const lEl = getKeypoint(pose, 'left_elbow');
+    const lWr = getKeypoint(pose, 'left_wrist');
+    const rSh = getKeypoint(pose, 'right_shoulder');
+    const rEl = getKeypoint(pose, 'right_elbow');
+    const rWr = getKeypoint(pose, 'right_wrist');
+    const lHp = getKeypoint(pose, 'left_hip');
+    const rHp = getKeypoint(pose, 'right_hip');
+
+    const minKp = 0.1;
+    if (
+      !lSh ||
+      !lEl ||
+      !lWr ||
+      !rSh ||
+      !rEl ||
+      !rWr ||
+      (lSh.score || 0) < minKp ||
+      (lEl.score || 0) < minKp ||
+      (lWr.score || 0) < minKp ||
+      (rSh.score || 0) < minKp ||
+      (rEl.score || 0) < minKp ||
+      (rWr.score || 0) < minKp
+    ) {
+      return { phase: 'unknown', confidence: 0 };
+    }
+
+    const midSy = (lSh.y + rSh.y) / 2;
+    let torsoLen = 100;
+    if (lHp && rHp && (lHp.score || 0) > 0.08 && (rHp.score || 0) > 0.08) {
+      const midHy = (lHp.y + rHp.y) / 2;
+      torsoLen = Math.max(Math.abs(midSy - midHy), 90);
+    } else {
+      torsoLen = Math.max(distance(lSh, rSh) * 1.35, 100);
+    }
+
+    const shoulderW = distance(lSh, rSh);
+    if (shoulderW / torsoLen < 0.4) {
+      return { phase: 'unknown', confidence: 0 };
+    }
+
+    const midWy = (lWr.y + rWr.y) / 2;
+    if (midWy < midSy + torsoLen * 0.06) {
+      return { phase: 'unknown', confidence: 0 };
+    }
+
+    if (lHp && rHp && (lHp.score || 0) > 0.08 && (rHp.score || 0) > 0.08) {
+      const midHy = (lHp.y + rHp.y) / 2;
+      if (midHy < midSy - torsoLen * 0.12) {
+        return { phase: 'unknown', confidence: 0 };
+      }
+    }
+
+    const la = angle(lSh, lEl, lWr);
+    const ra = angle(rSh, rEl, rWr);
+    if (la <= 0 || ra <= 0) return { phase: 'unknown', confidence: 0 };
+
+    if (Math.abs(la - ra) > 52) {
+      return { phase: 'unknown', confidence: 0 };
+    }
+
+    const rawAvg = (la + ra) / 2;
+    const emaAlpha = 0.36;
+    if (pushupSmoothedAvgElbowDeg == null) {
+      pushupSmoothedAvgElbowDeg = rawAvg;
+    } else {
+      pushupSmoothedAvgElbowDeg =
+        pushupSmoothedAvgElbowDeg * (1 - emaAlpha) + rawAvg * emaAlpha;
+    }
+
+    const a = pushupSmoothedAvgElbowDeg;
+    const conf = Math.min(
+      lSh.score || 0,
+      lEl.score || 0,
+      lWr.score || 0,
+      rSh.score || 0,
+      rEl.score || 0,
+      rWr.score || 0
+    );
+
+    if (a < 104) return { phase: 'down', confidence: conf };
+    if (a > 152) return { phase: 'up', confidence: conf };
+    return { phase: 'transitioning', confidence: conf * 0.82 };
   }
 
   function detectArmRaise(pose) {
@@ -844,32 +1325,200 @@
     const rWrist = getKeypoint(pose, 'right_wrist');
     const lElbow = getKeypoint(pose, 'left_elbow');
     const rElbow = getKeypoint(pose, 'right_elbow');
+    const lHip = getKeypoint(pose, 'left_hip');
+    const rHip = getKeypoint(pose, 'right_hip');
 
-    const sides = [];
-    if (lShoulder && lWrist && (lShoulder.score || 0) > 0.08 && (lWrist.score || 0) > 0.08) {
-      sides.push({ shoulder: lShoulder, wrist: lWrist, elbow: lElbow });
+    const minKp = 0.1;
+    if (
+      !lShoulder ||
+      !rShoulder ||
+      !lWrist ||
+      !rWrist ||
+      (lShoulder.score || 0) < minKp ||
+      (rShoulder.score || 0) < minKp ||
+      (lWrist.score || 0) < minKp ||
+      (rWrist.score || 0) < minKp
+    ) {
+      return { phase: 'unknown', confidence: 0 };
     }
-    if (rShoulder && rWrist && (rShoulder.score || 0) > 0.08 && (rWrist.score || 0) > 0.08) {
-      sides.push({ shoulder: rShoulder, wrist: rWrist, elbow: rElbow });
+
+    const midShY = (lShoulder.y + rShoulder.y) / 2;
+    const midWrY = (lWrist.y + rWrist.y) / 2;
+    const liftL = lShoulder.y - lWrist.y;
+    const liftR = rShoulder.y - rWrist.y;
+    if (Math.abs(liftL - liftR) > 85) {
+      return { phase: 'unknown', confidence: 0 };
     }
-    if (sides.length === 0) return { phase: 'unknown', confidence: 0 };
 
-    const shoulderY = sides.reduce((s, x) => s + x.shoulder.y, 0) / sides.length;
-    const wristY = sides.reduce((s, x) => s + x.wrist.y, 0) / sides.length;
-    const minScore = Math.min(...sides.flatMap(x => [x.shoulder.score || 0, x.wrist.score || 0]));
+    const rawLift = (liftL + liftR) / 2;
+    const emaA = 0.34;
+    armRaiseSmoothedLift =
+      armRaiseSmoothedLift == null
+        ? rawLift
+        : armRaiseSmoothedLift * (1 - emaA) + rawLift * emaA;
 
-    const wristAbove = wristY < shoulderY - 5;
+    let torso = 140;
+    if (lHip && rHip && (lHip.score || 0) > 0.08 && (rHip.score || 0) > 0.08) {
+      const midHy = (lHip.y + rHip.y) / 2;
+      torso = Math.max(Math.abs(midShY - midHy), 100);
+    } else {
+      torso = Math.max(distance(lShoulder, rShoulder) * 1.85, 100);
+    }
 
-    let elbowsOk = true;
-    for (const s of sides) {
-      if (s.elbow && (s.elbow.score || 0) > 0.08) {
-        const a = angle(s.shoulder, s.elbow, s.wrist);
-        if (a > 0) elbowsOk = elbowsOk && a > 100;
+    const enterUp = torso * 0.065;
+    const exitDown = torso * 0.028;
+
+    if (!armRaiseInternalArmsUp && armRaiseSmoothedLift > enterUp) {
+      armRaiseInternalArmsUp = true;
+    } else if (armRaiseInternalArmsUp && armRaiseSmoothedLift < exitDown) {
+      armRaiseInternalArmsUp = false;
+    }
+
+    let elbowsOkUp = true;
+    for (const [sh, el, wr] of [
+      [lShoulder, lElbow, lWrist],
+      [rShoulder, rElbow, rWrist]
+    ]) {
+      if (el && (el.score || 0) > 0.08) {
+        const a = angle(sh, el, wr);
+        if (a > 0) elbowsOkUp = elbowsOkUp && a > 102;
       }
     }
 
-    if (wristAbove && elbowsOk) return { phase: 'up', confidence: minScore };
-    return { phase: 'down', confidence: minScore };
+    const minScore = Math.min(
+      lShoulder.score || 0,
+      rShoulder.score || 0,
+      lWrist.score || 0,
+      rWrist.score || 0
+    );
+
+    if (armRaiseInternalArmsUp && elbowsOkUp) {
+      return { phase: 'up', confidence: minScore };
+    }
+    return { phase: 'down', confidence: minScore * 0.98 };
+  }
+
+  /**
+   * Walk in place (front view): one knee lifts and bends while the other leg stays straighter;
+   * a step is counted on return to both legs extended (same up-edge as other exercises).
+   */
+  function detectWalkInPlace(pose) {
+    const lHip = getKeypoint(pose, 'left_hip');
+    const rHip = getKeypoint(pose, 'right_hip');
+    const lKnee = getKeypoint(pose, 'left_knee');
+    const rKnee = getKeypoint(pose, 'right_knee');
+    const lAnk = getKeypoint(pose, 'left_ankle');
+    const rAnk = getKeypoint(pose, 'right_ankle');
+    if (!lHip || !rHip || !lKnee || !rKnee || !lAnk || !rAnk) {
+      return { phase: 'unknown', confidence: 0 };
+    }
+    const pts = [lHip, rHip, lKnee, rKnee, lAnk, rAnk];
+    const minKp = Math.min(...pts.map((k) => k.score || 0));
+    if (minKp < 0.06) return { phase: 'unknown', confidence: 0 };
+
+    const la = angle(lHip, lKnee, lAnk);
+    const ra = angle(rHip, rKnee, rAnk);
+    if (la <= 0 || ra <= 0) return { phase: 'unknown', confidence: 0 };
+
+    const BENT_MAX = 130;
+    const SUPPORT_MIN = 150;
+    const BOTH_STRAIGHT_MIN = 158;
+
+    const leftLifted = la < BENT_MAX && ra > SUPPORT_MIN;
+    const rightLifted = ra < BENT_MAX && la > SUPPORT_MIN;
+    const bothStraight = la > BOTH_STRAIGHT_MIN && ra > BOTH_STRAIGHT_MIN;
+
+    if (leftLifted || rightLifted) {
+      return { phase: 'down', confidence: minKp };
+    }
+    if (bothStraight) {
+      return { phase: 'up', confidence: minKp };
+    }
+    return { phase: 'transitioning', confidence: minKp * 0.72 };
+  }
+
+  /**
+   * Jumping jacks (face camera): “open” = feet wider apart in frame + arms up or wide.
+   * “Closed” = feet back in + arms down — rep still counts on closed after open (same engine as before).
+   * Does not use ankle Y vs floor (too weak on 2D video).
+   */
+  function detectJumpingJack(pose) {
+    const lSh = getKeypoint(pose, 'left_shoulder');
+    const rSh = getKeypoint(pose, 'right_shoulder');
+    const lEl = getKeypoint(pose, 'left_elbow');
+    const rEl = getKeypoint(pose, 'right_elbow');
+    const lWr = getKeypoint(pose, 'left_wrist');
+    const rWr = getKeypoint(pose, 'right_wrist');
+    const lHp = getKeypoint(pose, 'left_hip');
+    const rHp = getKeypoint(pose, 'right_hip');
+    const lKn = getKeypoint(pose, 'left_knee');
+    const rKn = getKeypoint(pose, 'right_knee');
+    const lAn = getKeypoint(pose, 'left_ankle');
+    const rAn = getKeypoint(pose, 'right_ankle');
+
+    const minKp = 0.07;
+    const need = [lSh, rSh, lWr, rWr, lHp, rHp, lKn, rKn, lAn, rAn];
+    if (need.some((k) => !k || (k.score || 0) < minKp)) {
+      return { phase: 'unknown', confidence: 0 };
+    }
+
+    const midShY = (lSh.y + rSh.y) / 2;
+    const midHy = (lHp.y + rHp.y) / 2;
+    const midWrY = (lWr.y + rWr.y) / 2;
+    const torso = Math.max(Math.abs(midShY - midHy), 90);
+
+    const shoulderW = Math.max(distance(lSh, rSh), 36);
+    const hipW = Math.max(distance(lHp, rHp), 26);
+    const ankleW = distance(lAn, rAn);
+    const wristW = distance(lWr, rWr);
+
+    const emaA = 0.38;
+    jjSmoothedAnkleSpread =
+      jjSmoothedAnkleSpread == null
+        ? ankleW
+        : jjSmoothedAnkleSpread * (1 - emaA) + ankleW * emaA;
+    const aW = jjSmoothedAnkleSpread;
+
+    let armsHigh = false;
+    let armsLow = false;
+    if (lEl && rEl && (lEl.score || 0) > 0.07 && (rEl.score || 0) > 0.07) {
+      const lArm = angle(lSh, lEl, lWr);
+      const rArm = angle(rSh, rEl, rWr);
+      const elbowOk = (lArm <= 0 || lArm > 85) && (rArm <= 0 || rArm > 85);
+      armsHigh =
+        elbowOk &&
+        (midWrY < midShY - torso * 0.026 || wristW > shoulderW * 1.06);
+      armsLow = midWrY > midShY - torso * 0.01 && wristW < shoulderW * 1.04;
+    } else {
+      armsHigh = midWrY < midShY - torso * 0.022 || wristW > shoulderW * 1.12;
+      armsLow = midWrY > midShY - torso * 0.006 && wristW < shoulderW * 1.08;
+    }
+
+    const enterOpen = aW > hipW * 1.07 && aW > shoulderW * 0.5 && armsHigh;
+    const feetTogether = aW < hipW * 0.99 || aW < shoulderW * 0.46;
+    const exitClosed = feetTogether || (armsLow && aW < hipW * 1.06);
+
+    if (!jjInternalOpen && enterOpen) {
+      jjInternalOpen = true;
+    } else if (jjInternalOpen && exitClosed) {
+      jjInternalOpen = false;
+    }
+
+    const conf = Math.min(
+      lSh.score || 0,
+      rSh.score || 0,
+      lWr.score || 0,
+      rWr.score || 0,
+      lAn.score || 0,
+      rAn.score || 0,
+      lHp.score || 0,
+      rHp.score || 0
+    );
+
+    if (jjInternalOpen) {
+      return { phase: 'down', confidence: conf };
+    }
+    return { phase: 'up', confidence: conf * 0.96 };
   }
 
   function getFormFeedbackOnRep(exercise, pose) {
@@ -920,9 +1569,46 @@
         if (minAngle > 100 && minAngle < 180) return 'Rep counted! Try lowering your chest a bit more next time.';
         return 'Rep counted! Good form.';
       }
+      case 'walk_in_place':
+        return 'Step counted! Keep alternating knees in a steady march.';
+      case 'jumping_jack':
+        return 'Jack counted! Jump, open arms and legs, then land soft.';
       default:
         return 'Rep counted!';
     }
+  }
+
+  const REP_ENCOURAGEMENT_SNIPPETS = [
+    'Nice work!',
+    'Love it — keep going!',
+    'Strong rep!',
+    "That's the rhythm!",
+    'You make it look easy!',
+    'Crushing it!',
+    'Stay with it!',
+    'Great energy!',
+    'Keep breathing — you have got this!',
+    'Solid — stack another one!',
+    'Beautiful control!',
+    'Yes! Right on track.'
+  ];
+
+  function buildRepFeedbackMessage(exercise, pose) {
+    const formLine = getFormFeedbackOnRep(exercise, pose);
+    if (Math.random() < 0.48) {
+      const enc =
+        REP_ENCOURAGEMENT_SNIPPETS[Math.floor(Math.random() * REP_ENCOURAGEMENT_SNIPPETS.length)];
+      return Math.random() < 0.58 ? `${enc} ${formLine}` : enc;
+    }
+    return formLine;
+  }
+
+  function detectForSelectedWorkout(pose, type) {
+    if (type === 'squat') return detectSquat(pose);
+    if (type === 'pushup') return detectPushup(pose);
+    if (type === 'walk_in_place') return detectWalkInPlace(pose);
+    if (type === 'jumping_jack') return detectJumpingJack(pose);
+    return detectArmRaise(pose);
   }
 
   function getCoachFeedback(exercise, phase, confidence, pose, bodySize) {
@@ -938,14 +1624,22 @@
         if (phase === 'up') return 'Stand tall — drive through your heels.';
         return 'Squat: go down and back up.';
       case 'pushup':
-        if (phase === 'down') return 'Lower with control — keep body straight.';
-        if (phase === 'up') return 'Press up — keep core tight.';
-        return 'Pushup: lower and press up.';
+        if (phase === 'down') return 'Lower with control — both arms bending together.';
+        if (phase === 'up') return 'Press up — stay square to the camera.';
+        return 'Face the camera in a plank — hands under shoulders, both arms visible.';
       case 'arm_raise':
         if (phase === 'up') return 'Arms up — hold briefly.';
         return 'Raise both arms above shoulders.';
+      case 'walk_in_place':
+        if (phase === 'down') return 'Drive that knee up — then switch.';
+        if (phase === 'up') return 'Good — now lift the other side.';
+        return 'March in place: lift one knee, put it down, alternate.';
+      case 'jumping_jack':
+        if (phase === 'down') return 'Hold the open jack — feet wide, arms up or wide.';
+        if (phase === 'up') return 'Good — feet together, arms down, go again.';
+        return 'Open wide (feet + arms), then close to finish each rep.';
       default:
-        return 'Try squats, pushups, or arm raises!';
+        return 'Keep moving — I am tracking your form.';
     }
   }
 
@@ -960,20 +1654,233 @@
     if (wizSquatCountEl) wizSquatCountEl.textContent = String(squatCount);
     if (wizPushupCountEl) wizPushupCountEl.textContent = String(pushupCount);
     if (wizArmRaiseCountEl) wizArmRaiseCountEl.textContent = String(armRaiseCount);
+    if (wizWalkCountEl) wizWalkCountEl.textContent = String(walkInPlaceCount);
+    if (wizJackCountEl) wizJackCountEl.textContent = String(jumpingJackCount);
+  }
+
+  const WORKOUT_TIPS = {
+    squat: [
+      'Do not bend your knees in tiny or erratic pulses — use a clear down-and-up motion with steady depth for best results.',
+      'Stand still and face the camera before your first rep so your standing position calibrates correctly.',
+      'Avoid walking into the frame mid-set; step into view, settle, then start your squats.',
+      'Keep your full body in frame with even lighting so knees and head are both visible.'
+    ],
+    pushup: [
+      'Face the camera with your chest toward it; both arms and hands must stay visible — counting uses both elbows together.',
+      'Hands should be clearly below shoulder level in frame (plank position). Turn wider if the coach says you are not facing enough.',
+      'Move at a controlled pace — very fast reps are harder for the camera to separate.',
+      'Keep hips from drifting too high (pike) so the model keeps a consistent plank read.'
+    ],
+    arm_raise: [
+      'Lift both arms smoothly above shoulder height; pause briefly at the top when you can.',
+      'Try to keep elbows from collapsing inward on the way up for clearer detection.',
+      'Stand still with your upper body fully in frame; swaying can add false motion.',
+      'Contrasting clothing against your background makes arm position easier to track.'
+    ],
+    walk_in_place: [
+      'Face the camera and lift one knee at a time; the other leg should stay fairly straight as your support.',
+      'Bring the lifted knee toward hip height, then set the foot down before lifting the other side.',
+      'Avoid tiny shuffles — use a clear lift-and-place so knee angles change enough to register.',
+      'Keep hips, knees, and ankles in frame; baggy pants can hide knee bend from the model.'
+    ],
+    jumping_jack: [
+      'Face the camera with your full body in frame from head to feet.',
+      'Spread your feet wide sideways and raise or widen your arms in the same beat — we detect the open “X” shape, not jump height on video.',
+      'Bring feet back together and arms down to finish each rep; the count registers on that close after a clear open.',
+      'Exaggerate width for the camera if reps are slow to register; stay facing forward.'
+    ]
+  };
+
+  function workoutTipsLabel(type) {
+    if (type === 'squat') return 'Squats';
+    if (type === 'pushup') return 'Pushups';
+    if (type === 'arm_raise') return 'Arm raises';
+    if (type === 'walk_in_place') return 'Walk in place';
+    return 'Jumping jacks';
+  }
+
+  function renderWorkoutTips() {
+    const body = document.getElementById('workoutTipsBody');
+    const sub = document.getElementById('workoutTipsSub');
+    const heading = document.getElementById('workoutTipsHeading');
+    if (!body || !sub || !heading) return;
+    heading.textContent = 'Tips for better tracking';
+    sub.textContent = 'For the exercise you chose: ' + workoutTipsLabel(selectedWorkout);
+    const lines = WORKOUT_TIPS[selectedWorkout] || WORKOUT_TIPS.squat;
+    body.innerHTML = lines
+      .map(
+        (text) =>
+          '<div class="tip-item"><div class="tip-dot"></div><span>' +
+          text.replace(/&/g, '&amp;').replace(/</g, '&lt;') +
+          '</span></div>'
+      )
+      .join('');
+  }
+
+  function logCameraRep(exerciseType, repNumber) {
+    const log = document.getElementById('exerciseLog');
+    if (!log) return;
+    const empty = document.getElementById('exerciseEmpty');
+    if (empty) empty.remove();
+
+    const title =
+      exerciseType === 'squat'
+        ? 'Squat'
+        : exerciseType === 'pushup'
+          ? 'Pushup'
+          : exerciseType === 'walk_in_place'
+            ? 'Walk in place'
+            : exerciseType === 'jumping_jack'
+              ? 'Jumping jacks'
+              : 'Arm raise';
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    let item = log.querySelector('.exercise-item[data-camera-exercise="' + exerciseType + '"]');
+    if (item) {
+      const detail = item.querySelector('.ex-camera-rep-detail');
+      const timeEl = item.querySelector('.ex-time');
+      if (detail) detail.textContent = 'Rep ' + repNumber + ' · detected during live session';
+      if (timeEl) timeEl.textContent = now;
+      log.prepend(item);
+      return;
+    }
+
+    item = document.createElement('div');
+    item.className = 'exercise-item';
+    item.setAttribute('data-camera-exercise', exerciseType);
+    item.innerHTML = `
+      <div class="ex-icon">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="ex-text">
+        <h4>${title} (camera)</h4>
+        <p class="ex-camera-rep-detail">Rep ${repNumber} · detected during live session</p>
+      </div>
+      <div class="ex-time">${now}</div>
+    `;
+    log.prepend(item);
   }
 
   function updateExerciseIndicator() {
     if (!wizExerciseIndicator || !wizExerciseLabel) return;
-    if (currentExercise === 'none') {
+    if (cameraStatus !== CameraStatus.READY) {
       wizExerciseIndicator.classList.add('hidden');
       return;
     }
     let label = '';
-    if (currentExercise === 'squat') label = '🏋️ Squats';
-    else if (currentExercise === 'pushup') label = '💪 Pushups';
-    else if (currentExercise === 'arm_raise') label = '🤲 Arm Raises';
-    wizExerciseLabel.textContent = label;
+    if (selectedWorkout === 'squat') label = '🏋️ Squats';
+    else if (selectedWorkout === 'pushup') label = '💪 Pushups';
+    else if (selectedWorkout === 'walk_in_place') label = '🚶 Walk in place';
+    else if (selectedWorkout === 'jumping_jack') label = '🤸 Jumping jacks';
+    else label = '🤲 Arm Raises';
+    wizExerciseLabel.textContent = 'Tracking: ' + label;
     wizExerciseIndicator.classList.remove('hidden');
+  }
+
+  function syncWorkoutPickerButtons() {
+    document.querySelectorAll('.wiz-workout-btn').forEach(btn => {
+      const t = btn.getAttribute('data-workout');
+      btn.classList.toggle('active', t === selectedWorkout);
+    });
+  }
+
+  function updateStatActiveHighlight() {
+    const map = {
+      squat: 'wizStatSquat',
+      pushup: 'wizStatPushup',
+      arm_raise: 'wizStatArmRaise',
+      walk_in_place: 'wizStatWalk',
+      jumping_jack: 'wizStatJack'
+    };
+    ['wizStatSquat', 'wizStatPushup', 'wizStatArmRaise', 'wizStatWalk', 'wizStatJack'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('wiz-stat-active');
+    });
+    const activeId = map[selectedWorkout];
+    const activeEl = activeId ? document.getElementById(activeId) : null;
+    if (activeEl) activeEl.classList.add('wiz-stat-active');
+  }
+
+  function resetPhaseForWorkoutSwitch() {
+    exerciseState.phase = 'unknown';
+    exerciseState.lastPhase = 'unknown';
+    exerciseState.confidence = 0;
+    exerciseState.type = selectedWorkout;
+    exerciseState.count = countForWorkout(selectedWorkout);
+    exerciseState.lastSeenMs = performance.now();
+  }
+
+  const WORKOUT_HERO_ASSET_VER = '8';
+  const WORKOUT_HERO = {
+    squat: { src: 'wiz-workout-squat.png?v=' + WORKOUT_HERO_ASSET_VER, alt: 'WizCoach demonstrating squats' },
+    pushup: { src: 'wiz-workout-pushup.png?v=' + WORKOUT_HERO_ASSET_VER, alt: 'WizCoach demonstrating pushups' },
+    arm_raise: { src: 'wiz-workout-arm-raise.png?v=' + WORKOUT_HERO_ASSET_VER, alt: 'WizCoach demonstrating arm raises' },
+    walk_in_place: {
+      src: 'wiz-workout-walk.png?v=' + WORKOUT_HERO_ASSET_VER,
+      alt: 'WizCoach demonstrating walking in place'
+    },
+    jumping_jack: {
+      src: 'wiz-workout-jumping-jack.png?v=' + WORKOUT_HERO_ASSET_VER,
+      alt: 'WizCoach demonstrating jumping jacks'
+    }
+  };
+
+  function updateWorkoutHero(type) {
+    const img = document.getElementById('wizWorkoutHeroImg');
+    if (!img) return;
+    const cfg = WORKOUT_HERO[type] || WORKOUT_HERO.squat;
+    img.src = cfg.src;
+    img.alt = cfg.alt;
+  }
+
+  function onWorkoutSelected(newType) {
+    if (
+      newType !== 'squat' &&
+      newType !== 'pushup' &&
+      newType !== 'arm_raise' &&
+      newType !== 'walk_in_place' &&
+      newType !== 'jumping_jack'
+    ) {
+      return;
+    }
+    if (newType === selectedWorkout) return;
+    const prev = selectedWorkout;
+    selectedWorkout = newType;
+    if (newType === 'squat' && prev !== 'squat') squatHeadBaselineY = null;
+    if (prev === 'pushup' || newType === 'pushup') {
+      pushupSmoothedAvgElbowDeg = null;
+      pushupRepCooldownUntilMs = 0;
+    }
+    if (prev === 'jumping_jack' || newType === 'jumping_jack') {
+      jjInternalOpen = false;
+      jjSmoothedAnkleSpread = null;
+      jjRepCooldownUntilMs = 0;
+    }
+    if (prev === 'arm_raise' || newType === 'arm_raise') {
+      armRaiseSmoothedLift = null;
+      armRaiseInternalArmsUp = false;
+      armRaiseRepCooldownUntilMs = 0;
+    }
+    syncWorkoutPickerButtons();
+    resetPhaseForWorkoutSwitch();
+    updateStatActiveHighlight();
+    updateExerciseIndicator();
+    renderWorkoutTips();
+    updateWorkoutHero(selectedWorkout);
+    resetCoachMessageGate();
+
+    if (cameraStatus === CameraStatus.READY && stream) {
+      startRepCountdown();
+    }
+  }
+
+  function bindWorkoutPickers() {
+    document.querySelectorAll('.wiz-workout-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const t = btn.getAttribute('data-workout');
+        if (t) onWorkoutSelected(t);
+      });
+    });
   }
 
   async function requestCamera() {
@@ -993,6 +1900,27 @@
       });
       stream = s;
       setCameraStatus(CameraStatus.READY);
+      if (selectedWorkout === 'squat') squatHeadBaselineY = null;
+      if (selectedWorkout === 'pushup') {
+        pushupSmoothedAvgElbowDeg = null;
+        pushupRepCooldownUntilMs = 0;
+      }
+      if (selectedWorkout === 'jumping_jack') {
+        jjInternalOpen = false;
+        jjSmoothedAnkleSpread = null;
+        jjRepCooldownUntilMs = 0;
+      }
+      if (selectedWorkout === 'arm_raise') {
+        armRaiseSmoothedLift = null;
+        armRaiseInternalArmsUp = false;
+        armRaiseRepCooldownUntilMs = 0;
+      }
+      exerciseState.type = selectedWorkout;
+      exerciseState.count = countForWorkout(selectedWorkout);
+      exerciseState.phase = 'unknown';
+      exerciseState.lastPhase = 'unknown';
+      updateExerciseIndicator();
+      updateStatActiveHighlight();
       await startVideoAndModel();
     } catch (err) {
       console.error('Camera error', err);
@@ -1035,6 +1963,60 @@
 
     setupMotionCanvas();
     runCameraLoop();
+    startRepCountdown();
+  }
+
+  function clearRepCountdown() {
+    countdownTimeoutIds.forEach((id) => clearTimeout(id));
+    countdownTimeoutIds = [];
+    const overlay = document.getElementById('wizCountdownOverlay');
+    if (overlay) overlay.classList.add('hidden');
+  }
+
+  function startRepCountdown() {
+    clearRepCountdown();
+    repTrackingEnabled = false;
+    exerciseState.phase = 'unknown';
+    exerciseState.lastPhase = 'unknown';
+    exerciseState.confidence = 0;
+
+    const overlay = document.getElementById('wizCountdownOverlay');
+    const textEl = document.getElementById('wizCountdownText');
+    if (!overlay || !textEl) {
+      repTrackingEnabled = true;
+      return;
+    }
+
+    setCoachMessage('Get into position — rep counting starts after the countdown.', {
+      force: true,
+      holdMs: 4200
+    });
+
+    overlay.classList.remove('hidden');
+    textEl.textContent = '3';
+
+    const schedule = (ms, fn) => {
+      countdownTimeoutIds.push(setTimeout(fn, ms));
+    };
+
+    schedule(1000, () => {
+      textEl.textContent = '2';
+    });
+    schedule(2000, () => {
+      textEl.textContent = '1';
+    });
+    schedule(3000, () => {
+      textEl.textContent = 'Go!';
+      schedule(650, () => {
+        overlay.classList.add('hidden');
+        repTrackingEnabled = true;
+        exerciseState.phase = 'unknown';
+        exerciseState.lastPhase = 'unknown';
+        exerciseState.confidence = 0;
+        exerciseState.lastSeenMs = performance.now();
+        setCoachMessage("Let's go — start your set!", { force: true, holdMs: COACH_HOLD_SYSTEM_MS });
+      });
+    });
   }
 
   function setupMotionCanvas() {
@@ -1047,6 +2029,8 @@
   }
 
   function stopCamera() {
+    clearRepCountdown();
+    repTrackingEnabled = false;
     if (stream) {
       stream.getTracks().forEach(t => t.stop());
       stream = null;
@@ -1121,106 +2105,108 @@
 
         const pose = lastPose;
         if (pose) {
-          const bodySize = getBodySize(pose, w, h);
-          let justCounted = false;
-          const facing = isFacingCamera(pose, w, h);
+          if (!coachHadPoseForGate) {
+            resetCoachMessageGate();
+          }
+          coachHadPoseForGate = true;
 
-          if (facing) {
-            const squat = detectSquat(pose);
-            const pushup = detectPushup(pose);
-            const armRaise = detectArmRaise(pose);
+          if (repTrackingEnabled) {
+            const bodySize = getBodySize(pose, w, h);
+            let justCounted = false;
+            const facing = isFacingCamera(pose, w, h);
 
-            const candidates = [
-              { type: 'squat', phase: squat.phase, conf: squat.confidence },
-              { type: 'pushup', phase: pushup.phase, conf: pushup.confidence },
-              { type: 'arm_raise', phase: armRaise.phase, conf: armRaise.confidence }
-            ].filter(c => c.conf > 0.06 && c.phase !== 'unknown');
-
-            let best = candidates.sort((a, b) => b.conf - a.conf)[0] || { type: 'none', phase: 'unknown', conf: 0 };
-
-            const STICKY_MS = 1200;
-            const SWITCH_MARGIN = 0.15;
-            const recentlySeen = now - exerciseState.lastSeenMs < STICKY_MS;
-
-            if (exerciseState.type !== 'none' && recentlySeen && best.type !== exerciseState.type) {
-              const currentCandidate = candidates.find(c => c.type === exerciseState.type);
-              const currentConf = currentCandidate?.conf ?? exerciseState.confidence;
-              if (!(best.conf > currentConf + SWITCH_MARGIN)) {
-                best = {
-                  type: exerciseState.type,
-                  phase: currentCandidate?.phase ?? exerciseState.phase,
-                  conf: currentConf
-                };
+            if (facing) {
+              if (!coachLastFacingForGate) {
+                resetCoachMessageGate();
               }
-            }
+              coachLastFacingForGate = true;
+              exerciseState.type = selectedWorkout;
+              const det = detectForSelectedWorkout(pose, selectedWorkout);
 
-            if (best.type !== 'none') {
-              exerciseState.lastSeenMs = now;
-              if (exerciseState.type !== best.type) {
-                exerciseState.type = best.type;
-                exerciseState.phase = best.phase;
-                exerciseState.lastPhase = 'unknown';
-                exerciseState.count = 0;
-                exerciseState.confidence = best.conf;
-                currentExercise = best.type;
-                squatCount = 0;
-                pushupCount = 0;
-                armRaiseCount = 0;
-                updateCounts();
-                updateExerciseIndicator();
-              } else {
-                exerciseState.phase = best.phase;
-                exerciseState.confidence = best.conf;
+              if (det.confidence > 0.06 && det.phase !== 'unknown') {
+                exerciseState.lastSeenMs = now;
+                exerciseState.phase = det.phase;
+                exerciseState.confidence = det.confidence;
 
-                if (best.phase === 'up' &&
-                  (exerciseState.lastPhase === 'down' || exerciseState.lastPhase === 'transitioning')) {
+                const pushupRepOk =
+                  selectedWorkout !== 'pushup' ||
+                  (exerciseState.lastPhase === 'down' && now >= pushupRepCooldownUntilMs);
+
+                const jackRepOk =
+                  selectedWorkout !== 'jumping_jack' ||
+                  (exerciseState.lastPhase === 'down' && now >= jjRepCooldownUntilMs);
+
+                const armRaiseRepOk =
+                  selectedWorkout !== 'arm_raise' ||
+                  (exerciseState.lastPhase === 'down' && now >= armRaiseRepCooldownUntilMs);
+
+                const upAfterBend =
+                  det.phase === 'up' &&
+                  (selectedWorkout === 'pushup'
+                    ? pushupRepOk
+                    : selectedWorkout === 'jumping_jack'
+                      ? jackRepOk
+                      : selectedWorkout === 'arm_raise'
+                        ? armRaiseRepOk
+                        : exerciseState.lastPhase === 'down' || exerciseState.lastPhase === 'transitioning');
+
+                if (upAfterBend) {
                   exerciseState.count += 1;
-                  if (exerciseState.type === 'squat') squatCount = exerciseState.count;
-                  if (exerciseState.type === 'pushup') pushupCount = exerciseState.count;
-                  if (exerciseState.type === 'arm_raise') armRaiseCount = exerciseState.count;
-                  updateCounts();
-                  if (wizCoachFeedbackEl) {
-                    wizCoachFeedbackEl.textContent = getFormFeedbackOnRep(exerciseState.type, pose);
+                  if (selectedWorkout === 'squat') squatCount = exerciseState.count;
+                  if (selectedWorkout === 'pushup') {
+                    pushupCount = exerciseState.count;
+                    pushupRepCooldownUntilMs = now + 650;
                   }
+                  if (selectedWorkout === 'arm_raise') {
+                    armRaiseCount = exerciseState.count;
+                    armRaiseRepCooldownUntilMs = now + 520;
+                  }
+                  if (selectedWorkout === 'walk_in_place') walkInPlaceCount = exerciseState.count;
+                  if (selectedWorkout === 'jumping_jack') {
+                    jumpingJackCount = exerciseState.count;
+                    jjRepCooldownUntilMs = now + 520;
+                  }
+                  updateCounts();
+                  setCoachMessage(buildRepFeedbackMessage(selectedWorkout, pose), {
+                    force: true,
+                    holdMs: COACH_HOLD_REP_MS,
+                    refreshLock: true
+                  });
                   justCounted = true;
+                  logCameraRep(selectedWorkout, exerciseState.count);
                 }
 
-                if (['up', 'down', 'transitioning'].includes(best.phase)) {
-                  exerciseState.lastPhase = best.phase;
+                if (['up', 'down', 'transitioning'].includes(det.phase)) {
+                  exerciseState.lastPhase = det.phase;
                 }
+              } else {
+                const RESET_MS = 2000;
+                if (now - exerciseState.lastSeenMs > RESET_MS) {
+                  exerciseState.phase = 'unknown';
+                  exerciseState.confidence = 0;
+                }
+              }
+
+              if (!justCounted) {
+                setCoachMessage(
+                  getCoachFeedback(
+                    selectedWorkout,
+                    exerciseState.phase,
+                    exerciseState.confidence,
+                    pose,
+                    bodySize
+                  )
+                );
               }
             } else {
-              const RESET_MS = 2000;
-              if (exerciseState.type !== 'none' && now - exerciseState.lastSeenMs > RESET_MS) {
-                exerciseState.type = 'none';
-                exerciseState.phase = 'unknown';
-                exerciseState.lastPhase = 'unknown';
-                exerciseState.confidence = 0;
-                currentExercise = 'none';
-                updateExerciseIndicator();
-              }
-            }
-
-            if (!justCounted && wizCoachFeedbackEl) {
-              wizCoachFeedbackEl.textContent = getCoachFeedback(
-                exerciseState.type,
-                exerciseState.phase,
-                exerciseState.confidence,
-                pose,
-                bodySize
-              );
-            }
-          } else {
-            if (exerciseState.type !== 'none') {
-              exerciseState.type = 'none';
+              coachLastFacingForGate = false;
               exerciseState.phase = 'unknown';
               exerciseState.lastPhase = 'unknown';
               exerciseState.confidence = 0;
-              currentExercise = 'none';
-              updateExerciseIndicator();
-            }
-            if (wizCoachFeedbackEl) {
-              wizCoachFeedbackEl.textContent = 'Turn to face the camera directly so I can count your reps.';
+              setCoachMessage('Turn to face the camera directly so I can count your reps.', {
+                force: true,
+                holdMs: COACH_HOLD_SYSTEM_MS
+              });
             }
           }
 
@@ -1303,8 +2289,14 @@
               }
             }
           }
-        } else if (wizCoachFeedbackEl) {
-          wizCoachFeedbackEl.textContent = '👋 Stand in front of the camera so I can see you!';
+        } else {
+          coachHadPoseForGate = false;
+          if (repTrackingEnabled) {
+            setCoachMessage('Stand in front of the camera so I can see you!', {
+              force: true,
+              holdMs: COACH_HOLD_SYSTEM_MS
+            });
+          }
         }
       }
 
@@ -1341,6 +2333,8 @@
     wizSquatCountEl = document.getElementById('wizSquatCount');
     wizPushupCountEl = document.getElementById('wizPushupCount');
     wizArmRaiseCountEl = document.getElementById('wizArmRaiseCount');
+    wizWalkCountEl = document.getElementById('wizWalkCount');
+    wizJackCountEl = document.getElementById('wizJackCount');
 
     wizExerciseIndicator = document.getElementById('wizExerciseIndicator');
     wizExerciseLabel = document.getElementById('wizExerciseLabel');
@@ -1348,9 +2342,17 @@
     if (wizStartButton) wizStartButton.addEventListener('click', requestCamera);
     if (wizRetryButton) wizRetryButton.addEventListener('click', requestCamera);
 
+    bindWorkoutPickers();
+    syncWorkoutPickerButtons();
+    exerciseState.type = selectedWorkout;
+    exerciseState.count = countForWorkout(selectedWorkout);
+    renderWorkoutTips();
+    updateWorkoutHero(selectedWorkout);
+
     setCameraStatus(CameraStatus.IDLE);
     updateMotionUI(0);
     updateCounts();
+    updateStatActiveHighlight();
     updateExerciseIndicator();
   });
 </script>
