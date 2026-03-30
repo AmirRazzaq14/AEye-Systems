@@ -2,8 +2,10 @@ package edu.farmingdale.CSC490.Controller;
 
 import edu.farmingdale.CSC490.Config.FirebaseTokenFilter;
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
+import edu.farmingdale.CSC490.Entity.User;
 import edu.farmingdale.CSC490.Food.FoodAnalyzeService;
 import edu.farmingdale.CSC490.Service.NutritionLogService;
+import edu.farmingdale.CSC490.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,9 @@ public class NutritionLogController {
     @Autowired
     private FoodAnalyzeService foodAnalyzeService;
 
+    @Autowired
+    private UserService userService;
+
     @PostMapping("/analyze-image")
     public ResponseEntity<Nutrition_log.Meal> analyzeFood(
             @RequestParam("image") MultipartFile image) {
@@ -48,6 +53,7 @@ public class NutritionLogController {
 
         try {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
+
             service.saveLog(uid, nutrition_log);
             log.info("Save nutrition log successfully");
             return ResponseEntity.ok("{\"message\":\"Saved\"}");
@@ -78,9 +84,11 @@ public class NutritionLogController {
             @PathVariable String date) {
         try {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
+
             Nutrition_log nutrition_log = service.getLog(uid, date);
 
             if(nutrition_log != null) {
+                getNutritionLogWithTarget(authHeader,nutrition_log);
                 log.info("Successfully get nutrition log by date:{}", date);
                 return ResponseEntity.ok(nutrition_log);
             }else {
@@ -168,7 +176,13 @@ public class NutritionLogController {
             log.error("Error to save notes on log {} : {}", date, e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
+
     }
 
+    private void getNutritionLogWithTarget(String authHeader, Nutrition_log log) throws Exception {
+        String uid = tokenFilter.verifyAndGetUid(authHeader);
+        User user = userService.getUserById(uid);
+        log.updateTargetNutrition(user);
+    }
 
 }

@@ -303,14 +303,20 @@
             return res.json();
         },
 
-        getToday(){return new Date().toISOString().split('T')[0];},
+        getToday(){
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        },
 
-        getTodayLog() { return this.fetch(`/${getToday()}`, { method: 'GET' }); },
-        addMeal(meal) { return this.fetch(`/meals/${getToday()}`, { method: 'POST', body: JSON.stringify(meal) }); },
-        deleteMeal(mealId) { return this.fetch(`/meals/${getToday()}/${mealId}`, { method: 'DELETE' }); },
-        saveNotes(notes) { return this.fetch(`/notes/${getToday()}`, { method: 'POST', body: JSON.stringify({ notes }) }); },
+        getTodayLog() { return this.fetch(`/${API.getToday()}`, { method: 'GET' }); },
+        addMeal(meal) { return this.fetch(`/meals/${API.getToday()}`, { method: 'POST', body: JSON.stringify(meal) }); },
+        deleteMeal(mealId) { return this.fetch(`/meals/${API.getToday()}/${mealId}`, { method: 'DELETE' }); },
+        saveNotes(notes) { return this.fetch(`/notes/${API.getToday()}`, { method: 'POST', body: JSON.stringify({ notes }) }); },
 
-        deleteTodayLog() { return this.fetch(`/${getToday()}`, { method: 'DELETE' }); },
+        deleteTodayLog() { return this.fetch(`/${API.getToday()}`, { method: 'DELETE' }); },
 
         async analyzeImage(file) {
             const formData = new FormData();
@@ -487,7 +493,7 @@
             }
 
             // PREVIEW
-            const reader = new FileReader();f
+            const reader = new FileReader();
             reader.onload = (e) => {
                 console.log('[IMAGE] Preview loaded');
                 document.getElementById('previewImg').src = e.target.result;

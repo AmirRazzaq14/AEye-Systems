@@ -94,4 +94,44 @@ public class Nutrition_log {
             return 0;
         }
     }
+
+    public void updateTargetNutrition(User user) {
+        if (user == null) {
+            this.targetNutrition = new Nutrition("2500", "150", "100", "100");
+            return;
+        }
+
+        double targetCals = 0;
+        double targetProtein = 0;
+        double targetCarb = 0;
+        double targetFat = 0;
+
+        // Calculate target nutrition based on user's core profile metrics
+        targetCals = 10 * user.getWeight() + 6.25 * user.getHeight() - 5 * user.getAge() + 5;
+        targetProtein = user.getWeight() * 2;
+        targetCarb = user.getWeight() * 3;
+        targetFat = user.getWeight() * 1;
+        if (user.getGender().equalsIgnoreCase("female")) {
+            targetProtein *= 0.9;
+            targetCarb *= 0.7;
+            targetFat *= 0.5;
+        }else if (user.getGender().equalsIgnoreCase("male")) {
+            targetProtein *= 1.1;
+            targetCarb *= 1.2;
+            targetFat *= 1.3;
+        }else {
+            // Default values for other genders
+            targetProtein *= 1.1;
+            targetCarb *= 1.2;
+            targetFat *= 1.3;
+        }
+
+        this.targetNutrition = new Nutrition();
+        this.targetNutrition.setCals(String.valueOf(Math.round(targetCals)));
+        this.targetNutrition.setProtein(String.valueOf(Math.round(targetProtein)));
+        this.targetNutrition.setCarb(String.valueOf(Math.round(targetCarb)));
+        this.targetNutrition.setFat(String.valueOf(Math.round(targetFat)));
+
+    }
+
 }
