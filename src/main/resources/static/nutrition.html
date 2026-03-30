@@ -372,15 +372,21 @@
                 const target = parseFloat(targetNutrition?.[key] || 1);
                 const percent = Math.min(100, (current / target) * 100);
                 const over = current > target;
-                return `
-                    <div>
-                        <div class="nutrition-meta">
-                            <span>${key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                            <span class="${over ? 'text-danger' : ''}">${Math.round(current)} / ${Math.round(target)} ${key === 'cals' ? 'kcal' : 'g'}</span>
-                        </div>
-                        <div class="track"><div class="track-fill" style="width: ${percent}%"></div></div>
+                // Set the color according to the percentage
+                const ratio = Math.min(1, current / target);
+                let r = Math.floor(255 * ratio);
+                let g = Math.floor(255 * (1 - ratio));
+                const color = `rgb(${r}, ${g}, 0)`;
+                return `                <div>
+                    <div class="nutrition-meta">
+                        <span>${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                        <span class="${over ? 'text-danger' : ''}">${Math.round(current)} / ${Math.round(target)} ${key === 'cals' ? 'kcal' : 'g'}</span>
                     </div>
-                `;
+                    <div class="track">
+                        <div class="track-fill" style="width: ${percent}%; background: ${color};"></div>
+                    </div>
+                </div>
+            `;
             }).join('');
             document.getElementById('nutritionStats').innerHTML = statsHtml;
 
