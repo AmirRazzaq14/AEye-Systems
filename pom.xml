@@ -102,6 +102,12 @@
             <artifactId>jsonassert</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-vision</artifactId>
+            <version>3.3.0</version>
+        </dependency>
     </dependencies>
 
     <build>

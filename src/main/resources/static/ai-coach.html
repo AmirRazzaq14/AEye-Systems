@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WizCoach – AI Coach</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -120,11 +121,35 @@
         }
 
         .chat-input-row {
-            display: flex; gap: 0.75rem;
+            display: flex; align-items: center; gap: 0.5rem;
             padding: 1rem 1.25rem; border-top: 1px solid var(--border);
         }
 
-        .chat-input-row input {
+        .chat-input-row .file-wrap { position: relative; flex-shrink: 0; }
+        .chat-input-row input[type="file"] {
+            position: absolute; width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; z-index: -1;
+        }
+        .btn-attach {
+            width: 44px; height: 44px; border-radius: 10px; border: 1.5px solid var(--border);
+            background: var(--input-bg); cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: border-color 0.2s, background 0.2s; flex-shrink: 0;
+        }
+        .btn-attach:hover { border-color: var(--purple); background: #f5f3ff; }
+        .btn-attach svg { width: 20px; height: 20px; stroke: var(--muted); stroke-width: 2; fill: none; }
+        .btn-attach.has-file { border-color: var(--purple); background: #ede9fe; }
+        .btn-attach.has-file svg { stroke: var(--purple); }
+
+        .image-preview-chip {
+            display: none; align-items: center; gap: 0.35rem; padding: 0.25rem 0.5rem;
+            background: #ede9fe; border-radius: 8px; font-size: 0.75rem; color: var(--purple); max-width: 140px;
+        }
+        .image-preview-chip.visible { display: flex; }
+        .image-preview-chip img { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; }
+        .image-preview-chip button {
+            border: none; background: none; cursor: pointer; padding: 0 0.15rem; color: var(--muted); font-size: 1rem; line-height: 1;
+        }
+
+        .chat-input-row input[type="text"] {
             flex: 1; padding: 0.75rem 1rem;
             border: 1.5px solid var(--border); border-radius: 10px;
             background: var(--input-bg); font-family: inherit;
@@ -132,7 +157,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        .chat-input-row input:focus {
+        .chat-input-row input[type="text"]:focus {
             border-color: var(--purple);
             box-shadow: 0 0 0 3px rgba(124,92,252,0.1);
             background: white;
@@ -296,6 +321,17 @@
             </div>
 
             <div class="chat-input-row">
+                <div class="file-wrap">
+                    <input type="file" id="imageInput" accept="image/*" aria-label="Attach image">
+                    <button type="button" class="btn-attach" id="attachBtn" title="Attach image" onclick="document.getElementById('imageInput').click()">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </button>
+                </div>
+                <div class="image-preview-chip" id="imagePreviewChip" aria-live="polite">
+                    <img id="imagePreviewThumb" alt="">
+                    <span id="imagePreviewName"></span>
+                    <button type="button" id="clearImageBtn" title="Remove image">&times;</button>
+                </div>
                 <input type="text" id="chatInput" placeholder="*Type your message...*"
                        onkeydown="if(event.key==='Enter') sendMsg()" autocomplete="off">
                 <button class="btn-send" onclick="sendMsg()">
@@ -372,6 +408,7 @@
 
     /* In-memory conversation history for context (role: "user" | "model", content: string) */
     let chatHistory = [];
+    let imagePreviewUrl = null;
 
     function getTime() {
         return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -383,31 +420,77 @@
         return div.innerHTML;
     }
 
-    function appendBotMessage(text, isError) {
+    function appendBotMessage(text, isError = false) {
         const messages = document.getElementById('chatMessages');
         const loadingEl = document.getElementById('chatLoading');
         if (loadingEl) loadingEl.remove();
         const botWrap = document.createElement('div');
-        const msgClass = isError ? 'msg bot' : 'msg bot';
-        botWrap.innerHTML = '<div class="' + msgClass + '">' + escapeHtml(text) + '</div><div class="msg-time">' + getTime() + '</div>';
+        botWrap.innerHTML = `<div class="msg bot">${marked.parse(text)}</div><div class="msg-time">${getTime()}</div>`;
         messages.appendChild(botWrap);
         messages.scrollTop = messages.scrollHeight;
+
+        chatHistory.push({ role: 'model', content: text });
     }
+
+    function updateImagePreviewUI() {
+        const fileInput = document.getElementById('imageInput');
+        const chip = document.getElementById('imagePreviewChip');
+        const thumb = document.getElementById('imagePreviewThumb');
+        const nameEl = document.getElementById('imagePreviewName');
+        const attachBtn = document.getElementById('attachBtn');
+        const file = fileInput.files[0];
+        if (imagePreviewUrl) {
+            URL.revokeObjectURL(imagePreviewUrl);
+            imagePreviewUrl = null;
+        }
+        if (file) {
+            imagePreviewUrl = URL.createObjectURL(file);
+            thumb.src = imagePreviewUrl;
+            nameEl.textContent = file.name.length > 18 ? file.name.slice(0, 16) + '…' : file.name;
+            chip.classList.add('visible');
+            attachBtn.classList.add('has-file');
+        } else {
+            thumb.removeAttribute('src');
+            nameEl.textContent = '';
+            chip.classList.remove('visible');
+            attachBtn.classList.remove('has-file');
+        }
+    }
+
+    document.getElementById('imageInput').addEventListener('change', updateImagePreviewUI);
+    document.getElementById('clearImageBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('imageInput').value = '';
+        updateImagePreviewUI();
+    });
 
         function sendMsg() {
             const input = document.getElementById('chatInput');
+            const fileInput = document.getElementById('imageInput');
             const val = input.value.trim();
-            if (!val) return;
+            const file = fileInput.files[0];
+            if (!val && !file) return;
 
             const messages = document.getElementById('chatMessages');
             const placeholder = document.getElementById('chatPlaceholder');
             if (placeholder) placeholder.remove();
 
+            const historyPayload = JSON.stringify(chatHistory);
+
             const userWrap = document.createElement('div');
             userWrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;';
-            userWrap.innerHTML = '<div class="msg user">' + escapeHtml(val) + '</div><div class="msg-time right">' + getTime() + '</div>';
+            let userHtml = escapeHtml(val || '📷 Photo attached');
+            if (file) {
+                const bubbleImgUrl = URL.createObjectURL(file);
+                userHtml += `<div style="margin-top:0.5rem;"><img src="${bubbleImgUrl}" alt="Your attachment" style="max-width:180px;max-height:140px;border-radius:10px;display:block;"></div>`;
+            }
+            userWrap.innerHTML = `<div class="msg user">${userHtml}</div><div class="msg-time right">${getTime()}</div>`;
             messages.appendChild(userWrap);
+            chatHistory.push({ role: 'user', content: val || '📷 Photo attached' });
+
             input.value = '';
+            fileInput.value = '';
+            updateImagePreviewUI();
             messages.scrollTop = messages.scrollHeight;
 
             const loadingWrap = document.createElement('div');
@@ -416,23 +499,19 @@
             messages.appendChild(loadingWrap);
             messages.scrollTop = messages.scrollHeight;
 
-            fetch('/api/coach/chat', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message: val, history: chatHistory})
-            }).then(function (res) {
-                return res.json().then(function (data) {
-                    if (!res.ok) throw new Error(data.reply || 'Request failed');
+            const formData = new FormData();
+            if (val) formData.append("message", val);
+            if (file) formData.append("image", file);
+            formData.append("history", historyPayload);
+
+            fetch('/api/coach/chat', { method: 'POST', body: formData })
+                .then(async res => {
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.reply || res.statusText);
                     return data;
-                });
-            }).then(function (data) {
-                chatHistory.push({role: 'user', content: val});
-                chatHistory.push({role: 'model', content: data.reply || ''});
-                appendBotMessage(data.reply || 'No response.', false);
-            }).catch(function (err) {
-                console.error('Coach error:', err);
-                appendBotMessage('Coach unavailable. Please try again.', true);
-            });
+                })
+                .then(data => appendBotMessage(data.reply || 'No reply from coach.'))
+                .catch(() => appendBotMessage('Coach unavailable. Please try again.', true));
         }
 
         function askQuestion(btn) {
