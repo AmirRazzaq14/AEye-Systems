@@ -49,11 +49,11 @@ public class UserRepository {
                 .toObject(User.class);
     }
 
-    // Update user
-    public void update(String userId, User user) throws ExecutionException, InterruptedException {
+    // Update or create user profile
+    public void updateProfile(String userId, User user) throws ExecutionException, InterruptedException {
         firestore.collection("users")
                 .document(userId)
-                .set(user)
+                .set(user, com.google.cloud.firestore.SetOptions.merge())
                 .get();
     }
 

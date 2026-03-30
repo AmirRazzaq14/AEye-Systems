@@ -3,6 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("wizcoach-theme");
+                if (saved) {
+                    document.documentElement.setAttribute("data-theme", saved);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
     <title>WizCoach – Nutrition</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -180,6 +194,7 @@
     </style>
 </head>
 <body>
+
 <nav>
     <a href="dashboard.html" class="nav-logo">
         <div class="nav-logo-icon">
@@ -287,7 +302,7 @@
             if (!res.ok) throw new Error(`API Error: ${res.status}`);
             return res.json();
         },
-            
+
         getToday(){return new Date().toISOString().split('T')[0];},
 
         getTodayLog() { return this.fetch(`/${getToday()}`, { method: 'GET' }); },
@@ -325,7 +340,7 @@
             console.log('[LOAD] Fetching today\'s nutrition data');
 
             try {
-                
+
                 console.log('[LOAD] Requesting data for date:', API.getToday());
                 this.data = await API.getTodayLog();
                 this.data.meals = this.data.meals || [];
@@ -610,5 +625,10 @@
 
     document.addEventListener('DOMContentLoaded', init);
 </script>
+
+<button onclick="toggleTheme()"
+        class="theme-btn"
+        title="Toggle Dark Mode">🌓</button>
+
 </body>
 </html>
