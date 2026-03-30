@@ -50,4 +50,13 @@ public class UserService {
             throw new Exception("Database error: " + e.getMessage());
         }
     }
+
+    // Update user profile metrics
+    public void updateProfile(String userId, User updatedUser) throws Exception {
+        try {
+            userRepository.updateProfile(userId, updatedUser);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new Exception("Database error: " + e.getMessage());
+        }
+    }
 }

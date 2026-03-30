@@ -15,4 +15,10 @@ public class User {
     private String user_id;
     private String email;
     private String password;
-}
+    
+    // Core Profile Metrics
+    private Double weight;
+    private Double height;
+    private String gender;
+    private Integer age;
+}

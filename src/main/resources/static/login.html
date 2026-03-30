@@ -275,6 +275,7 @@
         let authInitialized = false;
         firebase.auth().onAuthStateChanged(user => {
             if (!authInitialized) { authInitialized = true; return; }
+            if (isProcessingAuth) return;
             if (user) window.location.href = 'dashboard.html';
         });
     }
@@ -282,6 +283,7 @@
 
     // ── Mode toggle (Sign In / Sign Up) ───────────────────────
     let isSignUp = false;
+    let isProcessingAuth = false;
 
     function toggleMode() {
         isSignUp = !isSignUp;
@@ -342,19 +344,22 @@
 
         btn.disabled    = true;
         btn.textContent = isSignUp ? 'Creating account…' : 'Signing in…';
+        isProcessingAuth = true;
 
         try {
             if (isSignUp) {
                 await firebase.auth().createUserWithEmailAndPassword(
                     emailEl.value.trim(), passEl.value
                 );
+                window.location.href = 'profile-setup.html';
             } else {
                 await firebase.auth().signInWithEmailAndPassword(
                     emailEl.value.trim(), passEl.value
                 );
+                window.location.href = 'dashboard.html';
             }
-            window.location.href = 'dashboard.html';
         } catch (err) {
+            isProcessingAuth = false;
             showToast(friendlyError(err.code));
             btn.disabled    = false;
             btn.textContent = isSignUp ? 'Sign Up' : 'Sign In';
