@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("wizcoach-theme");
+                if (saved) {
+                    document.documentElement.setAttribute("data-theme", saved);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
+    <title>WizCoach – Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --purple: #7c5cfc;
+            --purple-light: #a78bfa;
+            --blue: #3b82f6;
+            --green: #22c55e;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--page-bg);
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem; height: 60px;
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+        .nav-logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--purple), var(--purple-light));
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 3px 8px rgba(124,92,252,0.3);
+        }
+        .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+        .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+        .nav-link {
+            display: flex; align-items: center; gap: 0.4rem;
+            padding: 0.45rem 1rem; border-radius: 8px;
+            font-size: 0.88rem; font-weight: 500; color: var(--muted);
+            text-decoration: none; border: none; background: none; cursor: pointer;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
+        .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
+        .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        .page {
+            max-width: 800px; margin: 2rem auto; padding: 0 2rem 2rem;
+            display: flex; flex-direction: column; gap: 1.5rem;
+            flex: 1; width: 100%;
+            animation: fadeUp 0.5s ease both;
+        }
+        
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-card {
+            background: var(--card-bg); border-radius: 20px; padding: 2.5rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06); border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--purple-light));
+            margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 16px rgba(124,92,252,0.3);
+            color: white; font-size: 2.5rem; font-weight: 700;
+        }
+
+        .profile-email { font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; margin-bottom: 0.2rem; }
+        .profile-status { color: var(--green); font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem; margin-bottom: 2rem; background: var(--green-light); padding: 0.3rem 0.8rem; border-radius: 12px;}
+        .profile-status svg { width: 14px; height: 14px; }
+
+        .info-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+            text-align: left;
+        }
+
+        .info-box {
+            background: var(--input-bg); border-radius: 14px; padding: 1.2rem;
+            border: 1px solid var(--border);
+        }
+
+        .info-label {
+            font-size: 0.75rem; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;
+        }
+
+        .info-value {
+            font-size: 1.3rem; font-weight: 700; color: var(--text);
+        }
+
+        .loading-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.25);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 999; font-size: 0.9rem; font-weight: 600; color: white; gap: 0.75rem;
+        }
+        .loading-overlay.hidden { display: none; }
+        .spinner {
+            width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .theme-btn {
+            position: fixed; bottom: 5rem; right: 1.5rem;
+            width: 40px; height: 40px;
+            background: var(--nav-bg); color: var(--text);
+            border: 1px solid var(--border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            z-index: 100;
+        }
+
+        .theme-btn:hover { background: var(--purple); color: white; border-color: transparent; }
+
+        @media (max-width: 600px) {
+            .info-grid { grid-template-columns: 1fr; }
+            nav { padding: 0 1rem; }
+            .nav-logo-name { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    Loading profile...
+</div>
+
+<nav>
+    <a href="dashboard.html" class="nav-logo">
+        <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <span class="nav-logo-name">WizCoach</span>
+    </a>
+    <div class="nav-links">
+        <a href="dashboard.html" class="nav-link">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+        </a>
+        <a href="motion.html" class="nav-link">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Motion
+        </a>
+        <a href="nutrition.html" class="nav-link">
+            <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg>
+            Nutrition
+        </a>
+        <a href="body.html" class="nav-link">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Body
+        </a>
+        <a href="ai-coach.html" class="nav-link">
+            <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+            AI Coach
+        </a>
+        <a href="profile.html" class="nav-link active">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Profile
+        </a>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="profile-card">
+        <div class="profile-avatar" id="avatarLetter">U</div>
+        <h1 class="profile-email" id="profileEmail">Loading...</h1>
+        <div class="profile-status">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            Active Account
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-box">
+                <div class="info-label">Age</div>
+                <div class="info-value" id="valAge">--</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Gender</div>
+                <div class="info-value" id="valGender">--</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Weight</div>
+                <div class="info-value" id="valWeight">-- lbs</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Height</div>
+                <div class="info-value" id="valHeight">--' --"</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function initApp() {
+        document.getElementById('loadingOverlay').classList.remove('hidden');
+        try {
+            const res = await fetch('/api/config');
+            const config = await res.json();
+            firebase.initializeApp(config);
+
+            firebase.auth().onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = 'login.html';
+                } else {
+                    await loadProfile(user);
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+    }
+
+    async function loadProfile(user) {
+        try {
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('avatarLetter').textContent = user.email.charAt(0).toUpperCase();
+
+            const token = await user.getIdToken();
+            const res = await fetch('/api/auth/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && data.profile) {
+                    const p = data.profile;
+                    if(p.age) document.getElementById('valAge').textContent = p.age;
+                    if(p.gender) document.getElementById('valGender').textContent = p.gender;
+                    if(p.weight) document.getElementById('valWeight').textContent = p.weight + ' lbs';
+                    if(p.height) {
+                        const ft = Math.floor(p.height / 12);
+                        const inc = Math.round(p.height % 12);
+                        document.getElementById('valHeight').textContent = `${ft}' ${inc}"`;
+                    }
+                }
+            }
+        } catch(err) {
+            console.error(err);
+        } finally {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+    }
+
+    initApp();
+</script>
+
+<button onclick="toggleTheme()" class="theme-btn" title="Toggle Dark Mode">🌓</button>
+
+</body>
+</html>
