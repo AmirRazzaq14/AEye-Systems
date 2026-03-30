@@ -11,9 +11,17 @@
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
   <script>
     async function initApp() {
-      const res = await fetch('/api/config');
-      const config = await res.json();
-      firebase.initializeApp(config);
+      try {
+        const res = await fetch('/api/config');
+        if (!res.ok) throw new Error(`Config fetch failed: ${res.status}`);
+        const config = await res.json();
+        firebase.initializeApp(config);
+      } catch (err) {
+        console.error('initApp failed:', err);
+        // Un-stick the loading overlay so the page is not frozen
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) overlay.classList.add('hidden');
+      }
     }
   </script>
 
@@ -31,6 +39,9 @@
       --green: #22c55e;
       --green-light: #dcfce7;
       --green-dark: #15803d;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --red-dark: #b91c1c;
     }
 
     body {
@@ -78,7 +89,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }
+    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; align-items: stretch; }
     a.stat-card {
       background: var(--card-bg); border-radius: 18px;
       padding: 1.25rem 1.5rem 1.4rem;
@@ -101,13 +112,58 @@
     .stat-value { font-size: 2rem; font-weight: 700; color: var(--text); letter-spacing: -0.03em; line-height: 1; }
     .stat-label { font-size: 0.82rem; color: var(--muted); }
 
+    /* ── Calendar section header with toggle ── */
+    .cal-section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0; /* gap handled by .page */
+    }
+    .cal-section-title { font-size: 0.88rem; font-weight: 700; color: var(--text); }
+
+    .toggle-pill {
+      display: flex; align-items: center;
+      background: #f3f4f6; border-radius: 10px; padding: 3px; gap: 2px;
+    }
+    .toggle-pill button {
+      padding: 0.32rem 0.85rem; border-radius: 8px; border: none;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; color: var(--muted);
+      background: transparent; transition: background 0.15s, color 0.15s;
+    }
+    .toggle-pill button.active {
+      background: white; color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    /* ── Calendar legend ── */
+    .cal-legend {
+      display: flex; align-items: center; gap: 1rem;
+      font-size: 0.73rem; font-weight: 500; color: var(--muted);
+      flex-wrap: wrap;
+    }
+    .cal-legend-item { display: flex; align-items: center; gap: 0.35rem; }
+    .cal-legend-dot {
+      width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+    }
+    .legend-logged       { background: var(--green-light); border: 1.5px solid #86efac; }
+    .legend-missed       { background: var(--red-light);   border: 1.5px solid #fca5a5; }
+    .legend-today        { background: var(--blue);        border: 1.5px solid var(--blue); }
+    .legend-both         { background: var(--green-light); border: 1.5px solid #86efac; }
+    .legend-one          { background: #ffffff;            border: 1.5px solid #d1d5db; }
+    .legend-missed-merge { background: var(--red-light);   border: 1.5px solid #fca5a5; }
+
+    /* ── Two-calendar layout ── */
     .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .charts-row.merged { grid-template-columns: 1fr; }
+
     .log-card {
       background: var(--card-bg); border-radius: 18px;
       padding: 1.2rem 1.3rem 1.1rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
       display: flex; flex-direction: column; height: 290px;
     }
+    /* merged card is taller to comfortably show the bigger grid */
+    .log-card.merged-card { height: auto; min-height: 340px; }
+
     .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.55rem; flex-shrink: 0; }
     .log-header h3 { font-size: 0.88rem; font-weight: 700; color: var(--text); }
     .log-hint { font-size: 0.72rem; color: #93c5fd; font-weight: 500; font-style: italic; }
@@ -127,27 +183,53 @@
     .cal-dow { text-align: center; font-size: 0.63rem; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; }
     .cal-days-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; flex: 1; }
 
+    /* ── Day state classes ── */
     .cal-day {
       border-radius: 7px; border: none; background: transparent;
       font-size: 0.72rem; font-weight: 500; color: var(--text);
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       height: 26px; font-family: 'DM Sans', sans-serif;
       transition: background 0.12s, color 0.12s, transform 0.1s;
+      position: relative;
     }
     .cal-day-empty { pointer-events: none; }
-    .cal-day-today { background: var(--blue); color: white; font-weight: 700; }
+    .cal-day-future { color: #d1d5db; cursor: default; pointer-events: none; }
+
+    /* today ring */
+    .cal-day-today {
+      background: var(--blue); color: white; font-weight: 700;
+    }
     .cal-day-today:hover { background: #2563eb; }
-    .cal-day-unlogged:hover { background: #f0fdf4; color: var(--green-dark); }
+
+    /* logged (green) */
     .cal-day-logged { background: var(--green-light); color: var(--green-dark); font-weight: 700; }
     .cal-day-logged:hover { background: #bbf7d0; transform: scale(1.08); }
     .cal-day-today.cal-day-logged { background: var(--green); color: white; }
     .cal-day-today.cal-day-logged:hover { background: #16a34a; }
 
+    /* missed (red) */
+    .cal-day-missed { background: var(--red-light); color: var(--red-dark); font-weight: 600; }
+    .cal-day-missed:hover { background: #fecaca; transform: scale(1.05); cursor: pointer; }
+
+    /* unlogged future-past hover */
+    .cal-day-unlogged:hover { background: #f0fdf4; color: var(--green-dark); }
+
+    /* merged states — 3 categories only */
+    /* both logged = green */
+    .cal-day-both { background: var(--green-light); color: var(--green-dark); font-weight: 700; }
+    .cal-day-both:hover { background: #bbf7d0; transform: scale(1.08); }
+    .cal-day-today.cal-day-both { background: var(--green); color: white; }
+
+    /* one logged (either ex or nut) = white/light with subtle border */
+    .cal-day-one { background: #ffffff; color: var(--text); font-weight: 600; border: 1.5px solid #e5e7eb; }
+    .cal-day-one:hover { background: #f9fafb; transform: scale(1.05); }
+    .cal-day-today.cal-day-one { background: var(--blue); color: white; border-color: var(--blue); }
+
+    /* ── Loading / modals (unchanged) ── */
     .loading-overlay {
       position: fixed; inset: 0; background: rgba(255,255,255,0.8);
       display: flex; align-items: center; justify-content: center;
-      z-index: 999; font-size: 0.9rem; font-weight: 600; color: var(--muted);
-      gap: 0.75rem;
+      z-index: 999; font-size: 0.9rem; font-weight: 600; color: var(--muted); gap: 0.75rem;
     }
     .loading-overlay.hidden { display: none; }
     .spinner {
@@ -315,28 +397,130 @@
     }
     .btn-close:hover { background: #f3f4f6; }
 
-    /* WEEKLY PLANNER */
-    .planner-card { background: var(--card-bg); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; flex: 1; }
-    .planner-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
-
-    .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; flex: 1; }
-
-    .planner-day {
-      display: flex; flex-direction: column; gap: 0.5rem; min-width: 0;
+    /* ── Merged pick modal ── */
+    .merge-pick-modal {
+      background: white; border-radius: 20px; padding: 1.75rem;
+      width: 300px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: popIn 0.22s ease both;
+    }
+    .merge-pick-modal h4 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+    .merge-pick-modal .modal-date-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.2rem; }
+    .merge-pick-btns { display: flex; flex-direction: column; gap: 0.6rem; }
+    .merge-pick-btn {
+      padding: 0.65rem 1rem; border-radius: 12px; border: 1.5px solid var(--border);
+      background: #f9fafb; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text);
+      transition: background 0.15s, border-color 0.15s; text-align: left;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .merge-pick-btn:hover { background: #f3f4f6; border-color: #d1d5db; }
+    .merge-pick-btn.btn-ex:hover  { background: #f0fdf4; border-color: #86efac; color: var(--green-dark); }
+    .merge-pick-btn.btn-nut:hover { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+    .merge-pick-cancel {
+      margin-top: 0.5rem; width: 100%; padding: 0.55rem;
+      border-radius: 10px; border: 1.5px solid var(--border);
+      background: white; font-size: 0.84rem; font-weight: 600; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; color: var(--muted); transition: background 0.15s;
+    }
+    .merge-pick-cancel:hover { background: #f3f4f6; }
+    .merge-pick-edit {
+      margin-left: auto; font-size: 0.72rem; font-weight: 500;
+      color: #9ca3af; font-style: italic;
+    }
+    .merge-pick-btn { justify-content: space-between; }
+    .merge-pick-btn.logged {
+      background: #f0fdf4; border-color: #86efac; color: var(--green-dark);
     }
 
+    /* ── Goals Card ── */
+    .goals-card {
+      background: var(--card-bg); border-radius: 18px;
+      padding: 1.25rem 1.5rem 1.4rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      display: flex; flex-direction: column; gap: 0.75rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .goals-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.1); }
+    .goals-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .goals-card-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .goals-add-btn {
+      display: flex; align-items: center; gap: 0.3rem;
+      padding: 0.35rem 0.8rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: white; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; color: var(--muted);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .goals-add-btn:hover { background: #f0fdf4; border-color: #86efac; color: var(--green-dark); }
+    .goals-add-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .goals-grid {
+      display: flex; flex-direction: column; gap: 0.45rem; flex: 1;
+    }
+    .goal-item {
+      display: flex; align-items: flex-start; gap: 0.65rem;
+      padding: 0.75rem 0.9rem; border-radius: 12px;
+      border: 1.5px solid var(--border); background: #fafafa;
+      position: relative; animation: popIn 0.18s ease both;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .goal-item:hover { border-color: #d1d5db; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .goal-icon {
+      width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .goal-body { flex: 1; min-width: 0; }
+    .goal-text {
+      font-size: 0.87rem; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      outline: none; cursor: text; border-radius: 4px;
+      padding: 1px 3px; margin: -1px -3px;
+      transition: background 0.12s;
+    }
+    .goal-text:focus { background: #f0f4ff; white-space: normal; overflow: visible; }
+    .goal-text[contenteditable="true"]:empty:before {
+      content: attr(data-placeholder); color: #9ca3af; font-weight: 400;
+    }
+    .goal-category {
+      font-size: 0.7rem; color: var(--muted); margin-top: 2px;
+      font-weight: 500;
+    }
+    .goal-delete {
+      position: absolute; top: 6px; right: 6px;
+      background: none; border: none; cursor: pointer; color: #d1d5db;
+      display: flex; align-items: center; padding: 2px; border-radius: 4px;
+      transition: color 0.15s; opacity: 0;
+    }
+    .goal-item:hover .goal-delete { opacity: 1; }
+    .goal-delete:hover { color: #ef4444; }
+    .goal-delete svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+
+    .goals-empty {
+      font-size: 0.82rem; color: var(--muted); font-style: italic;
+      text-align: center; padding: 1rem 0;
+    }
+
+    /* goal category color accents */
+    .goal-icon-strength { background: #fff7ed; }
+    .goal-icon-cardio   { background: #eff6ff; }
+    .goal-icon-body     { background: #f0fdf4; }
+    .goal-icon-habit    { background: #f5f3ff; }
+    .goal-icon-other    { background: #f9fafb; }
+
+    /* ── Weekly Planner ── */
+    .planner-card { background: var(--card-bg); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; flex: 1; }
+    .planner-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
+    .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; flex: 1; }
+    .planner-day { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
     .planner-day-label {
       font-size: 0.7rem; font-weight: 700; text-align: center;
       padding: 0.3rem 0.4rem; border-radius: 8px;
       text-transform: uppercase; letter-spacing: 0.05em;
       border: 2px solid transparent;
     }
-    .planner-day-label.today-label {
-      border-color: var(--green);
-      color: var(--green-dark);
-    }
-
-    /* Pastel rainbow per day */
+    .planner-day-label.today-label { border-color: var(--green); color: var(--green-dark); }
     .planner-day:nth-child(1) .planner-day-label { background: #ffe4e4; color: #c0392b; }
     .planner-day:nth-child(2) .planner-day-label { background: #ffecd2; color: #d35400; }
     .planner-day:nth-child(3) .planner-day-label { background: #fef9c3; color: #a16207; }
@@ -344,7 +528,6 @@
     .planner-day:nth-child(5) .planner-day-label { background: #dbeafe; color: #1d4ed8; }
     .planner-day:nth-child(6) .planner-day-label { background: #ede9fe; color: #6d28d9; }
     .planner-day:nth-child(7) .planner-day-label { background: #fce7f3; color: #9d174d; }
-
     .split-select {
       width: 100%; padding: 0.4rem 0.5rem; border: 1.5px solid var(--border);
       border-radius: 8px; font-size: 0.72rem; font-family: 'DM Sans', sans-serif;
@@ -353,7 +536,6 @@
       appearance: none; text-align: center;
     }
     .split-select:focus { border-color: var(--blue); background: white; }
-
     .planner-exercises {
       width: 100%; padding: 0.4rem 0.5rem; border: 1.5px solid var(--border);
       border-radius: 8px; font-size: 0.72rem; font-family: 'DM Sans', sans-serif;
@@ -362,15 +544,7 @@
     }
     .planner-exercises:focus { border-color: var(--blue); background: white; }
     .planner-exercises::placeholder { color: #9ca3af; font-size: 0.68rem; }
-
-    .planner-field-label {
-      font-size: 0.62rem; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px;
-    }
-
-    @media (max-width: 760px) {
-      .planner-grid { grid-template-columns: 1fr; }
-    }
+    .planner-field-label { font-size: 0.62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
 
     .help-btn {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
@@ -384,6 +558,8 @@
     @media (max-width: 760px) {
       .stats-row { grid-template-columns: 1fr; }
       .charts-row { grid-template-columns: 1fr; }
+      .charts-row.merged { grid-template-columns: 1fr; }
+      .planner-grid { grid-template-columns: 1fr; }
       nav { padding: 0 1rem; }
       .nav-logo-name { display: none; }
     }
@@ -391,7 +567,6 @@
 </head>
 <body>
 
-<!-- Loading overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   Loading your logs…
@@ -417,22 +592,20 @@
       <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg>
       Nutrition
     </a>
-      <!--
-    <a href="body.html" class="nav-link">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      Body
-    </a>
-    -->
     <a href="ai-coach.html" class="nav-link">
       <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
       AI Coach
     </a>
+    <button class="nav-link" onclick="signOut()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
   </div>
 </nav>
 
 <div class="page">
 
-  <!-- STAT CARDS -->
+  <!-- STAT CARDS + GOALS -->
   <div class="stats-row">
     <a href="motion.html" class="stat-card">
       <div class="stat-top">
@@ -460,29 +633,42 @@
       <div class="stat-value" id="statCalories">0</div>
       <div class="stat-label">Calories logged today</div>
     </a>
-      <!--
-    <a href="body.html" class="stat-card">
-      <div class="stat-top">
-        <div class="stat-icon icon-purple">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-        </div>
-        <div class="stat-delta">
-          <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-          +5%
-        </div>
+
+    <!-- GOALS inside stat row -->
+    <div class="goals-card">
+      <div class="goals-card-header">
+        <h3>🎯 Current Goals</h3>
+        <button class="goals-add-btn" onclick="addGoal()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Goal
+        </button>
       </div>
-      <div class="stat-value" id="statGoal">0%</div>
-      <div class="stat-label">Weekly goal completion</div>
-    </a>
-      -->
+      <div class="goals-grid" id="goalsGrid"></div>
+    </div>
   </div>
 
-  <!-- CALENDAR LOG CARDS -->
-  <div class="charts-row">
-    <div class="log-card">
+  <!-- CALENDAR SECTION HEADER with toggle -->
+  <div class="cal-section-header">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <!-- Legend: changes based on view mode -->
+      <div class="cal-legend" id="calLegend">
+        <!-- filled by JS -->
+      </div>
+    </div>
+    <div class="toggle-pill">
+      <button id="btnSplit"  onclick="setCalView('split')"  class="active">Split View</button>
+      <button id="btnMerged" onclick="setCalView('merged')">Merged View</button>
+    </div>
+  </div>
+
+  <!-- CALENDAR LOG CARDS  (split = 2 cards, merged = 1 card) -->
+  <div class="charts-row" id="chartsRow">
+
+    <!-- Exercise calendar (split view) -->
+    <div class="log-card" id="exCard">
       <div class="log-header">
         <h3>🏋️ Weekly Exercise Log</h3>
-        <span class="log-hint">click a date to add log!</span>
+        <span class="log-hint">click a date to log!</span>
       </div>
       <div class="cal-nav-row">
         <button class="cal-nav-btn" onclick="changeMonth('ex',-1)">
@@ -501,10 +687,11 @@
       <div class="cal-days-grid" id="exGrid"></div>
     </div>
 
-    <div class="log-card">
+    <!-- Nutrition calendar (split view) -->
+    <div class="log-card" id="nutCard">
       <div class="log-header">
         <h3>🥗 Weekly Nutrition Log</h3>
-        <span class="log-hint">click a date to add log!</span>
+        <span class="log-hint">click a date to log!</span>
       </div>
       <div class="cal-nav-row">
         <button class="cal-nav-btn" onclick="changeMonth('nut',-1)">
@@ -522,6 +709,29 @@
       </div>
       <div class="cal-days-grid" id="nutGrid"></div>
     </div>
+
+    <!-- Merged calendar (hidden initially) -->
+    <div class="log-card merged-card" id="mergedCard" style="display:none;">
+      <div class="log-header">
+        <h3>📆 Combined Exercise &amp; Nutrition Log</h3>
+        <span class="log-hint">click a date to log!</span>
+      </div>
+      <div class="cal-nav-row">
+        <button class="cal-nav-btn" onclick="changeMonth('merged',-1)">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="cal-month-label" id="mergedMonthLabel"></span>
+        <button class="cal-nav-btn" onclick="changeMonth('merged',1)">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="cal-dow-row">
+        <div class="cal-dow">Su</div><div class="cal-dow">Mo</div><div class="cal-dow">Tu</div>
+        <div class="cal-dow">We</div><div class="cal-dow">Th</div><div class="cal-dow">Fr</div>
+        <div class="cal-dow">Sa</div>
+      </div>
+      <div class="cal-days-grid" id="mergedGrid"></div>
+    </div>
   </div>
 
   <!-- WEEKLY PLANNER -->
@@ -535,36 +745,17 @@
 
 <!-- EXERCISE ADD MODAL -->
 <div class="modal-overlay" id="exAddModal">
-  <div class="modal">
-    <h4>🏋️ Log a Workout</h4>
+  <div class="nut-modal">
+    <h4>🏋️ Log Workouts</h4>
     <div class="modal-date-sub" id="exAddDateSub"></div>
-    <div class="modal-field">
-      <label>Exercise Type <span class="lbl-opt">(optional)</span></label>
-      <input type="text" id="exType" placeholder="e.g. Running, Strength, Yoga…">
-    </div>
-    <div class="modal-row">
-      <div class="modal-field">
-        <label>Sets <span class="lbl-opt">(opt)</span></label>
-        <input type="number" id="exSets" placeholder="4" min="0">
-      </div>
-      <div class="modal-field">
-        <label>Reps <span class="lbl-opt">(opt)</span></label>
-        <input type="number" id="exReps" placeholder="10" min="0">
-      </div>
-    </div>
-    <div class="modal-row">
-      <div class="modal-field">
-        <label>Weight (lbs) <span class="lbl-opt">(opt)</span></label>
-        <input type="number" id="exWeight" placeholder="45" min="0">
-      </div>
-      <div class="modal-field">
-        <label>Duration <span class="lbl-opt">(min)</span></label>
-        <input type="number" id="exDuration" placeholder="45" min="1">
-      </div>
-    </div>
-    <div class="modal-field">
-      <label>Notes <span class="lbl-opt">(optional)</span></label>
-      <textarea id="exNotes" rows="2" placeholder="How did it feel? Any PRs?"></textarea>
+    <div class="meal-entries" id="exEntriesList"></div>
+    <button class="add-meal-btn" style="border-color:#bfdbfe;background:#eff6ff;color:#2563eb;" onclick="addExEntry()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add another workout
+    </button>
+    <div class="nut-notes-field">
+      <label>Day Notes <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.68rem;color:#9ca3af;">(optional)</span></label>
+      <textarea id="exDayNotes" rows="2" placeholder="How did it feel? Any PRs?"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeAddModal('ex')">Cancel</button>
@@ -594,14 +785,34 @@
   </div>
 </div>
 
+<!-- MERGED VIEW: pick exercise or nutrition -->
+<div class="modal-overlay" id="mergePickModal">
+  <div class="merge-pick-modal">
+    <h4>📝 What would you like to log?</h4>
+    <div class="modal-date-sub" id="mergePickDateSub"></div>
+    <div class="merge-pick-btns">
+      <button class="merge-pick-btn btn-ex" id="mergePickExBtn" onclick="mergePickLog('ex')">
+        🏋️ Exercise / Workout
+        <span class="merge-pick-edit" id="mergePickExEdit" style="display:none;">(edit)</span>
+      </button>
+      <button class="merge-pick-btn btn-nut" id="mergePickNutBtn" onclick="mergePickLog('nut')">
+        🥗 Meals / Nutrition
+        <span class="merge-pick-edit" id="mergePickNutEdit" style="display:none;">(edit)</span>
+      </button>
+    </div>
+    <button class="merge-pick-cancel" onclick="closeMergePick()">Done</button>
+  </div>
+</div>
+
 <!-- EXERCISE VIEW POPUP -->
 <div class="view-popup" id="exViewPopup">
   <div class="view-popup-inner">
-    <h4>🏋️ Workout</h4>
+    <h4>🏋️ Workouts</h4>
     <div class="view-popup-date" id="exViewDate"></div>
     <div id="exViewRows"></div>
     <div class="view-actions">
-      <button class="btn-delete" onclick="deleteLog('ex')">Delete</button>
+      <button class="btn-delete" onclick="deleteLog('ex')">Delete all</button>
+      <button class="btn-add-more" onclick="addMoreWorkouts()">+ Add more</button>
       <button class="btn-close" onclick="closeViewPopup('ex')">Close</button>
     </div>
   </div>
@@ -622,7 +833,17 @@
 </div>
 
 <script>
-  // ── Nav active ────────────────────────────────────────────
+  // ── Sign Out ──────────────────────────────────────────────
+  async function signOut() {
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    days.forEach(day => {
+      localStorage.removeItem(`planner_split_${day}`);
+      localStorage.removeItem(`planner_exercises_${day}`);
+    });
+    await firebase.auth().signOut();
+    window.location.href = 'login.html';
+  }
+
   document.querySelectorAll('.nav-link').forEach(l =>
           l.classList.toggle('active', l.href === window.location.href)
   );
@@ -632,12 +853,16 @@
   const now      = new Date();
   const todayKey = fmtKey(now);
   const cal = {
-    ex:  { year: now.getFullYear(), month: now.getMonth() },
-    nut: { year: now.getFullYear(), month: now.getMonth() }
+    ex:     { year: now.getFullYear(), month: now.getMonth() },
+    nut:    { year: now.getFullYear(), month: now.getMonth() },
+    merged: { year: now.getFullYear(), month: now.getMonth() }
   };
-  let pendingKey = { ex: null, nut: null };
-  let viewingKey = { ex: null, nut: null };
-  let mealCount  = 0;
+  let pendingKey  = { ex: null, nut: null };
+  let viewingKey  = { ex: null, nut: null };
+  let mealCount   = 0;
+  let mergePickKey = null;
+  let calView     = localStorage.getItem('calView') || 'split'; // 'split' | 'merged'
+
   const MONTHS = ['January','February','March','April','May','June',
     'July','August','September','October','November','December'];
 
@@ -650,26 +875,24 @@
     return new Date(+y,+m-1,+d).toLocaleDateString('en-US',
             { weekday:'long', month:'long', day:'numeric', year:'numeric' });
   }
+  function isPast(key) { return key < todayKey; }
+  function isFuture(key) { return key > todayKey; }
   function showLoading(show) {
     document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
   }
 
-  // ── Firebase Auth token ───────────────────────────────────
+  // ── Firebase Auth ─────────────────────────────────────────
   async function getAuthToken() {
     const user = firebase.auth().currentUser;
+    // Fix 4: guard against null currentUser (race condition)
     if (!user) throw new Error('Not logged in');
     return await user.getIdToken();
   }
-
-  // ── API calls ─────────────────────────────────────────────
   async function apiFetch(path, method = 'GET', body = null) {
     const token   = await getAuthToken();
     const options = {
       method,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type':  'application/json'
-      }
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
     };
     if (body) options.body = JSON.stringify(body);
     const res = await fetch(path, options);
@@ -678,51 +901,130 @@
     try { return JSON.parse(text); } catch { return text; }
   }
 
-  // ── Load all logs on login ────────────────────────────────
+  // ── Load all logs ─────────────────────────────────────────
   async function loadAllLogs() {
     showLoading(true);
     try {
+      // Fix 3: 8 second timeout so hanging API calls don't freeze the overlay
+      const timeout = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Request timed out after 8s')), 8000)
+      );
       const [exData, nutData] = await Promise.allSettled([
-        apiFetch('/api/exercise-logs'),
-        apiFetch('/api/nutrition-logs')
+        Promise.race([apiFetch('/api/exercise-logs'), timeout]),
+        Promise.race([apiFetch('/api/nutrition-logs'), timeout])
       ]);
-
       if (exData.status === 'fulfilled') {
         exData.value.forEach(log => {
-          const key = log.date || log.id;
-          if (key) logs.ex[key] = log;
+          const k = log.date || log.id;
+          if (!k) return;
+          // Normalize: if old shape (fields directly on log), wrap into workouts array
+          if (!log.workouts) {
+            const hasOldFields = log.type || log.sets_completed || log.reps_per_set || log.weight_lbs || log.duration;
+            log.workouts = hasOldFields ? [{
+              type:           log.type           || '',
+              sets_completed: log.sets_completed || 0,
+              reps_per_set:   log.reps_per_set   || 0,
+              weight_lbs:     log.weight_lbs     || 0,
+              duration:       log.duration       || ''
+            }] : [];
+          }
+          logs.ex[k] = log;
         });
+      } else {
+        console.warn('Exercise logs failed:', exData.reason);
       }
-
       if (nutData.status === 'fulfilled') {
-        nutData.value.forEach(log => {
-          const key = log.date || log.id;
-          if (key) logs.nut[key] = log;
-        });
+        nutData.value.forEach(log => { const k = log.date || log.id; if (k) logs.nut[k] = log; });
+      } else {
+        console.warn('Nutrition logs failed:', nutData.reason);
       }
-
     } catch (err) {
       console.error('Failed to load logs:', err);
     } finally {
+      // Fix 3: always runs — overlay always hides even if both calls failed/timed out
       showLoading(false);
-      renderCal('ex');
-      renderCal('nut');
+      renderAll();
       updateStats();
     }
   }
 
-  // ── Auth state ────────────────────────────────────────────
   initApp().then(() => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         loadAllLogs();
       } else {
+        // Fix 2: hide overlay before redirecting so page doesn't stay stuck
+        showLoading(false);
         window.location.href = 'login.html';
       }
     });
+  }).catch(err => {
+    // Fix 1 fallback: if initApp itself rejects somehow
+    console.error('initApp chain failed:', err);
+    showLoading(false);
   });
 
-  // ── Calendar render ───────────────────────────────────────
+  // ── Calendar view toggle ──────────────────────────────────
+  function setCalView(mode) {
+    calView = mode;
+    localStorage.setItem('calView', mode);
+
+    const chartsRow   = document.getElementById('chartsRow');
+    const exCard      = document.getElementById('exCard');
+    const nutCard     = document.getElementById('nutCard');
+    const mergedCard  = document.getElementById('mergedCard');
+    const btnSplit    = document.getElementById('btnSplit');
+    const btnMerged   = document.getElementById('btnMerged');
+
+    if (mode === 'merged') {
+      chartsRow.classList.add('merged');
+      exCard.style.display     = 'none';
+      nutCard.style.display    = 'none';
+      mergedCard.style.display = '';
+      btnSplit.classList.remove('active');
+      btnMerged.classList.add('active');
+      renderMergedCal();
+    } else {
+      chartsRow.classList.remove('merged');
+      exCard.style.display     = '';
+      nutCard.style.display    = '';
+      mergedCard.style.display = 'none';
+      btnSplit.classList.add('active');
+      btnMerged.classList.remove('active');
+      renderCal('ex');
+      renderCal('nut');
+    }
+    updateLegend();
+  }
+
+  function renderAll() {
+    if (calView === 'merged') {
+      setCalView('merged');
+    } else {
+      setCalView('split');
+    }
+  }
+
+  // ── Legend ────────────────────────────────────────────────
+  function updateLegend() {
+    const el = document.getElementById('calLegend');
+    if (calView === 'split') {
+      el.innerHTML = `
+        <div class="cal-legend-item"><div class="cal-legend-dot legend-logged"></div> Logged</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot legend-missed"></div> Missed</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot legend-today"></div> Today</div>
+      `;
+    } else {
+      el.innerHTML = `
+        <div class="cal-legend-item"><div class="cal-legend-dot legend-both"></div> Both logged</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot legend-one"></div> One logged</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot legend-missed-merge"></div> Missed (neither)</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot legend-today"></div> Today</div>
+      `;
+    }
+  }
+
+  // ── Split calendar render ─────────────────────────────────
   function renderCal(p) {
     const { year, month } = cal[p];
     document.getElementById(p + 'MonthLabel').textContent = `${MONTHS[month]} ${year}`;
@@ -737,87 +1039,275 @@
       el.className = 'cal-day cal-day-empty';
       grid.appendChild(el);
     }
+
     for (let d = 1; d <= daysInMo; d++) {
-      const key     = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const key      = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const isToday  = key === todayKey;
       const isLogged = !!logs[p][key];
+      const isFut    = isFuture(key);
+      const isMissed = !isToday && !isFut && !isLogged; // past & unlogged
 
       const btn = document.createElement('button');
       btn.textContent = d;
-      btn.className   = 'cal-day ' + (isLogged ? 'cal-day-logged' : 'cal-day-unlogged');
-      if (isToday) btn.classList.add('cal-day-today');
 
-      btn.addEventListener('click', () =>
-              isLogged ? openViewPopup(p, key) : openAddModal(p, key)
-      );
+      if (isFut) {
+        btn.className = 'cal-day cal-day-future';
+      } else if (isToday) {
+        btn.className = 'cal-day cal-day-today' + (isLogged ? ' cal-day-logged' : '');
+        btn.addEventListener('click', () => isLogged ? openViewPopup(p, key) : openAddModal(p, key));
+      } else if (isLogged) {
+        btn.className = 'cal-day cal-day-logged';
+        btn.addEventListener('click', () => openViewPopup(p, key));
+      } else if (isMissed) {
+        btn.className = 'cal-day cal-day-missed';
+        btn.title = 'Missed — click to log retroactively';
+        btn.addEventListener('click', () => openAddModal(p, key));
+      } else {
+        btn.className = 'cal-day cal-day-unlogged';
+        btn.addEventListener('click', () => openAddModal(p, key));
+      }
+
       grid.appendChild(btn);
     }
   }
+
+  // ── Merged calendar render ────────────────────────────────
+  function renderMergedCal() {
+    const { year, month } = cal.merged;
+    document.getElementById('mergedMonthLabel').textContent = `${MONTHS[month]} ${year}`;
+    const grid = document.getElementById('mergedGrid');
+    grid.innerHTML = '';
+
+    const firstDow = new Date(year, month, 1).getDay();
+    const daysInMo = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < firstDow; i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day cal-day-empty';
+      grid.appendChild(el);
+    }
+
+    for (let d = 1; d <= daysInMo; d++) {
+      const key       = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday   = key === todayKey;
+      const hasEx     = !!logs.ex[key];
+      const hasNut    = !!logs.nut[key];
+      const isFut     = isFuture(key);
+      const isMissed  = !isToday && !isFut && !hasEx && !hasNut;
+
+      const btn = document.createElement('button');
+      btn.textContent = d;
+
+      if (isFut) {
+        btn.className = 'cal-day cal-day-future';
+      } else {
+        // base state class
+        if (hasEx && hasNut) {
+          btn.className = 'cal-day cal-day-both';
+        } else if (hasEx || hasNut) {
+          btn.className = 'cal-day cal-day-one';
+        } else if (isMissed) {
+          btn.className = 'cal-day cal-day-missed';
+          btn.title = 'Missed — click to log retroactively';
+        } else {
+          btn.className = 'cal-day cal-day-unlogged';
+        }
+
+        // today ring override
+        if (isToday) btn.classList.add('cal-day-today');
+
+        btn.addEventListener('click', () => mergedDayClick(key, hasEx, hasNut));
+      }
+
+      grid.appendChild(btn);
+    }
+  }
+
+  // ── Merged day click logic ────────────────────────────────
+  function openMergePickModal(key) {
+    mergePickKey = key;
+    document.getElementById('mergePickDateSub').textContent = fmtNice(key);
+
+    // Update button states to show which are already logged
+    const hasEx  = !!logs.ex[key];
+    const hasNut = !!logs.nut[key];
+
+    const exBtn    = document.getElementById('mergePickExBtn');
+    const nutBtn   = document.getElementById('mergePickNutBtn');
+    const exEdit   = document.getElementById('mergePickExEdit');
+    const nutEdit  = document.getElementById('mergePickNutEdit');
+
+    exEdit.style.display  = hasEx  ? 'inline' : 'none';
+    nutEdit.style.display = hasNut ? 'inline' : 'none';
+    exBtn.classList.toggle('logged',  hasEx);
+    nutBtn.classList.toggle('logged', hasNut);
+
+    document.getElementById('mergePickModal').classList.add('open');
+  }
+
+  function mergedDayClick(key, hasEx, hasNut) {
+    // Always open the pick modal so user can add/edit either type
+    openMergePickModal(key);
+  }
+
+  function mergePickLog(p) {
+    document.getElementById('mergePickModal').classList.remove('open');
+    // If already logged, open the existing log viewer with option to edit
+    if (logs[p][mergePickKey]) {
+      // open view popup; after close it won't reopen pick — that's fine
+      openViewPopup(p, mergePickKey);
+    } else {
+      openAddModal(p, mergePickKey);
+    }
+  }
+
+  function closeMergePick() {
+    document.getElementById('mergePickModal').classList.remove('open');
+  }
+
+  // After saving ex or nut in merged mode, reopen pick modal so user can add the other
+  let _mergedMode = false; // tracks whether we came from merged pick flow
 
   function changeMonth(p, delta) {
     cal[p].month += delta;
     if (cal[p].month > 11) { cal[p].month = 0;  cal[p].year++; }
     if (cal[p].month < 0)  { cal[p].month = 11; cal[p].year--; }
-    renderCal(p);
+    if (p === 'merged') renderMergedCal();
+    else renderCal(p);
   }
 
   // ── Exercise modal ────────────────────────────────────────
-  function openAddModal(p, key) {
+  let exCount = 0;
+
+  function openAddModal(p, key, fromMerged) {
     pendingKey[p] = key;
+    _mergedMode = !!fromMerged;
     if (p === 'ex') {
-      document.getElementById('exAddDateSub').textContent = fmtNice(key);
-      ['exType','exDuration','exSets','exReps','exWeight','exNotes']
-              .forEach(id => document.getElementById(id).value = '');
-      document.getElementById('exAddModal').classList.add('open');
+      openExModal(key);
     } else {
       openNutModal(key);
     }
   }
-
   function closeAddModal(p) {
     document.getElementById(p + 'AddModal').classList.remove('open');
+  }
+
+  function addExEntry(prefill) {
+    exCount++;
+    const idx  = exCount;
+    const list = document.getElementById('exEntriesList');
+    const div  = document.createElement('div');
+    div.className = 'meal-entry';
+    div.id = `exEntry_${idx}`;
+    div.innerHTML = `
+      <div class="meal-entry-header">
+        <span class="meal-entry-label">Workout ${idx}</span>
+        <button class="meal-entry-remove" onclick="removeExEntry(${idx})">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <input type="text" id="exType_${idx}" placeholder="Exercise type (e.g. Running, Bench Press…)" value="${prefill?.type || ''}">
+      <div class="meal-entry-row">
+        <input type="number" id="exSets_${idx}"   placeholder="Sets"       min="0" value="${prefill?.sets_completed || ''}">
+        <input type="number" id="exReps_${idx}"   placeholder="Reps"       min="0" value="${prefill?.reps_per_set  || ''}">
+      </div>
+      <div class="meal-entry-row">
+        <input type="number" id="exWeight_${idx}" placeholder="Weight lbs" min="0" value="${prefill?.weight_lbs    || ''}">
+        <input type="number" id="exDur_${idx}"    placeholder="Duration min" min="1" value="${prefill?.duration    || ''}">
+      </div>`;
+    list.appendChild(div);
+    updateExRemoveButtons();
+  }
+
+  function removeExEntry(idx) {
+    document.getElementById(`exEntry_${idx}`)?.remove();
+    updateExRemoveButtons();
+    renumberExLabels();
+  }
+  function updateExRemoveButtons() {
+    const entries = document.querySelectorAll('#exEntriesList .meal-entry');
+    entries.forEach(e => {
+      const btn = e.querySelector('.meal-entry-remove');
+      if (btn) {
+        btn.style.opacity       = entries.length === 1 ? '0.3' : '1';
+        btn.style.pointerEvents = entries.length === 1 ? 'none' : 'auto';
+      }
+    });
+  }
+  function renumberExLabels() {
+    document.querySelectorAll('#exEntriesList .meal-entry').forEach((e, i) => {
+      const lbl = e.querySelector('.meal-entry-label');
+      if (lbl) lbl.textContent = `Workout ${i + 1}`;
+    });
   }
 
   // ── Save exercise ─────────────────────────────────────────
   async function saveExLog() {
     const key     = pendingKey.ex;
-    const logData = {
-      date:           key,
-      type:           document.getElementById('exType').value.trim(),
-      sets_completed: parseInt(document.getElementById('exSets').value)   || 0,
-      reps_per_set:   parseInt(document.getElementById('exReps').value)   || 0,
-      weight_lbs:     parseInt(document.getElementById('exWeight').value) || 0,
-      duration:       document.getElementById('exDuration').value.trim(),
-      notes:          document.getElementById('exNotes').value.trim()
-    };
+    const entries = document.querySelectorAll('#exEntriesList .meal-entry');
+    const workouts = [];
+
+    entries.forEach(e => {
+      const idx    = e.id.split('_')[1];
+      const type   = document.getElementById(`exType_${idx}`)?.value.trim()         || '';
+      const sets   = parseInt(document.getElementById(`exSets_${idx}`)?.value)   || 0;
+      const reps   = parseInt(document.getElementById(`exReps_${idx}`)?.value)   || 0;
+      const weight = parseInt(document.getElementById(`exWeight_${idx}`)?.value) || 0;
+      const dur    = document.getElementById(`exDur_${idx}`)?.value.trim()          || '';
+      if (type || sets || reps || weight || dur) {
+        workouts.push({ type, sets_completed: sets, reps_per_set: reps, weight_lbs: weight, duration: dur });
+      }
+    });
+
+    const notes = document.getElementById('exDayNotes').value.trim();
+    if (workouts.length === 0 && !notes) { closeAddModal('ex'); return; }
+
+    const logData = { date: key, workouts, notes };
 
     try {
       await apiFetch('/api/exercise-logs', 'POST', logData);
-      logs.ex[key] = logData;
+      // Merge with existing if re-logging same day
+      if (logs.ex[key]) {
+        logs.ex[key].workouts = [...(logs.ex[key].workouts || []), ...workouts];
+        if (notes) logs.ex[key].notes = notes;
+      } else {
+        logs.ex[key] = logData;
+      }
       closeAddModal('ex');
-      renderCal('ex');
+      renderAll();
       updateStats();
-    } catch (err) {
-      console.error('Failed to save exercise log:', err);
-      alert('Failed to save. Please try again.');
-    }
+      if (calView === 'merged') openMergePickModal(key);
+    } catch (err) { console.error(err); alert('Failed to save. Please try again.'); }
   }
 
-  // ── Nutrition modal (multi-meal) ──────────────────────────
+  function addMoreWorkouts() {
+    const key = viewingKey.ex;
+    closeViewPopup('ex');
+    openExModal(key, logs.ex[key]);
+  }
+
+  function openExModal(key, prefill) {
+    pendingKey.ex = key;
+    document.getElementById('exAddDateSub').textContent = fmtNice(key);
+    document.getElementById('exDayNotes').value = prefill?.notes || '';
+    const list = document.getElementById('exEntriesList');
+    list.innerHTML = '';
+    exCount = 0;
+    if (prefill?.workouts?.length) prefill.workouts.forEach(w => addExEntry(w));
+    else addExEntry();
+    document.getElementById('exAddModal').classList.add('open');
+  }
+
+  // ── Nutrition modal ───────────────────────────────────────
   function openNutModal(key, prefill) {
     pendingKey.nut = key;
     document.getElementById('nutAddDateSub').textContent = fmtNice(key);
     document.getElementById('nutDayNotes').value = prefill?.notes || '';
-
     const list = document.getElementById('mealEntriesList');
     list.innerHTML = '';
     mealCount = 0;
-
-    if (prefill?.meals?.length) {
-      prefill.meals.forEach(m => addMealEntry(m));
-    } else {
-      addMealEntry();
-    }
+    if (prefill?.meals?.length) prefill.meals.forEach(m => addMealEntry(m));
+    else addMealEntry();
     document.getElementById('nutAddModal').classList.add('open');
   }
 
@@ -835,10 +1325,14 @@
           <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <input type="text"   id="mealName_${idx}"    placeholder="Meal / food name (optional)" value="${prefill?.name    || ''}">
+      <input type="text" id="mealName_${idx}" placeholder="Meal / food name (optional)" value="${prefill?.name || ''}">
       <div class="meal-entry-row">
-        <input type="number" id="mealCals_${idx}"    placeholder="Calories (opt)" min="0" value="${prefill?.cals    || ''}">
-        <input type="number" id="mealProtein_${idx}" placeholder="Protein g (opt)" min="0" value="${prefill?.protein || ''}">
+        <input type="number" id="mealCals_${idx}"    placeholder="Calories"  min="0" value="${prefill?.cals    || ''}">
+        <input type="number" id="mealProtein_${idx}" placeholder="Protein g" min="0" value="${prefill?.protein || ''}">
+      </div>
+      <div class="meal-entry-row">
+        <input type="number" id="mealCarb_${idx}"    placeholder="Carbs g"   min="0" value="${prefill?.carb    || ''}">
+        <input type="number" id="mealFat_${idx}"     placeholder="Fat g"     min="0" value="${prefill?.fat     || ''}">
       </div>`;
     list.appendChild(div);
     updateRemoveButtons();
@@ -849,7 +1343,6 @@
     updateRemoveButtons();
     renumberMealLabels();
   }
-
   function updateRemoveButtons() {
     const entries = document.querySelectorAll('.meal-entry');
     entries.forEach(e => {
@@ -860,7 +1353,6 @@
       }
     });
   }
-
   function renumberMealLabels() {
     document.querySelectorAll('.meal-entry').forEach((e, i) => {
       const lbl = e.querySelector('.meal-entry-label');
@@ -873,37 +1365,32 @@
     const key     = pendingKey.nut;
     const entries = document.querySelectorAll('.meal-entry');
     const meals   = [];
-
     entries.forEach(e => {
       const id      = e.id.split('_')[1];
       const name    = document.getElementById(`mealName_${id}`)?.value.trim()    || '';
       const cals    = document.getElementById(`mealCals_${id}`)?.value.trim()    || '';
       const protein = document.getElementById(`mealProtein_${id}`)?.value.trim() || '';
-      if (name || cals || protein) meals.push({ name, cals, protein });
+      const carb    = document.getElementById(`mealCarb_${id}`)?.value.trim()    || '';
+      const fat     = document.getElementById(`mealFat_${id}`)?.value.trim()     || '';
+      if (name || cals || protein || carb || fat) meals.push({ name, cals, protein, carb, fat });
     });
-
     const notes = document.getElementById('nutDayNotes').value.trim();
     if (meals.length === 0 && !notes) { closeAddModal('nut'); return; }
-
     const logData = { date: key, meals, notes };
-
     try {
       await apiFetch('/api/nutrition-logs', 'POST', logData);
-
       if (logs.nut[key]) {
         logs.nut[key].meals = [...(logs.nut[key].meals || []), ...meals];
         if (notes) logs.nut[key].notes = notes;
       } else {
         logs.nut[key] = logData;
       }
-
       closeAddModal('nut');
-      renderCal('nut');
+      renderAll();
       updateStats();
-    } catch (err) {
-      console.error('Failed to save nutrition log:', err);
-      alert('Failed to save. Please try again.');
-    }
+      // If in merged view, reopen pick modal so user can also log exercise
+      if (calView === 'merged') openMergePickModal(key);
+    } catch (err) { console.error(err); alert('Failed to save. Please try again.'); }
   }
 
   function addMoreMeals() {
@@ -916,60 +1403,74 @@
   async function deleteLog(p) {
     const key      = viewingKey[p];
     const endpoint = p === 'ex' ? 'exercise-logs' : 'nutrition-logs';
-
     try {
       await apiFetch(`/api/${endpoint}/${key}`, 'DELETE');
       delete logs[p][key];
       closeViewPopup(p);
-      renderCal(p);
+      renderAll();
       updateStats();
-    } catch (err) {
-      console.error('Failed to delete log:', err);
-      alert('Failed to delete. Please try again.');
-    }
+    } catch (err) { console.error(err); alert('Failed to delete. Please try again.'); }
   }
 
   // ── View popups ───────────────────────────────────────────
   function openViewPopup(p, key) {
     viewingKey[p] = key;
     const log = logs[p][key];
-
     if (p === 'ex') {
       document.getElementById('exViewDate').textContent = fmtNice(key);
       let html = '';
-      if (log.type)           html += vrow('Exercise', log.type);
-      if (log.sets_completed) html += vrow('Sets',     log.sets_completed);
-      if (log.reps_per_set)   html += vrow('Reps',     log.reps_per_set);
-      if (log.weight_lbs)     html += vrow('Weight',   log.weight_lbs + ' lbs');
-      if (log.duration)       html += vrow('Duration', log.duration + ' min');
-      if (log.notes)          html += vrow('Notes',    log.notes);
-      if (!html)              html  = `<p class="view-no-details">Logged — no details added.</p>`;
+      const workouts = log.workouts || [];
+
+      if (workouts.length === 0) {
+        // Backwards compat: old single-workout logs stored fields directly on the log
+        const hasOld = log.type || log.sets_completed || log.reps_per_set || log.weight_lbs || log.duration;
+        if (hasOld) {
+          html += workoutCard(log, 0);
+        } else {
+          html = `<p class="view-no-details">Logged — no details added.</p>`;
+        }
+      } else {
+        workouts.forEach((w, i) => { html += workoutCard(w, i); });
+      }
+
+      if (log.notes) html += `<div class="view-day-notes"><strong>Day Notes</strong>${log.notes}</div>`;
       document.getElementById('exViewRows').innerHTML = html;
       document.getElementById('exViewPopup').classList.add('open');
-
     } else {
       document.getElementById('nutViewDate').textContent = fmtNice(key);
       let html = '';
       const meals = log.meals || [];
-
       if (meals.length === 0) {
         html = `<p class="view-no-details">No meals recorded.</p>`;
       } else {
         meals.forEach((m, i) => {
           const meta = [
-            m.cals    ? `${m.cals} kcal`       : '',
-            m.protein ? `${m.protein}g protein` : ''
+            m.cals    ? `${m.cals} kcal`        : '',
+            m.protein ? `${m.protein}g protein`  : '',
+            m.carb    ? `${m.carb}g carbs`       : '',
+            m.fat     ? `${m.fat}g fat`          : ''
           ].filter(Boolean).join(' · ');
-          html += `
-            <div class="view-meal-card">
-              <div class="view-meal-name">${m.name || `Meal ${i+1}`}</div>
-              ${meta ? `<div class="view-meal-meta">${meta}</div>` : ''}
-            </div>`;
+          html += `<div class="view-meal-card">
+            <div class="view-meal-name">${m.name || `Meal ${i+1}`}</div>
+            ${meta ? `<div class="view-meal-meta">${meta}</div>` : ''}
+          </div>`;
         });
       }
-      if (log.notes) {
-        html += `<div class="view-day-notes"><strong>Day Notes</strong>${log.notes}</div>`;
+      // Totals row from server-calculated totalNutrition
+      const t = log.totalNutrition;
+      if (t && (t.cals || t.protein || t.carb || t.fat)) {
+        html += `
+          <div class="view-row" style="margin-top:0.5rem;border-top:2px solid var(--border);padding-top:0.5rem;">
+            <span class="view-row-label" style="font-weight:700;color:var(--text);">Totals</span>
+            <span class="view-row-value" style="font-size:0.8rem;">
+              ${t.cals || 0} kcal &nbsp;·&nbsp;
+              ${t.protein || 0}g protein &nbsp;·&nbsp;
+              ${t.carb || 0}g carbs &nbsp;·&nbsp;
+              ${t.fat || 0}g fat
+            </span>
+          </div>`;
       }
+      if (log.notes) html += `<div class="view-day-notes"><strong>Day Notes</strong>${log.notes}</div>`;
       document.getElementById('nutViewRows').innerHTML = html;
       document.getElementById('nutViewPopup').classList.add('open');
     }
@@ -979,11 +1480,23 @@
     return `<div class="view-row"><span class="view-row-label">${label}</span><span class="view-row-value">${value}</span></div>`;
   }
 
+  function workoutCard(w, i) {
+    const meta = [
+      w.sets_completed ? `${w.sets_completed} sets`  : '',
+      w.reps_per_set   ? `${w.reps_per_set} reps`    : '',
+      w.weight_lbs     ? `${w.weight_lbs} lbs`       : '',
+      w.duration       ? `${w.duration} min`          : ''
+    ].filter(Boolean).join(' · ');
+    return `
+      <div class="view-meal-card">
+        <div class="view-meal-name">${w.type || `Workout ${i + 1}`}</div>
+        ${meta ? `<div class="view-meal-meta">${meta}</div>` : ''}
+      </div>`;
+  }
   function closeViewPopup(p) {
     document.getElementById(p + 'ViewPopup').classList.remove('open');
   }
 
-  // close modals/popups on backdrop click
   document.querySelectorAll('.modal-overlay, .view-popup').forEach(el => {
     el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
   });
@@ -998,80 +1511,159 @@
       if (logs.ex[fmtKey(d)]) weekCount++;
     }
     document.getElementById('statWorkouts').textContent = weekCount;
-
-    const todayNut  = logs.nut[todayKey];
-    const todayCals = (todayNut?.meals || [])
-            .reduce((sum, m) => sum + (parseInt(m.cals) || 0), 0);
+    const todayNut = logs.nut[todayKey];
+    // Prefer server-calculated totalNutrition, fall back to manual sum for old logs
+    const todayCals = todayNut?.totalNutrition?.cals
+            ? parseInt(todayNut.totalNutrition.cals)
+            : (todayNut?.meals || []).reduce((sum, m) => sum + (parseInt(m.cals) || 0), 0);
     document.getElementById('statCalories').textContent = todayCals.toLocaleString();
-
-    const goal = Math.min(100, Math.round((weekCount / 5) * 100));
-    document.getElementById('statGoal').textContent = goal + '%';
   }
 
-  // ── Weekly Planner ────────────────────────────────────────
-  const SPLITS = [
-    'Rest Day',
-    'Push Day',
-    'Pull Day',
-    'Legs',
-    'Upper Body',
-    'Lower Body',
-    'Full Body',
-    'Cardio',
-    'Core & Abs',
-    'Custom'
+  // ── Goals ─────────────────────────────────────────────────
+  const GOAL_CATEGORIES = [
+    { key: 'strength', label: 'Strength',  icon: '🏋️', cls: 'goal-icon-strength' },
+    { key: 'cardio',   label: 'Cardio',    icon: '🏃', cls: 'goal-icon-cardio'   },
+    { key: 'body',     label: 'Body',      icon: '⚖️', cls: 'goal-icon-body'     },
+    { key: 'habit',    label: 'Habit',     icon: '✅', cls: 'goal-icon-habit'    },
+    { key: 'other',    label: 'Other',     icon: '🎯', cls: 'goal-icon-other'    },
   ];
 
-  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const DEFAULT_GOALS = [
+    { id: 'g1', text: '200 lb bench press', category: 'strength' },
+    { id: 'g2', text: '7 minute mile',       category: 'cardio'   },
+  ];
+
+  function loadGoals() {
+    const saved = localStorage.getItem('wizcoach_goals');
+    return saved ? JSON.parse(saved) : DEFAULT_GOALS;
+  }
+
+  function saveGoals(goals) {
+    localStorage.setItem('wizcoach_goals', JSON.stringify(goals));
+  }
+
+  function renderGoals() {
+    const goals = loadGoals();
+    const grid  = document.getElementById('goalsGrid');
+    if (!grid) return;
+
+    if (goals.length === 0) {
+      grid.innerHTML = `<p class="goals-empty">No goals yet — click "Add Goal" to set one!</p>`;
+      return;
+    }
+
+    grid.innerHTML = '';
+    goals.forEach(goal => {
+      const cat = GOAL_CATEGORIES.find(c => c.key === goal.category) || GOAL_CATEGORIES[4];
+      const div = document.createElement('div');
+      div.className = 'goal-item';
+      div.dataset.id = goal.id;
+      div.innerHTML = `
+        <div class="goal-icon ${cat.cls}">${cat.icon}</div>
+        <div class="goal-body">
+          <div class="goal-text"
+               contenteditable="true"
+               data-placeholder="Enter your goal…"
+               onblur="updateGoalText('${goal.id}', this.innerText.trim())"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+          >${goal.text}</div>
+          <div class="goal-category">${cat.label}</div>
+        </div>
+        <button class="goal-delete" onclick="deleteGoal('${goal.id}')" title="Remove goal">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>`;
+      grid.appendChild(div);
+    });
+  }
+
+  function addGoal() {
+    const goals = loadGoals();
+    const newGoal = {
+      id: 'g_' + Date.now(),
+      text: '',
+      category: 'other'
+    };
+    goals.push(newGoal);
+    saveGoals(goals);
+    renderGoals();
+    // Focus the new goal text immediately
+    setTimeout(() => {
+      const el = document.querySelector(`[data-id="${newGoal.id}"] .goal-text`);
+      if (el) el.focus();
+    }, 50);
+  }
+
+  function deleteGoal(id) {
+    const goals = loadGoals().filter(g => g.id !== id);
+    saveGoals(goals);
+    renderGoals();
+  }
+
+  function updateGoalText(id, text) {
+    const goals = loadGoals();
+    const goal  = goals.find(g => g.id === id);
+    if (goal) {
+      if (!text) {
+        // Remove empty goals on blur
+        deleteGoal(id);
+        return;
+      }
+      goal.text = text;
+      // Auto-detect category from keywords
+      const lower = text.toLowerCase();
+      if (/bench|squat|deadlift|press|curl|lb|kg|lift|pr|rep|set/.test(lower))
+        goal.category = 'strength';
+      else if (/mile|run|pace|min|km|cardio|5k|10k|marathon|sprint|bike|swim/.test(lower))
+        goal.category = 'cardio';
+      else if (/weight|lb|kg|bmi|body fat|waist|lose|gain/.test(lower))
+        goal.category = 'body';
+      else if (/sleep|water|step|streak|daily|habit|meditat|walk/.test(lower))
+        goal.category = 'habit';
+      else
+        goal.category = 'other';
+      saveGoals(goals);
+      renderGoals(); // re-render to update icon/label
+    }
+  }
+
+  renderGoals();
+
+  // ── Weekly Planner ────────────────────────────────────────
+  const SPLITS = ['Rest Day','Push Day','Pull Day','Legs','Upper Body','Lower Body','Full Body','Cardio','Core & Abs','Custom'];
+  const DAYS   = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 
   function buildPlanner() {
     const grid = document.getElementById('plannerGrid');
     if (!grid) return;
     grid.innerHTML = '';
-
     const todayName = now.toLocaleDateString('en-US', { weekday: 'long' });
-
     DAYS.forEach(day => {
-      const isToday = day === todayName;
-      const savedSplit    = localStorage.getItem(`planner_split_${day}`)    || '';
+      const isToday        = day === todayName;
+      const savedSplit     = localStorage.getItem(`planner_split_${day}`)     || '';
       const savedExercises = localStorage.getItem(`planner_exercises_${day}`) || '';
-
-
       const col = document.createElement('div');
       col.className = 'planner-day';
-
       col.innerHTML = `
         <div class="planner-day-label ${isToday ? 'today-label' : ''}">${day}</div>
-
         <div class="planner-field-label">Split</div>
         <select class="split-select" onchange="savePlanner('${day}','split',this.value)">
           <option value="">— select split —</option>
           ${SPLITS.map(s => `<option value="${s}" ${savedSplit === s ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
-
         <div class="planner-field-label">Exercises</div>
-        <textarea
-          class="planner-exercises"
-          placeholder="e.g. Bench 4x8, OHP 3x10…"
-          onchange="savePlanner('${day}','exercises',this.value)"
-        >${savedExercises}</textarea>
-
-
-      `;
-
+        <textarea class="planner-exercises" placeholder="e.g. Bench 4x8, OHP 3x10…"
+          onchange="savePlanner('${day}','exercises',this.value)">${savedExercises}</textarea>`;
       grid.appendChild(col);
     });
   }
-
   function savePlanner(day, field, value) {
     localStorage.setItem(`planner_${field}_${day}`, value);
   }
 
+  // ── Init ──────────────────────────────────────────────────
   buildPlanner();
-
-  // ── Initial render (empty calendars before auth) ──────────
-  renderCal('ex');
-  renderCal('nut');
+  // Apply saved view preference immediately (before data loads)
+  setCalView(calView);
 </script>
 </body>
 </html>
