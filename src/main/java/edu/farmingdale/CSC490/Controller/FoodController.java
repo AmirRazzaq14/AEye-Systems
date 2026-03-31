@@ -1,65 +1,40 @@
 package edu.farmingdale.CSC490.Controller;
 
-import edu.farmingdale.CSC490.Food.FoodResult;
-import edu.farmingdale.CSC490.Food.foodAnalyzer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import edu.farmingdale.CSC490.Entity.Nutrition_log;
+import edu.farmingdale.CSC490.Food.FoodAnalyzeService;
+import edu.farmingdale.CSC490.Repository.NutritionRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/api/food")
 @CrossOrigin(origins = "*")
 public class FoodController {
 
-    private static final Logger logger = LoggerFactory.getLogger(FoodController.class);
-
-    @Value("${prompt.food_analyzer}")
-    private String prompt;
-    
     @Autowired
-    private foodAnalyzer foodAnalyzer;
+    private FoodAnalyzeService foodAnalyzeService;
+
+
 
     @PostMapping("/analyze")
-    public ResponseEntity<FoodResult> analyzeFood(
+    public ResponseEntity<Nutrition_log.Meal> analyzeFood(
             @RequestParam("image") MultipartFile image) {
 
-        
-        try {
-            if (image.isEmpty()) {
-                logger.error("Image file is empty.");
-                return ResponseEntity.badRequest().build();
-            }
+        log.info("Analyze the image : {}", image.getOriginalFilename());
 
-            logger.info("Received image file: {}", image.getOriginalFilename());
-            // Call the Python service for image analysis
-            FoodResult result = foodAnalyzer.analyze(
-                    image.getBytes(),
-                    image.getOriginalFilename(),
-                    prompt
-            );
+        Nutrition_log.Meal result = foodAnalyzeService.analyze(image);
+        return Optional.ofNullable(result).isPresent()
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().build();
 
-            logger.info("Result: {}",result);
-
-            //TODO:save to database with nutrition log
-
-            //  If no result found, return a default result
-            if(result == null){
-                logger.warn("No result found for image: {}", image.getOriginalFilename());
-            }
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception e) {
-            logger.error("Error analyzing food image: {}", e.getMessage());
-            return ResponseEntity.status(500).body(null);
-        }
     }
+
 
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
