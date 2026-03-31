@@ -97,7 +97,16 @@
             margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 16px rgba(124,92,252,0.3);
             color: white; font-size: 2.5rem; font-weight: 700;
+            position: relative; overflow: hidden; cursor: pointer;
         }
+        
+        .avatar-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .profile-avatar:hover .avatar-overlay { opacity: 1; }
+        .avatar-overlay svg { width: 28px; height: 28px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
         .profile-email { font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; margin-bottom: 0.2rem; }
         .profile-status { color: var(--green); font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem; margin-bottom: 2rem; background: var(--green-light); padding: 0.3rem 0.8rem; border-radius: 12px;}
@@ -190,16 +199,23 @@
             <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
             AI Coach
         </a>
-        <a href="profile.html" class="nav-link active">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            Profile
+        <a href="profile.html" class="nav-avatar" style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--purple);">
+            <span id="navAvatarText">U</span>
+            <img id="navAvatarImg" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
         </a>
     </div>
 </nav>
 
 <div class="page">
     <div class="profile-card">
-        <div class="profile-avatar" id="avatarLetter">U</div>
+        <div class="profile-avatar" id="avatarWrap" onclick="document.getElementById('avatarUpload').click()">
+            <span id="avatarText">U</span>
+            <img id="avatarImg" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+            <div class="avatar-overlay">
+                <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            </div>
+        </div>
+        <input type="file" id="avatarUpload" accept="image/jpeg, image/png, image/webp" style="display: none;" onchange="handleAvatarUpload(event)">
         <h1 class="profile-email" id="profileEmail">Loading...</h1>
         <div class="profile-status">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
@@ -251,7 +267,7 @@
     async function loadProfile(user) {
         try {
             document.getElementById('profileEmail').textContent = user.email;
-            document.getElementById('avatarLetter').textContent = user.email.charAt(0).toUpperCase();
+            document.getElementById('avatarText').textContent = user.email.charAt(0).toUpperCase();
 
             const token = await user.getIdToken();
             const res = await fetch('/api/auth/profile', {
@@ -262,6 +278,16 @@
                 const data = await res.json();
                 if (data.success && data.profile) {
                     const p = data.profile;
+                    if(p.profilePicture) {
+                        document.getElementById('avatarImg').src = p.profilePicture;
+                        document.getElementById('avatarImg').style.display = 'block';
+                        document.getElementById('avatarText').style.display = 'none';
+                        
+                        const navImg = document.getElementById('navAvatarImg');
+                        if(navImg) { navImg.src = p.profilePicture; navImg.style.display = 'block'; document.getElementById('navAvatarText').style.display = 'none'; }
+                        
+                        localStorage.setItem('wizcoach-avatar', p.profilePicture);
+                    }
                     if(p.age) document.getElementById('valAge').textContent = p.age;
                     if(p.gender) document.getElementById('valGender').textContent = p.gender;
                     if(p.weight) document.getElementById('valWeight').textContent = p.weight + ' lbs';
@@ -279,10 +305,74 @@
         }
     }
 
+    async function handleAvatarUpload(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+
+        // Show loading state gracefully
+        const overlay = document.querySelector('.loading-overlay');
+        overlay.classList.remove('hidden');
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = async function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 150; canvas.height = 150;
+                
+                const minDim = Math.min(img.width, img.height);
+                const sx = (img.width - minDim) / 2;
+                const sy = (img.height - minDim) / 2;
+                ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, 150, 150);
+
+                const base64Str = canvas.toDataURL('image/jpeg', 0.7);
+
+                document.getElementById('avatarImg').src = base64Str;
+                document.getElementById('avatarImg').style.display = 'block';
+                document.getElementById('avatarText').style.display = 'none';
+                
+                const navImg = document.getElementById('navAvatarImg');
+                if(navImg) { navImg.src = base64Str; navImg.style.display = 'block'; document.getElementById('navAvatarText').style.display = 'none'; }
+                
+                localStorage.setItem('wizcoach-avatar', base64Str);
+
+                try {
+                    const user = firebase.auth().currentUser;
+                    const token = await user.getIdToken();
+                    await fetch('/api/auth/profile', {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: user.email, profilePicture: base64Str })
+                    });
+                } catch(err) {
+                    console.error("Upload failed", err);
+                } finally {
+                    overlay.classList.add('hidden');
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
     initApp();
 </script>
 
 <button onclick="toggleTheme()" class="theme-btn" title="Toggle Dark Mode">🌓</button>
 
+<script>
+  (function loadLocalAvatar() {
+      const saved = localStorage.getItem('wizcoach-avatar');
+      if(saved) {
+          const img = document.getElementById('navAvatarImg');
+          const txt = document.getElementById('navAvatarText');
+          if(img && txt) { img.src = saved; img.style.display = 'block'; txt.style.display = 'none'; }
+      }
+  })();
+</script>
 </body>
 </html>

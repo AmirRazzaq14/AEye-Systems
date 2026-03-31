@@ -565,9 +565,9 @@
       <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
       AI Coach
     </a>
-    <a href="profile.html" class="nav-link">
-      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-      Profile
+    <a href="profile.html" class="nav-avatar" style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 1px solid var(--border);">
+      <span id="navAvatarText">U</span>
+      <img id="navAvatarImg" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
     </a>
   </div>
 </nav>
@@ -758,6 +758,15 @@
   document.querySelectorAll('.nav-link').forEach(l =>
           l.classList.toggle('active', l.href === window.location.href)
   );
+
+  (function loadLocalAvatar() {
+      const saved = localStorage.getItem('wizcoach-avatar');
+      if(saved) {
+          document.getElementById('navAvatarImg').src = saved;
+          document.getElementById('navAvatarImg').style.display = 'block';
+          document.getElementById('navAvatarText').style.display = 'none';
+      }
+  })();
 
   const logs = { ex: {}, nut: {} };
   const now      = new Date();

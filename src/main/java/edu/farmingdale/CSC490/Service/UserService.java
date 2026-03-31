@@ -52,9 +52,9 @@ public class UserService {
     }
 
     // Update user profile metrics
-    public void updateProfile(String userId, User updatedUser) throws Exception {
+    public void updateProfile(String userId, java.util.Map<String, Object> updates) throws Exception {
         try {
-            userRepository.updateProfile(userId, updatedUser);
+            userRepository.updateProfile(userId, updates);
         } catch (ExecutionException | InterruptedException e) {
             throw new Exception("Database error: " + e.getMessage());
         }

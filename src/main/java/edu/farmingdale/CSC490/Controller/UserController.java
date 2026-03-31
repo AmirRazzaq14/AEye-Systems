@@ -72,10 +72,10 @@ public class UserController {
     @PutMapping("/profile")
     public ResponseEntity<Map<String, Object>> updateProfile(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody User updatedUser) {
+            @RequestBody Map<String, Object> updates) {
         try {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
-            userService.updateProfile(uid, updatedUser);
+            userService.updateProfile(uid, updates);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

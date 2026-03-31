@@ -21,4 +21,5 @@ public class User {
     private Double height;
     private String gender;
     private Integer age;
+    private String profilePicture;
 }
