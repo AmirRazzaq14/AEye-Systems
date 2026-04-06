@@ -6,8 +6,11 @@ import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,6 +122,37 @@ public class NutritionRepository {
         }else {
             log.error("Nutrition log not exist, can't save notes");
         }
+    }
+
+    public List<Nutrition_log> getWeekLog(String uid, String Date) throws Exception {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate inputDate = LocalDate.parse(Date, formatter);
+
+        // Get the Monday of the week of the specified date
+        LocalDate mondayOfWeek = inputDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        // Build all dates of the week (from Monday to the specified date)
+        List<LocalDate> datesInWeekUpToDate = new ArrayList<>();
+        for (LocalDate date = mondayOfWeek; !date.isAfter(inputDate); date = date.plusDays(1)) {
+            datesInWeekUpToDate.add(date);
+        }
+
+        List<Nutrition_log> list = new ArrayList<>();
+        for (DocumentSnapshot d : colRef(uid).get().get().getDocuments()) {
+            Nutrition_log nutrition_log = d.toObject(Nutrition_log.class);
+            if (nutrition_log != null) {
+                try {
+                    LocalDate logDate = LocalDate.parse(nutrition_log.getDate(), formatter);
+                    if (datesInWeekUpToDate.contains(logDate)) {
+                        list.add(nutrition_log);
+                    }
+                } catch (Exception e) {
+                    log.warn("Invalid date format in log: {}", nutrition_log.getDate());
+                }
+            }
+        }
+
+        return list;
     }
 
 

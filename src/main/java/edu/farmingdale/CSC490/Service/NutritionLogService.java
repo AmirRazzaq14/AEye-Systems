@@ -21,6 +21,10 @@ public class NutritionLogService {
         return repo.getByDate(uid, date);
     }
 
+    public List<Nutrition_log> getWeekLog(String uid, String date) throws Exception {
+        return repo.getWeekLog(uid, date);
+    }
+
     public List<Nutrition_log> getAllLogs(String uid) throws Exception {
         return repo.getAll(uid);
     }

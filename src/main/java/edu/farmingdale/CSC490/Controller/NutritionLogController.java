@@ -101,6 +101,27 @@ public class NutritionLogController {
         }
     }
 
+    @GetMapping("/week/{date}")
+    public ResponseEntity<?> getByWeek(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String date) {
+        try {
+            String uid = tokenFilter.verifyAndGetUid(authHeader);
+            List<Nutrition_log> nutrition_log = service.getWeekLog(uid, date);
+            if(nutrition_log != null) {
+                log.info("Successfully get nutrition log by week:{}", date);
+                return ResponseEntity.ok(nutrition_log);
+            }else {
+                log.warn("Nutrition log not found by week:{}", date);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("Error to get log by this week {} : {}", date, e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+
+    }
+
     @DeleteMapping("/{date}")
     public ResponseEntity<?> delete(
             @RequestHeader("Authorization") String authHeader,
