@@ -1115,6 +1115,26 @@
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         loadAllLogs();
+        if (!localStorage.getItem('wizcoach-avatar')) {
+          user.getIdToken().then(token => {
+            fetch('/api/auth/profile', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success && data.profile && data.profile.profilePicture) {
+                localStorage.setItem('wizcoach-avatar', data.profile.profilePicture);
+                const img = document.getElementById('navAvatarImg');
+                if (img) {
+                  img.src = data.profile.profilePicture;
+                  img.style.display = 'block';
+                  document.getElementById('navAvatarText').style.display = 'none';
+                }
+              }
+            })
+            .catch(err => console.error("Could not fetch avatar on login:", err));
+          });
+        }
       } else {
         // Fix 2: hide overlay before redirecting so page doesn't stay stuck
         showLoading(false);

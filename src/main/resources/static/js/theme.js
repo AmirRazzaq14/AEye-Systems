@@ -18,6 +18,7 @@ window.signOut = async function() {
         localStorage.removeItem("planner_split_" + day);
         localStorage.removeItem("planner_exercises_" + day);
     });
+    localStorage.removeItem('wizcoach-avatar');
     try {
         if (typeof firebase !== "undefined" && firebase.auth) {
             await firebase.auth().signOut();
