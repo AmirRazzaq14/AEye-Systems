@@ -12,3 +12,16 @@ function toggleTheme() {
     document.documentElement.setAttribute("data-theme", next);
     localStorage.setItem(key, next);
 }
+window.signOut = async function() {
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    days.forEach(day => {
+        localStorage.removeItem("planner_split_" + day);
+        localStorage.removeItem("planner_exercises_" + day);
+    });
+    try {
+        if (typeof firebase !== "undefined" && firebase.auth) {
+            await firebase.auth().signOut();
+        }
+    } catch(e) { console.error(e); }
+    window.location.href = 'login.html';
+};

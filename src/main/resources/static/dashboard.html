@@ -145,7 +145,7 @@
 
     .toggle-pill {
       display: flex; align-items: center;
-      background: #f3f4f6; border-radius: 10px; padding: 3px; gap: 2px;
+      background: var(--input-bg); border-radius: 10px; padding: 3px; gap: 2px;
     }
     .toggle-pill button {
       padding: 0.32rem 0.85rem; border-radius: 8px; border: none;
@@ -154,7 +154,7 @@
       background: transparent; transition: background 0.15s, color 0.15s;
     }
     .toggle-pill button.active {
-      background: white; color: var(--text);
+      background: var(--card-bg); color: var(--text);
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
@@ -168,12 +168,12 @@
     .cal-legend-dot {
       width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
     }
-    .legend-logged       { background: var(--green-light); border: 1.5px solid #86efac; }
-    .legend-missed       { background: var(--red-light);   border: 1.5px solid #fca5a5; }
+    .legend-logged       { background: var(--green-light); border: 1.5px solid var(--green); }
+    .legend-missed       { background: var(--red-light);   border: 1.5px solid var(--red); }
     .legend-today        { background: var(--blue);        border: 1.5px solid var(--blue); }
-    .legend-both         { background: var(--green-light); border: 1.5px solid #86efac; }
-    .legend-one          { background: #ffffff;            border: 1.5px solid #d1d5db; }
-    .legend-missed-merge { background: var(--red-light);   border: 1.5px solid #fca5a5; }
+    .legend-both         { background: var(--green-light); border: 1.5px solid var(--green); }
+    .legend-one          { background: var(--card-bg);            border: 1.5px solid var(--border); }
+    .legend-missed-merge { background: var(--red-light);   border: 1.5px solid var(--red); }
 
     /* ── Two-calendar layout ── */
     .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
@@ -234,30 +234,30 @@
     .cal-day-today {
       background: var(--blue); color: white; font-weight: 700;
     }
-    .cal-day-today:hover { background: #2563eb; }
+    .cal-day-today:hover { filter: brightness(1.1); }
 
     /* logged (green) */
     .cal-day-logged { background: var(--green-light); color: var(--green-dark); font-weight: 700; }
-    .cal-day-logged:hover { background: #bbf7d0; transform: scale(1.08); }
+    .cal-day-logged:hover { filter: brightness(1.1); transform: scale(1.08); }
     .cal-day-today.cal-day-logged { background: var(--green); color: white; }
-    .cal-day-today.cal-day-logged:hover { background: #16a34a; }
+    .cal-day-today.cal-day-logged:hover { filter: brightness(1.1); }
 
     /* missed (red) */
     .cal-day-missed { background: var(--red-light); color: var(--red-dark); font-weight: 600; }
-    .cal-day-missed:hover { background: #fecaca; transform: scale(1.05); cursor: pointer; }
+    .cal-day-missed:hover { filter: brightness(1.1); transform: scale(1.05); cursor: pointer; }
 
     /* unlogged future-past hover */
-    .cal-day-unlogged:hover { background: #f0fdf4; color: var(--green-dark); }
+    .cal-day-unlogged:hover { background: rgba(34, 197, 94, 0.1); color: var(--green-dark); }
 
     /* merged states — 3 categories only */
     /* both logged = green */
     .cal-day-both { background: var(--green-light); color: var(--green-dark); font-weight: 700; }
-    .cal-day-both:hover { background: #bbf7d0; transform: scale(1.08); }
+    .cal-day-both:hover { filter: brightness(1.1); transform: scale(1.08); }
     .cal-day-today.cal-day-both { background: var(--green); color: white; }
 
     /* one logged (either ex or nut) = white/light with subtle border */
-    .cal-day-one { background: #ffffff; color: var(--text); font-weight: 600; border: 1.5px solid #e5e7eb; }
-    .cal-day-one:hover { background: #f9fafb; transform: scale(1.05); }
+    .cal-day-one { background: var(--card-bg); color: var(--text); font-weight: 600; border: 1.5px solid var(--border); }
+    .cal-day-one:hover { background: var(--input-bg); transform: scale(1.05); }
     .cal-day-today.cal-day-one { background: var(--blue); color: white; border-color: var(--blue); }
 
     /* ── Loading / modals (unchanged) ── */
@@ -406,15 +406,15 @@
     .meal-entry-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
 
     .add-meal-btn {
-      width: 100%; padding: 0.55rem; border-radius: 10px;
-      border: 1.5px dashed #fed7aa; background: #fff7ed;
-      color: #f97316; font-size: 0.83rem; font-weight: 600;
-      cursor: pointer; font-family: 'DM Sans', sans-serif;
-      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-      transition: background 0.15s, border-color 0.15s; margin-bottom: 0.8rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.75rem; border-radius: 12px;
+      border: 1.5px dashed var(--border); background: var(--input-bg);
+      color: #ea580c; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s; margin-top: 0.5rem;
     }
-    .add-meal-btn:hover { background: #ffedd5; border-color: #f97316; }
-    .add-meal-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .add-meal-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .add-meal-btn:hover { background: rgba(249, 115, 22, 0.1); border-color: #f97316; }
 
     .nut-notes-field { margin-bottom: 0; }
     .nut-notes-field label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
@@ -479,17 +479,17 @@
 
     .view-actions { display: flex; gap: 0.7rem; margin-top: 1rem; }
     .btn-delete {
-      flex: 1; padding: 0.58rem; border-radius: 10px; border: 1.5px solid #fecaca;
-      background: #fff5f5; font-size: 0.84rem; font-weight: 600; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; color: #ef4444; transition: background 0.15s;
+      padding: 0.6rem 1rem; border-radius: 10px; border: none;
+      background: rgba(239, 68, 68, 0.1); font-size: 0.84rem; font-weight: 600; cursor: pointer;
+      color: var(--red); font-family: 'DM Sans', sans-serif; transition: background 0.15s; flex: 1;
     }
-    .btn-delete:hover { background: #fee2e2; }
+    .btn-delete:hover { background: rgba(239, 68, 68, 0.2); }
     .btn-add-more {
-      flex: 1; padding: 0.58rem; border-radius: 10px; border: 1.5px solid #fed7aa;
-      background: #fff7ed; font-size: 0.84rem; font-weight: 600; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; color: #f97316; transition: background 0.15s;
+      background: rgba(249, 115, 22, 0.1); font-size: 0.84rem; font-weight: 600; cursor: pointer;
+      color: #ea580c; padding: 0.6rem 1rem; border-radius: 10px; border: none;
+      font-family: 'DM Sans', sans-serif; transition: background 0.15s; flex: 1;
     }
-    .btn-add-more:hover { background: #ffedd5; }
+    .btn-add-more:hover { background: rgba(249, 115, 22, 0.2); }
     .btn-close {
       flex: 1;
       padding: 0.58rem;
@@ -515,30 +515,23 @@
     .merge-pick-modal .modal-date-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.2rem; }
     .merge-pick-btns { display: flex; flex-direction: column; gap: 0.6rem; }
     .merge-pick-btn {
-      padding: 0.65rem 1rem; border-radius: 12px; border: 1.5px solid var(--border);
-      background: #f9fafb; font-size: 0.88rem; font-weight: 600;
-      cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text);
-      transition: background 0.15s, border-color 0.15s; text-align: left;
-      display: flex; align-items: center; gap: 0.5rem;
+      width: 100%; padding: 0.75rem; border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--input-bg); font-size: 0.88rem; font-weight: 600;
+      color: var(--text); cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      margin-bottom: 0.75rem;
     }
-    .merge-pick-btn:hover { background: #f3f4f6; border-color: #d1d5db; }
-    .merge-pick-btn.btn-ex:hover  { background: #f0fdf4; border-color: #86efac; color: var(--green-dark); }
-    .merge-pick-btn.btn-nut:hover { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+    .merge-pick-btn:hover { filter: brightness(0.9); }
+    .merge-pick-btn.btn-ex:hover  { background: rgba(34,197,94,0.1); border-color: var(--green); color: var(--green); }
+    .merge-pick-btn.btn-nut:hover { background: rgba(249,115,22,0.1); border-color: #f97316; color: #ea580c; }
+
     .merge-pick-cancel {
-      margin-top: 0.5rem; width: 100%; padding: 0.55rem;
-      border-radius: 10px; border: 1.5px solid var(--border);
-      background: white; font-size: 0.84rem; font-weight: 600; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; color: var(--muted); transition: background 0.15s;
+      width: 100%; padding: 0.6rem; border-radius: 10px; border: none;
+      background: transparent; color: var(--muted); font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; font-family: inherit; transition: background 0.15s;
     }
-    .merge-pick-cancel:hover { background: #f3f4f6; }
-    .merge-pick-edit {
-      margin-left: auto; font-size: 0.72rem; font-weight: 500;
-      color: #9ca3af; font-style: italic;
-    }
-    .merge-pick-btn { justify-content: space-between; }
-    .merge-pick-btn.logged {
-      background: #f0fdf4; border-color: #86efac; color: var(--green-dark);
-    }
+    .merge-pick-cancel:hover { background: var(--input-bg); }
 
     /* ── Goals Card ── */
     .goals-card {
@@ -555,72 +548,87 @@
     }
     .goals-card-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); }
     .goals-add-btn {
-      display: flex; align-items: center; gap: 0.3rem;
-      padding: 0.35rem 0.8rem; border-radius: 8px; border: 1.5px solid var(--border);
-      background: white; font-size: 0.78rem; font-weight: 600; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; color: var(--muted);
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+      padding: 0.6rem 1rem; border-radius: 10px;
+      border: 1.5px dashed var(--border);
+      background: rgba(34,197,94,0.05); color: var(--green); 
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
     }
-    .goals-add-btn:hover { background: #f0fdf4; border-color: #86efac; color: var(--green-dark); }
-    .goals-add-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .goals-add-btn:hover { filter: brightness(0.9); }
 
-    .goals-grid {
-      display: flex; flex-direction: column; gap: 0.45rem; flex: 1;
+    /* Goals layout */
+    .goals-list {
+      display: flex; flex-direction: column; gap: 0.6rem; overflow-y: auto;
+      margin-top: 0.25rem; flex: 1; padding-bottom: 0.5rem;
     }
+
     .goal-item {
-      display: flex; align-items: flex-start; gap: 0.65rem;
-      padding: 0.75rem 0.9rem; border-radius: 12px;
-      border: 1.5px solid var(--border); background: #fafafa;
-      position: relative; animation: popIn 0.18s ease both;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.6rem 0.8rem; border-radius: 12px;
+      border: 1.5px solid var(--border); background: var(--input-bg);
+      transition: transform 0.15s, box-shadow 0.15s; position: relative;
     }
-    .goal-item:hover { border-color: #d1d5db; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .goal-icon {
-      width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    .goal-item:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+
+    .goal-check {
+      width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border);
+      margin-top: 2px; flex-shrink: 0; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
     }
-    .goal-body { flex: 1; min-width: 0; }
+    .goal-check:hover { border-color: var(--purple-light); }
+    .goal-check.done { background: var(--purple); border-color: var(--purple); }
+    .goal-check.done svg { stroke: white; }
+
+    .goal-text-wrap { flex: 1; display: flex; flex-direction: column; }
     .goal-text {
-      font-size: 0.87rem; font-weight: 600; color: var(--text);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      outline: none; cursor: text; border-radius: 4px;
-      padding: 1px 3px; margin: -1px -3px;
-      transition: background 0.12s;
+      font-size: 0.85rem; color: var(--text); font-weight: 500; line-height: 1.4;
+      background: transparent; border: none; resize: none; font-family: inherit;
+      width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; outline: none;
     }
-    .goal-text:focus { background: #f0f4ff; white-space: normal; overflow: visible; }
-    .goal-text[contenteditable="true"]:empty:before {
-      content: attr(data-placeholder); color: #9ca3af; font-weight: 400;
+    .goal-text:focus { background: var(--card-bg); white-space: normal; overflow: visible; }
+    .goal-icon {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
     }
-    .goal-category {
-      font-size: 0.7rem; color: var(--muted); margin-top: 2px;
-      font-weight: 500;
-    }
-    .goal-delete {
-      position: absolute; top: 6px; right: 6px;
-      background: none; border: none; cursor: pointer; color: #d1d5db;
-      display: flex; align-items: center; padding: 2px; border-radius: 4px;
-      transition: color 0.15s; opacity: 0;
-    }
-    .goal-item:hover .goal-delete { opacity: 1; }
-    .goal-delete:hover { color: #ef4444; }
-    .goal-delete svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+    .goal-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
-    .goals-empty {
-      font-size: 0.82rem; color: var(--muted); font-style: italic;
-      text-align: center; padding: 1rem 0;
+    .goal-icon-strength { background: rgba(249,115,22,0.1); color: #ea580c; }
+    .goal-icon-cardio   { background: rgba(59,130,246,0.1); color: var(--blue); }
+    .goal-icon-body     { background: rgba(34,197,94,0.1); color: var(--green); }
+    .goal-icon-habit    { background: rgba(124,92,252,0.1); color: var(--purple); }
+    .goal-icon-other    { background: var(--input-bg); color: var(--muted); }
+
+    .goal-item.done .goal-text { text-decoration: line-through; color: var(--muted); }
+    .goal-item.done .goal-icon { opacity: 0.5; filter: grayscale(1); }
+
+    /* ── Planner layout ── */
+    .planner-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; flex: 1;
+      margin-top: 0.25rem;
     }
 
-    /* goal category color accents */
-    .goal-icon-strength { background: #fff7ed; }
-    .goal-icon-cardio   { background: #eff6ff; }
-    .goal-icon-body     { background: #f0fdf4; }
-    .goal-icon-habit    { background: #f5f3ff; }
-    .goal-icon-other    { background: #f9fafb; }
+    .planner-day {
+      display: flex; flex-direction: column; gap: 0.5rem;
+      border: 1px dashed var(--border); border-radius: 12px; padding: 0.5rem;
+      min-height: 140px; background: var(--input-bg);
+    }
+
+    .planner-day-label {
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      text-align: center; padding: 0.2rem 0; border-radius: 6px; letter-spacing: 0.05em;
+    }
+    .planner-day:nth-child(1) .planner-day-label { background: rgba(192,57,43,0.1); color: #c0392b; }
+    .planner-day:nth-child(2) .planner-day-label { background: rgba(211,84,0,0.1); color: #d35400; }
+    .planner-day:nth-child(3) .planner-day-label { background: rgba(161,98,7,0.1); color: #a16207; }
+    .planner-day:nth-child(4) .planner-day-label { background: rgba(21,128,61,0.1); color: #15803d; }
+    .planner-day:nth-child(5) .planner-day-label { background: rgba(29,78,216,0.1); color: #1d4ed8; }
+    .planner-day:nth-child(6) .planner-day-label { background: rgba(109,40,217,0.1); color: #6d28d9; }
+    .planner-day:nth-child(7) .planner-day-label { background: rgba(157,23,77,0.1); color: #9d174d; }
 
     /* ── Weekly Planner ── */
     .planner-card { background: var(--card-bg); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; flex: 1; }
     .planner-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
-    .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; flex: 1; }
     .planner-day { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
     .planner-day-label {
       font-size: 0.7rem; font-weight: 700; text-align: center;
@@ -633,13 +641,13 @@
       color: var(--green-dark);
     }
 
-    .planner-day:nth-child(1) .planner-day-label { background: #ffe4e4; color: #c0392b; }
-    .planner-day:nth-child(2) .planner-day-label { background: #ffecd2; color: #d35400; }
-    .planner-day:nth-child(3) .planner-day-label { background: #fef9c3; color: #a16207; }
-    .planner-day:nth-child(4) .planner-day-label { background: #dcfce7; color: #15803d; }
-    .planner-day:nth-child(5) .planner-day-label { background: #dbeafe; color: #1d4ed8; }
-    .planner-day:nth-child(6) .planner-day-label { background: #ede9fe; color: #6d28d9; }
-    .planner-day:nth-child(7) .planner-day-label { background: #fce7f3; color: #9d174d; }
+    .planner-day:nth-child(1) .planner-day-label { background: rgba(192,57,43,0.1); color: #c0392b; }
+    .planner-day:nth-child(2) .planner-day-label { background: rgba(211,84,0,0.1); color: #d35400; }
+    .planner-day:nth-child(3) .planner-day-label { background: rgba(161,98,7,0.1); color: #a16207; }
+    .planner-day:nth-child(4) .planner-day-label { background: rgba(21,128,61,0.1); color: #15803d; }
+    .planner-day:nth-child(5) .planner-day-label { background: rgba(29,78,216,0.1); color: #1d4ed8; }
+    .planner-day:nth-child(6) .planner-day-label { background: rgba(109,40,217,0.1); color: #6d28d9; }
+    .planner-day:nth-child(7) .planner-day-label { background: rgba(157,23,77,0.1); color: #9d174d; }
     .split-select {
       width: 100%;
       padding: 0.4rem 0.5rem;
@@ -907,7 +915,7 @@
     <h4>🏋️ Log Workouts</h4>
     <div class="modal-date-sub" id="exAddDateSub"></div>
     <div class="meal-entries" id="exEntriesList"></div>
-    <button class="add-meal-btn" style="border-color:#bfdbfe;background:#eff6ff;color:#2563eb;" onclick="addExEntry()">
+    <button class="add-meal-btn" style="border-color:var(--blue);background:rgba(59,130,246,0.1);color:var(--blue);" onclick="addExEntry()">
       <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add another workout
     </button>
@@ -990,15 +998,7 @@
 
 <script>
   // ── Sign Out ──────────────────────────────────────────────
-  async function signOut() {
-    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-    days.forEach(day => {
-      localStorage.removeItem(`planner_split_${day}`);
-      localStorage.removeItem(`planner_exercises_${day}`);
-    });
-    await firebase.auth().signOut();
-    window.location.href = 'login.html';
-  }
+
 
   document.querySelectorAll('.nav-link').forEach(l =>
           l.classList.toggle('active', l.href === window.location.href)
@@ -1677,19 +1677,6 @@
             : (todayNut?.meals || []).reduce((sum, m) => sum + (parseInt(m.cals) || 0), 0);
     document.getElementById('statCalories').textContent = todayCals.toLocaleString();
   }
-
-const SPLITS = [
-  'Rest Day',
-  'Push Day',
-  'Pull Day',
-  'Legs',
-  'Upper Body',
-  'Lower Body',
-  'Full Body',
-  'Cardio',
-  'Core & Abs',
-  'Custom'
-];
 
 // ── Goals ─────────────────────────────────────────────────
 const GOAL_CATEGORIES = [
