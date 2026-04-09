@@ -160,62 +160,10 @@
 
 
         /* Bottom Diary  */
-        .journal-section {
-            grid-column: 1 / -1;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .journal-header {
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .journal-header:hover {
-            background: rgba(0, 0, 0, 0.02);
-        }
-
-        .journal-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-        }
-
         .journal-date {
             color: var(--muted);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 400;
-        }
-
-        .journal-toggle {
-            color: var(--muted);
-            transition: transform 0.3s;
-        }
-
-        .journal-section.expanded .journal-toggle {
-            transform: rotate(180deg);
-        }
-
-        .journal-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .journal-section.expanded .journal-content {
-            max-height: 300px;
-        }
-
-        .journal-inner {
-            padding: 0 24px 24px;
         }
 
         .journal-input {
@@ -296,8 +244,8 @@
 
         /* Nutrition card */
         .calorie-ring {
-            width: 140px;
-            height: 140px;
+            width: 130px;
+            height: 130px;
             margin: 0 auto 24px;
             position: relative;
         }
@@ -329,14 +277,14 @@
         }
 
         .calorie-current {
-            font-size: 28px;
+            font-size: 23px;
             font-weight: 700;
             color: var(--text);
             line-height: 1;
         }
 
         .calorie-total {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--muted);
             margin-top: 4px;
         }
@@ -373,15 +321,15 @@
         }
 
         .macro-dot.protein {
-            background: #f0f63bf7;
+            background: #3B82F6;
         }
 
         .macro-dot.carb {
-            background: #10B981;
+            background:  #10B981;
         }
 
         .macro-dot.fat {
-            background: #F59E0B;
+            background:  #F59E0B;
         }
 
         .macro-value {
@@ -403,15 +351,15 @@
         }
 
         .macro-fill.protein {
-            background: #3B82F6;
+            background:linear-gradient(90deg, #90e8fc, blue );
         }
 
         .macro-fill.carb {
-            background: #10B981;
+            background:linear-gradient(90deg, #c6fca7 , rgb(0, 255, 0) );
         }
 
         .macro-fill.fat {
-            background: #F59E0B;
+            background:linear-gradient(90deg, #fffd96, yellow );
         }
 
         /* Upload area */
@@ -731,7 +679,7 @@
         }
 
         .food-macros {
-            width: 30%;
+            width: 100%;
             font-size: 13px;
             color: var(--muted);
             display: flex;
@@ -832,6 +780,36 @@
             border-radius: 12px;
             padding: 5px;
         }
+
+        /* Chart View Tabs */
+        .chart-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .chart-tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .chart-tab.active {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
+        }
+
+        .chart-tab:hover {
+            background: var(--border);
+            color: var(--text);
+        }
     </style>
 </head>
 
@@ -886,7 +864,7 @@
     <aside class="sidebar">
 
         <!-- Today's Nutrition -->
-        <div class="card">
+        <div class="card" style="height: 90%;">
             <div class="card-title">
                 <span>📊</span>
                 Today's Nutrition
@@ -945,7 +923,7 @@
         </div>
 
         <!-- Food Detection - Drag & Drop Upload Only (Supports JPEG, PNG, WebP, max 5MB) -->
-        <div class="card">
+        <div class="card" style="height: 70%;">
             <div class="card-title">
                 <span>📷</span>
                 Food Detection
@@ -970,32 +948,25 @@
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
         </div>
 
-        <!-- Bottom: Daily Journal (Collapsible) -->
-        <section class="journal-section" id="journalSection">
-            <div class="journal-header" onclick="toggleJournal()">
-                <div class="journal-title">
-                    <span>📝</span>
-                    Daily Journal
-                </div>
-                <span class="journal-date" id="journalDate">-</span>
-                <span class="journal-toggle">▼</span>
+        <!-- Daily Journal -->
+        <div class="card">
+            <div class="card-title">
+                <span>📝</span>
+                Daily Journal
+                <span class="journal-date" id="journalDate" style="margin-left: auto; font-size: 13px; font-weight: 400;">-</span>
             </div>
-            <div class="journal-content">
-                <div class="journal-inner">
-                        <textarea id="journalInput" class="journal-input"
-                                placeholder="How was your day? Write your thoughts here..."></textarea>
-                    <div class="journal-actions">
-                        <span id="journalStatus" class="journal-status"></span>
-                    </div>
-                </div>
+            <textarea id="journalInput" class="journal-input"
+                    placeholder="How was your day? Write your thoughts here..."></textarea>
+            <div class="journal-actions" style="margin-top: 16px;">
+                <span id="journalStatus" class="journal-status"></span>
             </div>
-        </section>
+        </div>
     
     </aside>
 
     <!-- Right Main Area: Food Log  + weekly chart-->
     <main class="main-content">
-        <div class="card" style="display: flex; flex-direction: column; gap: 20px; height: 680px;">
+        <div class="card" style="display: flex; flex-direction: column; gap: 20px; height: 665px;">
             <div class="food-log-header">
                 <div>
                     <div class="card-title">
@@ -1003,7 +974,7 @@
                         Food Log
                     </div>
                     <div class="log-summary" id="logSummary">
-                        Today <span class="log-count" id="logCount"> 0 </span> items · <span id="totalCals">0 kcal</span>
+                        <span id = "logCountSpan"> Toady 0 items - 0 kcal</span>
                     </div>
                 </div>
                 <button class="add-btn" id="addFoodBtn">+</button>
@@ -1036,9 +1007,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="food-actions">
-                        <button class="icon-btn delete" data-action="delete" title="Delete">🗑️</button>
-                    </div>
                 </div>
                 <button class="btn-primary" id="saveManualBtn">Add to Log</button>
             </div>
@@ -1055,6 +1023,12 @@
                 <span>📈</span>
                 Weekly Nutrition Trend
             </div>
+            <div class="chart-tabs">
+                <button class="chart-tab active" data-view="cals">Calories</button>
+                <button class="chart-tab" data-view="protein">Protein</button>
+                <button class="chart-tab" data-view="carb">Carbs</button>
+                <button class="chart-tab" data-view="fat">Fat</button>
+            </div>
             <canvas id="weeklyChart"></canvas>
         </div>
     </main>
@@ -1063,11 +1037,6 @@
 <button onclick="toggleTheme()" class="theme-btn" title="Toggle Dark Mode">🌓</button>
 
 <script>
-    // Diary toggle
-    function toggleJournal() {
-        document.getElementById('journalSection').classList.toggle('expanded');
-    }
-
     // API wrapper
     const API = {
         async fetch(path, options = {}) {
@@ -1132,6 +1101,7 @@
     const UI = {
         data: null,
         weekData: null,
+        currentChartView: 'cals',
 
         init() {
             this.bindEvents();
@@ -1152,14 +1122,17 @@
                 this.renderChart();
             } catch (err) {
                 console.error('Failed to load:', err);
-                document.getElementById('foodList').innerHTML = '<p class="food-log-empty">Failed to load data</p>';
-                // Even if failed, try to render chart
-                this.weekData = null;
+                console.log('Using mock data for demo');
+                // Use mock data for demo
+                this.data = this.getMockData();
+                this.weekData = this.getMockWeekData();
+                this.render();
                 this.renderChart();
             }
         },
 
         render() {
+            console.log('Rendering with data:', this.data);
             const {
                 totalNutrition,
                 targetNutrition,
@@ -1177,21 +1150,27 @@
             document.getElementById('calorieCurrent').textContent = Math.round(current);
             document.getElementById('calorieTotal').textContent = `/ ${Math.round(target)} kcal`;
 
+            // Color change for calorie ring based on progress
+            let ringColor = 'orange'; 
+        
+
+            document.getElementById('calorieRing').style.stroke = ringColor;
+
             // Update macros
             const macros = [{
                     key: 'protein',
                     label: 'Protein',
-                    target: 150
+                    target: targetNutrition?.protein || 150
                 },
                 {
                     key: 'carb',
                     label: 'Carbs',
-                    target: 250
+                    target: targetNutrition?.carb || 250
                 },
                 {
                     key: 'fat',
                     label: 'Fat',
-                    target: 70
+                    target: targetNutrition?.fat || 70
                 }
             ];
 
@@ -1203,6 +1182,17 @@
                 const percent = Math.min((current / target) * 100, 100);
                 document.getElementById(`${key}Text`).textContent = `${Math.round(current)} / ${target} g`;
                 document.getElementById(`${key}Bar`).style.width = `${percent}%`;
+
+                // Color change for macro bars based on progress
+                let barColor;
+                if (key === 'protein') {
+                    barColor = percent > 80 ? '#1E40AF' : percent > 50 ? '#60A5FA' : '#3B82F6';
+                } else if (key === 'carb') {
+                    barColor = percent > 80 ? '#059669' : percent > 50 ? '#34D399' : '#10B981';
+                } else if (key === 'fat') {
+                    barColor = percent > 80 ? '#D97706' : percent > 50 ? '#FBBF24' : '#F59E0B';
+                }
+                document.getElementById(`${key}Bar`).style.backgroundColor = barColor;
             });
 
             // Render food list
@@ -1211,7 +1201,11 @@
                 list.innerHTML = '<p class="food-log-empty">No meals logged yet. Add your first meal!</p>';
                 document.getElementById('logSummary').style.display = 'none';
             } else {
-                const escape = this.escape;
+                function escape(str) {
+                    const div = document.createElement('div');
+                    div.textContent = str;
+                    return div.innerHTML;
+                }
                 list.innerHTML = meals.map(m => `
                     <div class="food-item" data-id="${m.mealId}">
                         <div class="food-info">
@@ -1219,7 +1213,7 @@
                             <div class="food-details">
                                 <h4>${escape(m.name)}</h4>
                                 <div class="food-macros">
-                                    <span>🔥 ${m.cals} kcal</span>
+                                    <span>🔥 ${m.cals}kcal</span>
                                     <span>💪 ${m.protein}g</span>
                                     <span>🍞 ${m.carb}g</span>
                                     <span>🥑 ${m.fat}g</span>
@@ -1232,42 +1226,36 @@
                     </div>
                 `).join('');
                 document.getElementById('logSummary').style.display = 'flex';
-                document.getElementById('logCount').textContent = ` ` + meals.length + ` `;
-                document.getElementById('totalCals').textContent = `${Math.round(current)} kcal`;
+                document.getElementById('logCountSpan').textContent = `Today ${meals.length} item${meals.length > 1 ? 's' : ''} - ${Math.round(current)} kcal`;
             }
-        },
 
+            //render notes
+            document.getElementById('journalInput').value = notes || '';
+            document.getElementById('journalDate').textContent = new Date().toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }, 
+
+    
         renderChart() {
-            try {
-                if (this.weeklyChartInstance) {
-                    this.weeklyChartInstance.destroy();
-                }
-                if (!this.weekData) {
-                    throw new Error('No week data available');
-                }
+            console.log('Rendering chart with weekData:', this.weekData, 'view:', this.currentChartView);
+            if (this.weeklyChartInstance) {
+                this.weeklyChartInstance.destroy();
+            }
+            if (!this.weekData) {
+                // Render default chart with zeros
                 const ctx = document.getElementById('weeklyChart').getContext('2d');
-                const labels = [];
-                const calories = [];
-                const today = new Date();
-                for (let i = 6; i >= 0; i--) {
-                    const date = new Date(today);
-                    date.setDate(today.getDate() - i);
-                    const dateStr = date.toISOString().split('T')[0];
-                    labels.push(date.toLocaleDateString('en-US', {
-                        weekday: 'short'
-                    }));
-                    const dayData = this.weekData.find(d => d.date === dateStr);
-                    calories.push(dayData ? parseFloat(dayData.totalNutrition?.cals || 0) : 0);
-                }
                 this.weeklyChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels,
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                         datasets: [{
-                            label: 'Calories',
-                            data: calories,
-                            borderColor: 'var(--blue)',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            label: this.getChartLabel(this.currentChartView),
+                            data: [0, 0, 0, 0, 0, 0, 0],
+                            borderColor: this.getChartColor(this.currentChartView),
+                            backgroundColor: this.getChartBackground(this.currentChartView),
                             tension: 0.4,
                             fill: true
                         }]
@@ -1279,9 +1267,7 @@
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    callback: function (value) {
-                                        return value + ' kcal';
-                                    }
+                                    callback: (value) => value + this.getChartUnit(this.currentChartView)
                                 }
                             }
                         },
@@ -1292,48 +1278,171 @@
                         }
                     }
                 });
-            } catch (err) {
-                console.error('Failed to render chart:', err);
-                const ctx = document.getElementById('weeklyChart').getContext('2d');
-                this.weeklyChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                        datasets: [{
-                            label: 'Calories',
-                            data: [0, 0, 0, 0, 0, 0, 0],
-                            borderColor: 'var(--muted)',
-                            backgroundColor: 'rgba(107, 114, 128, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function (value) {
-                                        return value + ' kcal';
-                                    }
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
+                return;
+            }
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            const labels = [];
+            const data = [];
+            const today = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                labels.push(date.toLocaleDateString('en-US', {
+                    weekday: 'short'
+                }));
+                const dayData = this.weekData.find(d => d.date === dateStr);
+                data.push(dayData ? parseFloat(dayData.totalNutrition?.[this.currentChartView] || 0) : 0);
+            }
+            this.weeklyChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: this.getChartLabel(this.currentChartView),
+                        data,
+                        borderColor: this.getChartColor(this.currentChartView),
+                        backgroundColor: this.getChartBackground(this.currentChartView),
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => value + this.getChartUnit(this.currentChartView)
                             }
                         }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        },
+
+        getChartLabel(view) {
+            const labels = {
+                cals: 'Calories',
+                protein: 'Protein',
+                carb: 'Carbs',
+                fat: 'Fat'
+            };
+            return labels[view] || 'Calories';
+        },
+        
+        getChartColor(view) {
+            const colors = {
+                cals: 'orange',
+                protein: 'blue',
+                carb: 'green',
+                fat: 'yellow'
+            };
+            return colors[view] || 'blue';
+        },
+
+        getChartBackground(view) {
+            const backgrounds = {
+                cals: 'rgba(249, 115, 22, 0.1)',
+                protein: 'rgba(59, 130, 246, 0.1)',
+                carb: 'rgba(16, 185, 129, 0.1)',
+                fat: 'rgba(245, 158, 11, 0.1)'
+            };
+            return backgrounds[view] || 'rgba(59, 130, 246, 0.1)';
+        },
+
+        getChartUnit(view) {
+            return view === 'cals' ? ' kcal' : ' g';
+        },
+
+        getMockData() {
+            return {
+                totalNutrition: {
+                    cals: 2500,
+                    protein: 85,
+                    carb: 180,
+                    fat: 45
+                },
+                targetNutrition: {
+                    cals: 3000,
+                    protein: 150,
+                    carb: 250,
+                    fat: 70
+                },
+                meals: [
+                    {
+                        mealId: 'meal1',
+                        name: 'Grilled Chicken Salad',
+                        cals: '450',
+                        protein: '35',
+                        carb: '20',
+                        fat: '25'
+                    },
+                    {
+                        mealId: 'meal2',
+                        name: 'Oatmeal with Berries',
+                        cals: '300',
+                        protein: '10',
+                        carb: '50',
+                        fat: '8'
+                    },
+                    {
+                        mealId: 'meal3',
+                        name: 'Greek Yogurt',
+                        cals: '150',
+                        protein: '15',
+                        carb: '10',
+                        fat: '5'
+                    },
+                    {
+                        mealId: 'meal4',
+                        name: 'Quinoa Bowl',
+                        cals: '550',
+                        protein: '25',
+                        carb: '100',
+                        fat: '12'
+                    },
+                    {
+                        mealId: 'meal5',
+                        name: 'toast with avocado',
+                        cals: '300',
+                        protein: '125',
+                        carb: '40',
+                        fat: '52'
+                    }
+                ],
+                notes: 'Feeling good today! Had a productive workout and ate healthy meals.'
+            };
+        },
+
+        getMockWeekData() {
+            const today = new Date();
+            const weekData = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const calories = Math.floor(Math.random() * 500) + 1500; // Random between 1500-2000
+                const protein = Math.floor(calories * 0.3 / 4); // Approx 30% from protein
+                const carb = Math.floor(calories * 0.5 / 4); // Approx 50% from carbs
+                const fat = Math.floor(calories * 0.2 / 9); // Approx 20% from fat
+                weekData.push({
+                    date: dateStr,
+                    totalNutrition: {
+                        cals: calories,
+                        protein: protein,
+                        carb: carb,
+                        fat: fat
                     }
                 });
             }
-        },
-
-        escape(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
+            return weekData;
         },
 
         bindEvents() {
@@ -1386,8 +1495,26 @@
                 status.textContent = 'Unsaved...';
                 status.style.color = 'var(--warning)';
                 clearTimeout(timeout);
-                timeout = setTimeout(() => this.saveJournal(), 1500);
+                timeout = setTimeout(() => saveJournal(), 1500);
             });
+
+            // Chart view tabs
+            document.querySelectorAll('.chart-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const view = e.target.getAttribute('data-view');
+                    this.switchChartView(view);
+                });
+            });
+        },
+
+        switchChartView(view) {
+            this.currentChartView = view;
+            // Update active tab
+            document.querySelectorAll('.chart-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.getAttribute('data-view') === view);
+            });
+            // Re-render chart
+            this.renderChart();
         },
 
         async handleImage(file) {
