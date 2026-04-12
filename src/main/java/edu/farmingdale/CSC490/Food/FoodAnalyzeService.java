@@ -41,7 +41,7 @@ public class FoodAnalyzeService {
 
 
     public Nutrition_log.Meal analyze(MultipartFile image) {
-        log.info("===Analyze Food===");
+        log.info("Analyze Food");
         try {
             log.info("1.  Encoding image");
             String encodedImage = imageManager.encodeImageFromMultipartFile(image);

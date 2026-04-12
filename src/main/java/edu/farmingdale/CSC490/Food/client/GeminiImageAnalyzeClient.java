@@ -16,12 +16,12 @@ import java.time.Duration;
 
 @Slf4j
 @Component
-public class GeminiClient implements ApiClient {
+public class GeminiImageAnalyzeClient implements ApiClient {
     
     private final HttpClient httpClient;
     private final ApiProperties apiProperties;
     
-    public GeminiClient(ApiProperties apiProperties) {
+    public GeminiImageAnalyzeClient(ApiProperties apiProperties) {
         this.apiProperties = apiProperties;
         this.httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -34,27 +34,24 @@ public class GeminiClient implements ApiClient {
         String model = apiProperties.getGemini().getModel();
         String apiKey = apiProperties.getGemini().getKey();
         
-        log.info("====Calling Gemini API====");
+        log.info("Calling Gemini API for food image analyze");
         
         try {
 
-            log.info("1.  Build the request body");
+            //1.  Build the request body
             String endpoint = String.format("%s/v1beta/models/%s:generateContent?key=%s",
                 url, model, apiKey);
             String requestBody = buildRequestBody(encodedImage, promptText);
 
-            log.info("2.  Create the HTTP request");
+            //2.  Create the HTTP request
             HttpRequest request = createHttpRequest(endpoint, requestBody);
 
-            log.info("3.  Send the request and get the response");
+            //3.  Send the request and get the response
             HttpResponse<String> response = httpClient.send(request,
                 HttpResponse.BodyHandlers.ofString());
 
-            log.info("4.  Handle the response");
-            String result = handleResponse(response);
-
-            log.info("5.  Return the result");
-            return result;
+            //4.  Handle the response and Return the result
+            return handleResponse(response);
             
         } catch (Exception e) {
             log.error("Failed to call Gemini API", e);
@@ -62,8 +59,7 @@ public class GeminiClient implements ApiClient {
         }
     }
 
-    @Override
-    public String buildRequestBody(String image, String prompt) {
+    private String buildRequestBody(String image, String prompt) {
         return String.format("""
             {
                 "contents": [{
@@ -86,8 +82,7 @@ public class GeminiClient implements ApiClient {
             }""", prompt, image);
     }
 
-    @Override
-    public HttpRequest createHttpRequest(String endpoint, String requestBody) {
+    private HttpRequest createHttpRequest(String endpoint, String requestBody) {
         return HttpRequest.newBuilder()
             .uri(URI.create(endpoint))
             .header("Content-Type", "application/json")
@@ -96,8 +91,7 @@ public class GeminiClient implements ApiClient {
             .build();
     }
 
-    @Override
-    public String handleResponse(HttpResponse<String> response)  throws ApiException{
+    private String handleResponse(HttpResponse<String> response)  throws ApiException{
         String responseBody = response.body();
         int responseStatusCode = response.statusCode();
         if (responseStatusCode != 200) {

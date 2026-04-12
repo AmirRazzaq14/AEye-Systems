@@ -17,7 +17,4 @@ public interface ApiClient {
      */
     String analyze(String encodedImage, String promptText) throws ApiException;
 
-    String buildRequestBody(String image, String prompt);
-    HttpRequest createHttpRequest(String endpoint, String requestBody);
-    String handleResponse(HttpResponse<String> response);
 }

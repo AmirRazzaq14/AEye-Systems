@@ -27,15 +27,12 @@ public class PromptManager {
      * @return the formatted prompt text
      */
     public String getPromptFromFile(String promptFile) {
-        log.info("===Getting prompt from file===");
-        log.info("1.  Read the prompt file");
+        log.info("Getting prompt from file");
+        //1.  Read the prompt file
         String promptText = readTextFile(promptFile);
 
-        log.info("2.  Format the prompt");
-        String formattedPrompt = formatPrompt(promptText);
-
-        log.info("3.  Return the formatted prompt");
-        return formattedPrompt;
+        //2.  Return the formatted prompt
+        return formatPrompt(promptText);
     }
 
     /**
@@ -45,11 +42,8 @@ public class PromptManager {
      * @return the formatted prompt text
      */
     public String getPromptFromInput(String promptText) {
-        log.info("===Getting prompt from input==");
-        log.info("1.  Format the prompt");
-        String formattedPrompt = formatPrompt(promptText);
-        log.info("2.  Return the formatted prompt");
-        return formattedPrompt;
+        log.info("Getting prompt from input");
+        return formatPrompt(promptText);
     }
 
     /**

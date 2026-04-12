@@ -1,7 +1,7 @@
 package edu.farmingdale.CSC490.Food;
 
 
-import edu.farmingdale.CSC490.Food.client.GeminiClient;
+import edu.farmingdale.CSC490.Food.client.GeminiImageAnalyzeClient;
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
 import edu.farmingdale.CSC490.Food.image.ImageManager;
 import edu.farmingdale.CSC490.Food.prompt.PromptManager;
@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 public class GeminiClientTest {
 
-    private GeminiClient geminiClient;
+    private GeminiImageAnalyzeClient geminiClient;
 
     private ImageManager imageManager;
 
@@ -35,7 +35,7 @@ public class GeminiClientTest {
         GeminiProperties.setKey("AIzaSyDqshbeRzeILhSGc1WDpi94guUMsVhcVfk");
         realApiProperties.setGemini(GeminiProperties);
 
-        geminiClient = new GeminiClient(realApiProperties);
+        geminiClient = new GeminiImageAnalyzeClient(realApiProperties);
 
     }
 
