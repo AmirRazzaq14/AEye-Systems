@@ -15,6 +15,6 @@ public interface ApiClient {
      * @return The analysis result, or an empty optional if there was an error.
      * @throws ApiException If there was an error calling the API.
      */
-    String analyze(String encodedImage, String promptText) throws ApiException;
+    String analyze(String encodedImage, String promptText) throws Exception;
 
 }

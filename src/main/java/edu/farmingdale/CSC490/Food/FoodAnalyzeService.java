@@ -1,6 +1,7 @@
 package edu.farmingdale.CSC490.Food;
 
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
+import edu.farmingdale.CSC490.Food.AOP.Retryable;
 import edu.farmingdale.CSC490.Food.client.ApiClient;
 import edu.farmingdale.CSC490.Food.client.ApiClientFactory;
 import edu.farmingdale.CSC490.Food.config.ConfigLoader;
@@ -38,7 +39,6 @@ public class FoodAnalyzeService {
         this.apiClientFactory = apiClientFactory;
         this.resultParser = resultParser;
     }
-
 
     public Nutrition_log.Meal analyze(MultipartFile image) {
         log.info("Analyze Food");

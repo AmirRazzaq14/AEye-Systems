@@ -1,5 +1,6 @@
 package edu.farmingdale.CSC490.Food.client;
 
+import edu.farmingdale.CSC490.Food.AOP.Retryable;
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
 import edu.farmingdale.CSC490.Food.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +28,9 @@ public class GeminiNutritionSuggestionClient implements ApiClient {
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
     }
-
+    @Retryable()
     @Override
-    public String analyze(String userDate, String promptText) throws ApiException {
+    public String analyze(String userDate, String promptText){
         String url = apiProperties.getGemini().getUrl();
         String model = apiProperties.getGemini().getModel();
         String apiKey = apiProperties.getGemini().getKey();
@@ -53,9 +54,12 @@ public class GeminiNutritionSuggestionClient implements ApiClient {
             //4.  Handle the response and Return the result
             return handleResponse(response);
 
-        } catch (Exception e) {
+        } catch (ApiException e){
             log.error("Failed to call Gemini API", e);
-            throw new ApiException(10310,"Failed to call Gemini API", e.getMessage());
+            throw new ApiException(10310, e.getMessage(),  e.getDetail());
+        } catch (Exception e) {
+            log.error("Unknown Exception in Gemini API calling",e);
+            throw new RuntimeException("Unknown Exception in Gemini API calling",e);
         }
     }
 
@@ -64,8 +68,7 @@ public class GeminiNutritionSuggestionClient implements ApiClient {
             {
                 "contents": [{
                     "parts": [
-                        {"text": "%s"},
-                        {"user dietary date": "%s"}
+                        {"text": "%s \nuserDietaryData: %s"},
                     ]
                 }],
                 "generationConfig": {
@@ -89,16 +92,26 @@ public class GeminiNutritionSuggestionClient implements ApiClient {
     private String handleResponse(HttpResponse<String> response)  throws ApiException{
         String responseBody = response.body();
         int responseStatusCode = response.statusCode();
-        if (responseStatusCode != 200) {
-            String errorMessage = String.format("Gemini API returned error status: %d, response body: %s", responseStatusCode, responseBody);
-            log.error(errorMessage);
-            throw new ApiException(10311,"Gemini API returned error", errorMessage);
-        }
 
         if (responseBody.isEmpty()) {
             log.error("Gemini API returned empty response");
-            throw new ApiException(10312,"Gemini API returned empty response", "");
+            throw new ApiException(10311,"Gemini API returned empty response", "");
         }
+
+        if (response.statusCode() == 503) {
+            String errorMessage = String.format("Gemini API temporarily unavailable, status: %d, response body: %s",
+                    responseStatusCode, responseBody);
+            log.error(errorMessage);
+            throw new ApiException(10312, "Gemini API is temporarily unavailable", errorMessage);
+        }
+
+        if (responseStatusCode != 200) {
+            String errorMessage = String.format("Gemini API returned error, status: %d, response body: %s", responseStatusCode, responseBody);
+            log.error(errorMessage);
+            throw new ApiException(10313,"Gemini API returned error", errorMessage);
+        }
+
+
         return responseBody;
     }
 

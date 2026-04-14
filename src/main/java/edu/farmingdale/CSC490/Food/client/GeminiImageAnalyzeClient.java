@@ -1,5 +1,6 @@
 package edu.farmingdale.CSC490.Food.client;
 
+import edu.farmingdale.CSC490.Food.AOP.Retryable;
 import edu.farmingdale.CSC490.Food.config.ApiProperties;
 import edu.farmingdale.CSC490.Food.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class GeminiImageAnalyzeClient implements ApiClient {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
     }
-    
+
     @Override
     public String analyze(String encodedImage, String promptText) throws ApiException {
         String url = apiProperties.getGemini().getUrl();

@@ -22,7 +22,7 @@ public class PromptManager {
 
 
     /**
-     * Port 1, get the prompt from an existing file
+     * get the prompt from an existing file
      * @param promptFile the prompt file name
      * @return the formatted prompt text
      */
@@ -35,16 +35,6 @@ public class PromptManager {
         return formatPrompt(promptText);
     }
 
-    /**
-     * port 2, get the input from the front-end
-     *
-     * @param promptText the input prompt text from the front-end
-     * @return the formatted prompt text
-     */
-    public String getPromptFromInput(String promptText) {
-        log.info("Getting prompt from input");
-        return formatPrompt(promptText);
-    }
 
     /**
      * Formats the prompt text for use in the API call
