@@ -70,12 +70,12 @@ public class ResultParser {
     }
     
     private Nutrition_log.Meal parseFoodResult(String json){
-        log.info("Parsing Food Result");
+        log.info("Parsing Meal Result");
         try {
             return objectMapper.readValue(json, Nutrition_log.Meal.class);
         }catch (JsonProcessingException e){
-            log.error("Failed to mealParse food result: {}", e.getMessage());
-            throw new parserException(UNKNOWN_JSON_PROCESSING_EXCEPTION, "Failed to mealParse food result", e.getMessage());
+            log.error("Failed to parse meal result: {}", e.getMessage());
+            throw new parserException(UNKNOWN_JSON_PROCESSING_EXCEPTION, "Failed to parse meal result", e.getMessage());
         }
 
     }

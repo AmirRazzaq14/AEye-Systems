@@ -20,26 +20,21 @@ public class GeminiResponseParser implements ResponseParser {
     public String extract(JsonNode rootNode) throws parserException{
 
         log.info("Parsing Gemini Response");
+        try {
 
-        if (!hasValidCandidates(rootNode)) {
-            throw new parserException(INVALID_GEMINI_RESPONSE, "Invalid Gemini response", rootNode.toString());
+            JsonNode firstCandidate = rootNode.get("candidates").get(0);
+            JsonNode contentNode = firstCandidate.get("content");
+            JsonNode partsArray = contentNode.get("parts");
+            JsonNode firstPart = partsArray.get(0);
+            String text = firstPart.get("text").asText();
+
+            log.info("Parsing Gemini Response Successfully");
+            return text;
+        } catch (Exception e) {
+            log.error("Non-Gemini response type: {}", e.getMessage());
+            throw new parserException(INVALID_GEMINI_RESPONSE, "Non-Gemini response type", e.getMessage());
         }
 
-        JsonNode firstCandidate = rootNode.get("candidates").get(0);
-        JsonNode contentNode = firstCandidate.get("content");
-        JsonNode partsArray = contentNode.get("parts");
-        JsonNode firstPart = partsArray.get(0);
-        String text = firstPart.get("text").asText();
-
-        log.info("Parsing Gemini Response Successfully");
-        return text;
-
-    }
-    
-    private boolean hasValidCandidates(JsonNode rootNode) {
-        return rootNode.has("candidates") && 
-               rootNode.get("candidates").isArray() && 
-               !rootNode.get("candidates").isEmpty();
     }
 
 
