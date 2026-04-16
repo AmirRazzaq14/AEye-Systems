@@ -1,7 +1,6 @@
 package edu.farmingdale.CSC490.Food;
 
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
-import edu.farmingdale.CSC490.Food.config.ApiProperties;
 import edu.farmingdale.CSC490.Food.config.ConfigLoader;
 import edu.farmingdale.CSC490.Food.client.GeminiNutritionSuggestionClient;
 import edu.farmingdale.CSC490.Food.exception.AISuggestionException;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,9 +105,7 @@ public class AISuggestionServiceTest {
 
 
         // Act
-        Exception exception = assertThrows(AISuggestionException.class, () -> {
-            aiSuggestionService.generateDailySuggestion(null);;
-        });
+        Exception exception = assertThrows(AISuggestionException.class, () -> aiSuggestionService.generateDailySuggestion(null));
 
         // Assert
         String actualMessage = exception.getMessage();
@@ -126,9 +122,7 @@ public class AISuggestionServiceTest {
         String expectedResponse = "No meals provided";
 
         // Act
-        Exception exception = assertThrows(AISuggestionException.class, () -> {
-            aiSuggestionService.generateDailySuggestion(emptyMeatLogs);;
-        });
+        Exception exception = assertThrows(AISuggestionException.class, () -> aiSuggestionService.generateDailySuggestion(emptyMeatLogs));
 
         // Assert
         String actualMessage = exception.getMessage();

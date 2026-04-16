@@ -5,11 +5,15 @@ import edu.farmingdale.CSC490.Food.config.ApiProperties;
 import edu.farmingdale.CSC490.Food.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+
+import static edu.farmingdale.CSC490.Food.exception.ApiException.*;
 
 /**
  * Gemini API implementation for nutrition suggestion.
@@ -30,7 +34,7 @@ public class GeminiNutritionSuggestionClient implements ApiClient {
     }
     @Retryable()
     @Override
-    public String analyze(String userDate, String promptText){
+    public String analyze(String userDate, String promptText) throws ApiException{
         String url = apiProperties.getGemini().getUrl();
         String model = apiProperties.getGemini().getModel();
         String apiKey = apiProperties.getGemini().getKey();
@@ -53,14 +57,15 @@ public class GeminiNutritionSuggestionClient implements ApiClient {
 
             //4.  Handle the response and Return the result
             return handleResponse(response);
-
-        } catch (ApiException e){
-            log.error("Failed to call Gemini API", e);
-            throw new ApiException(10310, e.getMessage(),  e.getDetail());
-        } catch (Exception e) {
-            log.error("Unknown Exception in Gemini API calling",e);
-            throw new RuntimeException("Unknown Exception in Gemini API calling",e);
+        }catch (IOException e){
+            log.error("Network error calling Gemini API", e);
+            throw new ApiException(NETWORK_ERROR, "Network communication failed", e.getMessage());
+        }catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+            log.error("API call interrupted", e);
+            throw new ApiException(INTERRUPTED_ERROR, "API call was interrupted", e.getMessage());
         }
+
     }
 
     private String buildRequestBody(String userDate, String prompt) {
@@ -95,20 +100,20 @@ public class GeminiNutritionSuggestionClient implements ApiClient {
 
         if (responseBody.isEmpty()) {
             log.error("Gemini API returned empty response");
-            throw new ApiException(10311,"Gemini API returned empty response", "");
+            throw new ApiException(GEMINI_ERROR,"Gemini API returned empty response", "");
         }
 
         if (response.statusCode() == 503) {
             String errorMessage = String.format("Gemini API temporarily unavailable, status: %d, response body: %s",
                     responseStatusCode, responseBody);
             log.error(errorMessage);
-            throw new ApiException(10312, "Gemini API is temporarily unavailable", errorMessage);
+            throw new ApiException(GEMINI_TEMPORARILY_UNAVAILABLE, "Gemini API is temporarily unavailable", errorMessage);
         }
 
         if (responseStatusCode != 200) {
             String errorMessage = String.format("Gemini API returned error, status: %d, response body: %s", responseStatusCode, responseBody);
             log.error(errorMessage);
-            throw new ApiException(10313,"Gemini API returned error", errorMessage);
+            throw new ApiException(GEMINI_UNEXPECTED_ERROR,"Gemini API returned error", errorMessage);
         }
 
 
