@@ -6,6 +6,7 @@ import edu.farmingdale.CSC490.Food.client.GeminiNutritionSuggestionClient;
 import edu.farmingdale.CSC490.Food.config.ConfigLoader;
 import edu.farmingdale.CSC490.Food.exception.AISuggestionException;
 import edu.farmingdale.CSC490.Food.exception.promptException;
+import edu.farmingdale.CSC490.Food.parser.ResultParser;
 import edu.farmingdale.CSC490.Food.prompt.PromptManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +28,18 @@ public class AISuggestionService {
     @Autowired
     private ConfigLoader configLoader;
 
+    @Autowired
+    private final ResultParser resultParser;
+
     public AISuggestionService(
             PromptManager promptManager,
             GeminiNutritionSuggestionClient client,
-            ConfigLoader configLoader) {
+            ConfigLoader configLoader, ResultParser resultParser) {
 
         this.promptManager = promptManager;
         this.client = client;
         this.configLoader = configLoader;
+        this.resultParser = resultParser;
     }
 
     public String generateDailySuggestion(Nutrition_log dailyLogs) {
@@ -51,16 +56,21 @@ public class AISuggestionService {
             throw new AISuggestionException(100502, "No meals provided", null);
         }
 
-        // translate nutrition_log to string
-        String userdata = dailyLogs.toString();
-
         //2. read prompt
         String prompt = promptManager.getPromptFromFile("nutrition_suggestion_prompt");
 
         //3.  Loading config
         configLoader.validateConfig();
 
-        return client.analyze(userdata, prompt);
+        //4.  Calling API
+        String userdata = dailyLogs.toString();
+        String apiResponse = client.analyze(userdata, prompt);
+
+        //5.  Parsing API response
+        String result = resultParser.suggestionParse(apiResponse);
+
+        log.info("Returning Suggestion Successfully");
+        return result;
 
     }
 

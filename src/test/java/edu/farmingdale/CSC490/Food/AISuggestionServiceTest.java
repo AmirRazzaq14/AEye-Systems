@@ -4,6 +4,7 @@ import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import edu.farmingdale.CSC490.Food.config.ConfigLoader;
 import edu.farmingdale.CSC490.Food.client.GeminiNutritionSuggestionClient;
 import edu.farmingdale.CSC490.Food.exception.AISuggestionException;
+import edu.farmingdale.CSC490.Food.parser.ResultParser;
 import edu.farmingdale.CSC490.Food.prompt.PromptManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ public class AISuggestionServiceTest {
 
     @Mock
     private ConfigLoader configLoader;
+
+    @Mock
+    private ResultParser resultParser;
 
 
     private Nutrition_log ValidLogs;
@@ -82,27 +86,29 @@ public class AISuggestionServiceTest {
         // Arrange
         String expectedPrompt = "Sample prompt content";
         String expectedResponse = "AI suggestion response";
+        String expectedResult = "Parsed result";
 
         when(promptManager.getPromptFromFile(anyString())).thenReturn(expectedPrompt);
         when(client.analyze(anyString(), anyString())).thenReturn(expectedResponse);
+        when(resultParser.suggestionParse(anyString())).thenReturn(expectedResult);
 
         // Act
         String result = aiSuggestionService.generateDailySuggestion(ValidLogs);
 
         // Assert
         assertNotNull(result);
-        assertEquals(expectedResponse, result);
+        assertEquals(expectedResult, result);
 
         verify(promptManager, times(1)).getPromptFromFile("nutrition_suggestion_prompt");
         verify(configLoader, times(1)).validateConfig();
         verify(client, times(1)).analyze(anyString(), anyString());
+        verify(resultParser, times(1)).suggestionParse(anyString());
     }
 
     @Test
     void testGenerateDailySuggestion_WithEmptyLogs() {
         // Arrange
         String expectedResponse = "No logs provided";
-
 
         // Act
         Exception exception = assertThrows(AISuggestionException.class, () -> aiSuggestionService.generateDailySuggestion(null));
@@ -114,6 +120,7 @@ public class AISuggestionServiceTest {
         verify(promptManager,  never()).getPromptFromFile("nutrition_suggestion_prompt");
         verify(configLoader,  never()).validateConfig();
         verify(client,  never()).analyze(anyString(), anyString());
+        verify(resultParser,  never()).suggestionParse(anyString());
     }
 
     @Test
@@ -131,6 +138,7 @@ public class AISuggestionServiceTest {
         verify(promptManager,  never()).getPromptFromFile("nutrition_suggestion_prompt");
         verify(configLoader,  never()).validateConfig();
         verify(client,  never()).analyze(anyString(), anyString());
+        verify(resultParser,  never()).suggestionParse(anyString());
     }
 
 

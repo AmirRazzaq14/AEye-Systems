@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
+import static edu.farmingdale.CSC490.Food.exception.parserException.*;
+
 /**
  * Parser for Gemini responses.
  */
@@ -15,44 +17,23 @@ import org.springframework.stereotype.Component;
 public class GeminiResponseParser implements ResponseParser {
 
     @Override
-    public String extract(JsonNode rootNode) {
+    public String extract(JsonNode rootNode) throws parserException{
 
-        log.info("===Parsing Gemini Response===");
-        try {
+        log.info("Parsing Gemini Response");
 
-            log.info("1.  Checking if the response has valid candidates");
-            if (!hasValidCandidates(rootNode)) {
-                throw new parserException(10410, "Invalid Gemini response", rootNode.toString());
-            }
-
-            log.info("2.  Extracting the text from the first candidate");
-            JsonNode firstCandidate = rootNode.get("candidates").get(0);
-            JsonNode contentNode = firstCandidate.get("content");
-            JsonNode partsArray = contentNode.get("parts");
-
-            log.info("3.  Checking if the parts array is empty");
-            if (partsArray.isEmpty()) {
-                throw new parserException(10411, "Invalid Gemini response at parts Array", partsArray.toString());
-            }
-
-            log.info("3.  Extracting the text from the first part");
-            JsonNode firstPart = partsArray.get(0);
-            if (!firstPart.has("text")) {
-                throw new parserException(10412, "Invalid Gemini response at first part", firstPart.toString());
-            }
-
-            log.info("4.  Validating the text");
-            String text = firstPart.get("text").asText();
-            if (text == null || text.trim().isEmpty()) {
-                throw new parserException(100413, "Invalid Gemini response at text part", text);
-            }
-            log.info("5.  Returning the text");
-            return text;
-            
-        } catch (Exception e) {
-            log.error("Failed to extract from Gemini response: {}", e.getMessage());
-            throw new parserException(100414, "Failed to extract from Gemini response", e.getMessage());
+        if (!hasValidCandidates(rootNode)) {
+            throw new parserException(INVALID_GEMINI_RESPONSE, "Invalid Gemini response", rootNode.toString());
         }
+
+        JsonNode firstCandidate = rootNode.get("candidates").get(0);
+        JsonNode contentNode = firstCandidate.get("content");
+        JsonNode partsArray = contentNode.get("parts");
+        JsonNode firstPart = partsArray.get(0);
+        String text = firstPart.get("text").asText();
+
+        log.info("Parsing Gemini Response Successfully");
+        return text;
+
     }
     
     private boolean hasValidCandidates(JsonNode rootNode) {
