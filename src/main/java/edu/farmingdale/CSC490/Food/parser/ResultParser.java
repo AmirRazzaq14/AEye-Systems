@@ -91,7 +91,7 @@ public class ResultParser {
         try {
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
 
-            return Optional.ofNullable(ollamaParser.extract(rootNode))
+            return Optional.ofNullable(geminiParser.extract(rootNode))
                     .orElseThrow(() -> new parserException(INVALID_GEMINI_RESPONSE, "Failed to mealParse Suggestion JSON response", ""));
         } catch (parserException e) {
             log.error("Parser Suggestion response Exception: {} - {}", e.getMessage(), e.getDetail());

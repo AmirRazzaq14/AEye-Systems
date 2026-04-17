@@ -51,10 +51,6 @@ public class Nutrition_log {
         private String carb;
         private String fat;
 
-        public String getCals() { return cals != null ? cals : "0"; }
-        public String getProtein() { return protein != null ? protein : "0"; }
-        public String getCarb() { return carb != null ? carb : "0"; }
-        public String getFat() { return fat != null ? fat : "0"; }
     }
 
 
@@ -101,10 +97,10 @@ public class Nutrition_log {
             return;
         }
 
-        double targetCals = 0;
-        double targetProtein = 0;
-        double targetCarb = 0;
-        double targetFat = 0;
+        double targetCals;
+        double targetProtein;
+        double targetCarb;
+        double targetFat;
 
         // Calculate target nutrition based on user's core profile metrics
         targetCals = 10 * user.getWeight() + 6.25 * user.getHeight() - 5 * user.getAge() + 5;

@@ -43,6 +43,28 @@
             --bg: #f3f4f6;
             --card-bg: #ffffff;
             --shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+
+            /* Nutrition Progress Bar Colors */
+            --protein-low: #3B82F6;
+            --protein-mid: #42A5F5;
+            --protein-high: #1E40AF;
+            --carb-low: #ffedb8;
+            --carb-mid: #FFCA28;
+            --carb-high: #bd8e03;
+            --fat-low: #10B981;
+            --fat-mid: #66BB6A;
+            --fat-high: #059669;
+            --calorie-ring: #FF7043;
+
+            /* Weekly Chart Colors */
+            --chart-cals: #FF7043;
+            --chart-protein: #42A5F5;
+            --chart-carb: #FFCA28;
+            --chart-fat: #66BB6A;
+            --chart-cals-bg: #efd5cd;
+            --chart-protein-bg: #cde4f7;
+            --chart-carb-bg: #fbf0d0;
+            --chart-fat-bg: #d6fdd8;
         }
 
         body {
@@ -242,6 +264,55 @@
             gap: 8px;
         }
 
+        .nutrition-metrics {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .nutrition-metrics-bottom {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .nutrition-metric {
+            padding: 20px 15px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nutrition-metric--wide {
+            padding: 24px 20px;
+        }
+
+        .nutrition-metric:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(59, 130, 246, 0.12);
+        }
+
+        .nutrition-metric-label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .nutrition-metric-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.1;
+        }
+
+        .nutrition-metric-subtext {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
         /* Nutrition card */
         .calorie-ring {
             width: 130px;
@@ -321,15 +392,15 @@
         }
 
         .macro-dot.protein {
-            background: #3B82F6;
+            background: #42A5F5;
         }
 
         .macro-dot.carb {
-            background:  #10B981;
+            background:  #FFCA28;
         }
 
         .macro-dot.fat {
-            background:  #F59E0B;
+            background:  #66BB6A;
         }
 
         .macro-value {
@@ -350,17 +421,6 @@
             transition: width 0.6s ease;
         }
 
-        .macro-fill.protein {
-            background:linear-gradient(90deg, #90e8fc, blue );
-        }
-
-        .macro-fill.carb {
-            background:linear-gradient(90deg, #c6fca7 , rgb(0, 255, 0) );
-        }
-
-        .macro-fill.fat {
-            background:linear-gradient(90deg, #fffd96, yellow );
-        }
 
         /* Upload area */
         .upload-zone {
@@ -870,7 +930,9 @@
                 Today's Nutrition
             </div>
 
-            <div class="calorie-ring">
+            <!-- Calorie budget module -->
+            <div class="nutrition-metrics">
+              <div class="calorie-ring">
                 <svg viewBox="0 0 140 140">
                     <circle class="calorie-ring-bg" cx="70" cy="70" r="62" />
                     <circle class="calorie-ring-progress" cx="70" cy="70" r="62" stroke-dasharray="389.56"
@@ -881,6 +943,19 @@
                     <div class="calorie-total" id="calorieTotal">/ 2000 kcal</div>
                 </div>
             </div>
+                <div class="nutrition-metrics-bottom">
+                    <div class="nutrition-metric">
+                        <span class="nutrition-metric-label">Food Intake</span>
+                        <span class="nutrition-metric-value" id="intakeValue">0</span>
+                    </div>
+                    <div class="nutrition-metric">
+                        <span class="nutrition-metric-label">Burned Calories</span>
+                        <span class="nutrition-metric-value" id="burnedValue">0</span>
+                    </div>
+                </div>
+            </div>
+
+
 
             <div class="macro-list" id="macroList">
                 <div class="macro-item">
@@ -892,7 +967,7 @@
                         <span class="macro-value" id="proteinText">0 / 150 g</span>
                     </div>
                     <div class="macro-bar">
-                        <div class="macro-fill protein" id="proteinBar" style="width: 0%"></div>
+                        <div class="macro-fill" id="proteinBar" style="width: 0%"></div>
                     </div>
                 </div>
                 <div class="macro-item">
@@ -904,7 +979,7 @@
                         <span class="macro-value" id="carbText">0 / 250 g</span>
                     </div>
                     <div class="macro-bar">
-                        <div class="macro-fill carb" id="carbBar" style="width: 0%"></div>
+                        <div class="macro-fill" id="carbBar" style="width: 0%"></div>
                     </div>
                 </div>
                 <div class="macro-item">
@@ -916,7 +991,7 @@
                         <span class="macro-value" id="fatText">0 / 70 g</span>
                     </div>
                     <div class="macro-bar">
-                        <div class="macro-fill fat" id="fatBar" style="width: 0%"></div>
+                        <div class="macro-fill" id="fatBar" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
@@ -1081,6 +1156,9 @@
                 body: JSON.stringify({ notes })
             });
         },
+        getBurnedCalories() {
+            return this.fetch(`/burnedCalories/${this.getToday()}`);
+        },
         async analyzeImage(file) {
             const formData = new FormData();
             formData.append('image', file);
@@ -1100,8 +1178,49 @@
 
     const UI = {
         data: null,
+        burned: null,
         weekData: null,
         currentChartView: 'cals',
+
+        getNutritionColor(key, percent) {
+            const root = getComputedStyle(document.documentElement);
+            if (key === 'protein') {
+                return percent > 80 ? root.getPropertyValue('--protein-high').trim() :
+                       percent > 50 ? root.getPropertyValue('--protein-mid').trim() :
+                       root.getPropertyValue('--protein-low').trim();
+            } else if (key === 'carb') {
+                return percent > 80 ? root.getPropertyValue('--carb-high').trim() :
+                       percent > 50 ? root.getPropertyValue('--carb-mid').trim() :
+                       root.getPropertyValue('--carb-low').trim();
+            } else if (key === 'fat') {
+                return percent > 80 ? root.getPropertyValue('--fat-high').trim() :
+                       percent > 50 ? root.getPropertyValue('--fat-mid').trim() :
+                       root.getPropertyValue('--fat-low').trim();
+            }
+            return root.getPropertyValue('--calorie-ring').trim();
+        },
+
+        getChartColor(view) {
+            const root = getComputedStyle(document.documentElement);
+            const colors = {
+                cals: root.getPropertyValue('--chart-cals').trim(),
+                protein: root.getPropertyValue('--chart-protein').trim(),
+                carb: root.getPropertyValue('--chart-carb').trim(),
+                fat: root.getPropertyValue('--chart-fat').trim()
+            };
+            return colors[view] || root.getPropertyValue('--chart-cals').trim();
+        },
+
+        getChartBackground(view) {
+            const root = getComputedStyle(document.documentElement);
+            const backgrounds = {
+                cals: root.getPropertyValue('--chart-cals-bg').trim(),
+                protein: root.getPropertyValue('--chart-protein-bg').trim(),
+                carb: root.getPropertyValue('--chart-carb-bg').trim(),
+                fat: root.getPropertyValue('--chart-fat-bg').trim()
+            };
+            return backgrounds[view] || root.getPropertyValue('--chart-cals-bg').trim();
+        },
 
         init() {
             this.bindEvents();
@@ -1112,11 +1231,12 @@
             try {
                 this.data = await API.getTodayLog();
                 this.data.meals = this.data.meals || [];
+                this.burned = await API.getBurnedCalories();
                 try {
                     this.weekData = await API.getWeekLog();
                 } catch (weekErr) {
                     console.warn('Failed to load week data:', weekErr);
-                    this.weekData = null; // Set default
+                    this.weekData = null; 
                 }
                 this.render();
                 this.renderChart();
@@ -1126,6 +1246,7 @@
                 // Use mock data for demo
                 this.data = this.getMockData();
                 this.weekData = this.getMockWeekData();
+                this.burned = this.getMockBurned();
                 this.render();
                 this.renderChart();
             }
@@ -1140,10 +1261,18 @@
                 notes
             } = this.data;
 
+            const intake = totalNutrition?.cals || 0;
+            const burned = this.burned || 0;
+            document.getElementById('intakeValue').textContent = `${Math.round(intake)}`;
+            document.getElementById('burnedValue').textContent = `${Math.round(burned)}`;
+            
+            const targetCals = targetNutrition?.cals || 2000;
+            const netCals = intake - burned;
+
             // Update calorie ring
             const circumference = 2 * Math.PI * 62;
-            const current = parseFloat(totalNutrition?.cals || 0);
-            const target = parseFloat(targetNutrition?.cals || 2000);
+            const current = parseFloat(netCals);
+            const target = parseFloat(targetNutrition?.cals);
             const percent = Math.min(current / target, 1);
             const offset = circumference - (percent * circumference);
             document.getElementById('calorieRing').style.strokeDashoffset = offset;
@@ -1151,7 +1280,7 @@
             document.getElementById('calorieTotal').textContent = `/ ${Math.round(target)} kcal`;
 
             // Color change for calorie ring based on progress
-            let ringColor = 'orange'; 
+            let ringColor = getComputedStyle(document.documentElement).getPropertyValue('--calorie-ring').trim();
         
 
             document.getElementById('calorieRing').style.stroke = ringColor;
@@ -1184,14 +1313,7 @@
                 document.getElementById(`${key}Bar`).style.width = `${percent}%`;
 
                 // Color change for macro bars based on progress
-                let barColor;
-                if (key === 'protein') {
-                    barColor = percent > 80 ? '#1E40AF' : percent > 50 ? '#60A5FA' : '#3B82F6';
-                } else if (key === 'carb') {
-                    barColor = percent > 80 ? '#059669' : percent > 50 ? '#34D399' : '#10B981';
-                } else if (key === 'fat') {
-                    barColor = percent > 80 ? '#D97706' : percent > 50 ? '#FBBF24' : '#F59E0B';
-                }
+                let barColor = this.getNutritionColor(key, percent);
                 document.getElementById(`${key}Bar`).style.backgroundColor = barColor;
             });
 
@@ -1226,7 +1348,7 @@
                     </div>
                 `).join('');
                 document.getElementById('logSummary').style.display = 'flex';
-                document.getElementById('logCountSpan').textContent = `Today ${meals.length} item${meals.length > 1 ? 's' : ''} - ${Math.round(current)} kcal`;
+                document.getElementById('logCountSpan').textContent = `Today ${meals.length} item${meals.length > 1 ? 's' : ''} - ${Math.round(intake)} kcal`;
             }
 
             //render notes
@@ -1337,26 +1459,6 @@
             return labels[view] || 'Calories';
         },
         
-        getChartColor(view) {
-            const colors = {
-                cals: 'orange',
-                protein: 'blue',
-                carb: 'green',
-                fat: 'yellow'
-            };
-            return colors[view] || 'blue';
-        },
-
-        getChartBackground(view) {
-            const backgrounds = {
-                cals: 'rgba(249, 115, 22, 0.1)',
-                protein: 'rgba(59, 130, 246, 0.1)',
-                carb: 'rgba(16, 185, 129, 0.1)',
-                fat: 'rgba(245, 158, 11, 0.1)'
-            };
-            return backgrounds[view] || 'rgba(59, 130, 246, 0.1)';
-        },
-
         getChartUnit(view) {
             return view === 'cals' ? ' kcal' : ' g';
         },
@@ -1417,8 +1519,12 @@
                         fat: '52'
                     }
                 ],
-                notes: 'Feeling good today! Had a productive workout and ate healthy meals.'
+                notes: 'Feeling good today! Had a productive workout and ate healthy meals.',
+                
+
             };
+
+
         },
 
         getMockWeekData() {
@@ -1443,6 +1549,10 @@
                 });
             }
             return weekData;
+        },
+
+        getMockBurned() {
+            return 300; 
         },
 
         bindEvents() {

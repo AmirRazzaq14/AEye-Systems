@@ -3,6 +3,7 @@ package edu.farmingdale.CSC490.Controller;
 import edu.farmingdale.CSC490.Config.FirebaseTokenFilter;
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import edu.farmingdale.CSC490.Entity.User;
+import edu.farmingdale.CSC490.Food.AISuggestionService;
 import edu.farmingdale.CSC490.Food.FoodAnalyzeService;
 import edu.farmingdale.CSC490.Service.NutritionLogService;
 import edu.farmingdale.CSC490.Service.UserService;
@@ -32,6 +33,9 @@ public class NutritionLogController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AISuggestionService aiSuggestionService;
 
     @PostMapping("/analyze-image")
     public ResponseEntity<Nutrition_log.Meal> analyzeFood(
@@ -101,6 +105,12 @@ public class NutritionLogController {
         }
     }
 
+    private void getNutritionLogWithTarget(String authHeader, Nutrition_log log) throws Exception {
+        String uid = tokenFilter.verifyAndGetUid(authHeader);
+        User user = userService.getUserById(uid);
+        log.updateTargetNutrition(user);
+    }
+
     @GetMapping("/week/{date}")
     public ResponseEntity<?> getByWeek(
             @RequestHeader("Authorization") String authHeader,
@@ -109,7 +119,7 @@ public class NutritionLogController {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
             List<Nutrition_log> nutrition_log = service.getWeekLog(uid, date);
             if(nutrition_log != null) {
-                log.info("Successfully get nutrition log by week:{}", date);
+                log.info("Successfully get nutrition log this week");
                 return ResponseEntity.ok(nutrition_log);
             }else {
                 log.warn("Nutrition log not found by week:{}", date);
@@ -200,10 +210,42 @@ public class NutritionLogController {
 
     }
 
-    private void getNutritionLogWithTarget(String authHeader, Nutrition_log log) throws Exception {
-        String uid = tokenFilter.verifyAndGetUid(authHeader);
-        User user = userService.getUserById(uid);
-        log.updateTargetNutrition(user);
+    @GetMapping("/suggestion/{date}")
+    public ResponseEntity<?> getSuggestion(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String date) {
+
+        try {
+            String uid = tokenFilter.verifyAndGetUid(authHeader);
+            Nutrition_log nutrition_log = service.getLog(uid, date);
+
+            if(nutrition_log != null) {
+                return ResponseEntity.ok(aiSuggestionService.generateDailySuggestion(nutrition_log));
+            }else {
+                log.warn("Today's nutrition log({}) not being build", date);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("Error to get suggestion by this date {} : {}", date, e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+
     }
+
+    @GetMapping("/burnedCalories/{date}")
+    public ResponseEntity<?> getExerciseCalories(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String date) {
+
+        try {
+            log.info("Successfully get exercise calories");
+            return ResponseEntity.ok("123");
+        } catch (Exception e) {
+            log.error("Error to get exercise calories by this date {} : {}", date, e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+
 
 }
