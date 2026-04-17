@@ -81,7 +81,7 @@ public class ResultParser {
     }
 
 
-    public String suggestionParse(String jsonResponse) {
+    public String suggestionParse(String jsonResponse) throws parserException{
         log.info("Parsing JSON response for Suggestion");
         if (jsonResponse == null || jsonResponse.trim().isEmpty()) {
             log.warn("Empty JSON response received in Suggestion response");
@@ -93,9 +93,6 @@ public class ResultParser {
 
             return Optional.ofNullable(geminiParser.extract(rootNode))
                     .orElseThrow(() -> new parserException(INVALID_GEMINI_RESPONSE, "Failed to mealParse Suggestion JSON response", ""));
-        } catch (parserException e) {
-            log.error("Parser Suggestion response Exception: {} - {}", e.getMessage(), e.getDetail());
-            throw e;
         } catch (JsonProcessingException e) {
             log.error("Unknown Json Processing in result parser: {}", e.getMessage());
             throw new parserException(UNKNOWN_JSON_PROCESSING_EXCEPTION, "Unknown Json Processing Exception in Suggestion response parser", e.getMessage());

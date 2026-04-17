@@ -210,17 +210,20 @@ public class NutritionLogController {
 
     }
 
-    @GetMapping("/suggestion/{date}")
+    @GetMapping("/suggestions/{date}")
     public ResponseEntity<?> getSuggestion(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable String date) {
 
+        log.info("Getting suggestions");
         try {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
             Nutrition_log nutrition_log = service.getLog(uid, date);
 
             if(nutrition_log != null) {
-                return ResponseEntity.ok(aiSuggestionService.generateDailySuggestion(nutrition_log));
+                String suggestion = aiSuggestionService.generateDailySuggestion(nutrition_log);
+                Map<String, String> response = Map.of("suggestions", suggestion);
+                return ResponseEntity.ok(response);
             }else {
                 log.warn("Today's nutrition log({}) not being build", date);
                 return ResponseEntity.notFound().build();

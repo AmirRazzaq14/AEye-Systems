@@ -692,7 +692,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            max-height: 600px;
+            height: 490px;
             overflow-y: auto;
             padding-right: 8px;
         }
@@ -870,6 +870,74 @@
             background: var(--border);
             color: var(--text);
         }
+
+        /* AI Suggestions Styles */
+        .ai-suggestions-card {
+            margin-top: 24px;
+        }
+
+        .ai-suggestions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .columns {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 30%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid var(--border);
+        }
+
+        .ai-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .ai-text-bubble {
+            background: #f8f9ff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 20px;
+            position: relative;
+            min-height: 130px;
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text);
+        }
+
+        .ai-text-bubble::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid var(--border);
+        }
+
+        .ai-text-bubble::after {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-right: 7px solid #f8f9ff;
+        }
     </style>
 </head>
 
@@ -1041,7 +1109,7 @@
 
     <!-- Right Main Area: Food Log  + weekly chart-->
     <main class="main-content">
-        <div class="card" style="display: flex; flex-direction: column; gap: 20px; height: 665px;">
+        <div class="card" style="display: flex; flex-direction: column; gap: 20px;">
             <div class="food-log-header">
                 <div>
                     <div class="card-title">
@@ -1090,8 +1158,19 @@
             <div class="food-list" id="foodList">
                 <p class="food-log-empty">Loading...</p>
             </div>
+             <!-- AI Suggestions -->
+            <div class="ai-suggestions">
+                <div class = "ai-suggestions columns">
+                    <div class="ai-logo">
+                        <img src="wizcoach-logo.png" alt="WizCoach Logo">
+                    </div>
+                    <button class="btn-primary" id="getSuggestionBtn" style="width: 90%; padding: 10px; gap: 10px;">Ask</button>
+                </div>
+                <div class="ai-text-bubble" id="aiSuggestionText">
+                    <p>Default suggestion</p>
+                </div>
+            </div>
         </div>
-
         <!-- Weekly Nutrition Chart -->
         <div class="card" style="margin-top: 24px;">
             <div class="card-title">
@@ -1159,6 +1238,9 @@
         getBurnedCalories() {
             return this.fetch(`/burnedCalories/${this.getToday()}`);
         },
+        getSuggestions() {
+            return this.fetch(`/suggestions/${this.getToday()}`);
+        },
         async analyzeImage(file) {
             const formData = new FormData();
             formData.append('image', file);
@@ -1179,6 +1261,7 @@
     const UI = {
         data: null,
         burned: null,
+        suggestions: null,
         weekData: null,
         currentChartView: 'cals',
 
@@ -1232,6 +1315,7 @@
                 this.data = await API.getTodayLog();
                 this.data.meals = this.data.meals || [];
                 this.burned = await API.getBurnedCalories();
+
                 try {
                     this.weekData = await API.getWeekLog();
                 } catch (weekErr) {
@@ -1253,6 +1337,16 @@
         },
 
         render() {
+            this.renderNutrition();
+            this.renderFoodList();
+            this.renderNotes();
+            this.renderAISuggestions();
+            this.renderChart();
+
+
+        }, 
+
+        renderNutrition() {
             console.log('Rendering with data:', this.data);
             const {
                 totalNutrition,
@@ -1289,17 +1383,17 @@
             const macros = [{
                     key: 'protein',
                     label: 'Protein',
-                    target: targetNutrition?.protein || 150
+                    target: targetNutrition?.protein
                 },
                 {
                     key: 'carb',
                     label: 'Carbs',
-                    target: targetNutrition?.carb || 250
+                    target: targetNutrition?.carb
                 },
                 {
                     key: 'fat',
                     label: 'Fat',
-                    target: targetNutrition?.fat || 70
+                    target: targetNutrition?.fat
                 }
             ];
 
@@ -1316,8 +1410,14 @@
                 let barColor = this.getNutritionColor(key, percent);
                 document.getElementById(`${key}Bar`).style.backgroundColor = barColor;
             });
+        },
 
-            // Render food list
+
+        renderFoodList() {
+            const {
+                meals,
+                totalNutrition
+            } = this.data;
             const list = document.getElementById('foodList');
             if (!meals.length) {
                 list.innerHTML = '<p class="food-log-empty">No meals logged yet. Add your first meal!</p>';
@@ -1348,17 +1448,52 @@
                     </div>
                 `).join('');
                 document.getElementById('logSummary').style.display = 'flex';
-                document.getElementById('logCountSpan').textContent = `Today ${meals.length} item${meals.length > 1 ? 's' : ''} - ${Math.round(intake)} kcal`;
+                document.getElementById('logCountSpan').textContent = `Today ${meals.length} item${meals.length > 1 ? 's' : ''} - ${Math.round(totalNutrition?.cals || 0)} kcal`;
             }
 
-            //render notes
+            
+        },
+
+        renderNotes() {
+            const {
+                notes
+            } = this.data;
             document.getElementById('journalInput').value = notes || '';
             document.getElementById('journalDate').textContent = new Date().toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric'
-            });
-        }, 
+            });     
+        },
+
+        renderAISuggestions() {
+            const bubble = document.getElementById('aiSuggestionText');
+            const p = bubble.querySelector('p');
+
+             if (this.suggestions) {
+                // Adapts to multiple formats: string, array, or object with suggestions property
+                let text = null;
+                if (typeof this.suggestions === 'string') {
+                    text = this.suggestions;
+                } else if (Array.isArray(this.suggestions) && this.suggestions.length > 0) {
+                    text = this.suggestions[0].text || this.suggestions[0];
+                } else if (this.suggestions && typeof this.suggestions === 'object' && this.suggestions.suggestions) {
+                    text = this.suggestions.suggestions;
+                }
+
+            
+                console.log('AI suggestions loaded:', text);
+
+                if (text) {
+                    p.textContent = text.trim();
+                } else {
+                    p.textContent = 'Conversation format not recognized, showing default message';
+                }
+            } else {
+                console.log('No suggestions available, showing default message');
+                p.textContent = 'Ask me for personalized nutrition suggestions based on your today\'s dietary habits.';
+            }
+        },
 
     
         renderChart() {
@@ -1615,6 +1750,20 @@
                     this.switchChartView(view);
                 });
             });
+
+            // AI Suggestions button
+            document.getElementById('getSuggestionBtn').addEventListener('click', () => this.getSuggestions());
+        },
+
+        async getSuggestions() {
+            try {
+                const suggestions = await API.getSuggestions();
+                this.suggestions = suggestions;
+                console.log('Received AI suggestions:', this.suggestions);
+                this.renderAISuggestions();
+            } catch (err) {
+                alert('Failed to get suggestions: ' + err.message);
+            }
         },
 
         switchChartView(view) {
@@ -1659,7 +1808,7 @@
                 setTimeout(() => {
                     zone.classList.remove('has-image', 'processing');
                     document.getElementById('previewImg').src = '';
-                    input.value = '';
+                    document.getElementById('fileInput').value = '';
                 }, 1500);
             } catch (err) {
                 alert('Analysis failed: ' + err.message);

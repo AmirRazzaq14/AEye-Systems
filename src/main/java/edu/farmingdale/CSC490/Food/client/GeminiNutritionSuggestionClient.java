@@ -57,7 +57,7 @@ public class GeminiNutritionSuggestionClient implements ApiClient {
 
             //4.  Handle the response and Return the result
             return handleResponse(response);
-        }catch (IOException e){
+        } catch (IOException e){
             log.error("Network error calling Gemini API", e);
             throw new ApiException(NETWORK_ERROR, "Network communication failed", e.getMessage());
         }catch (InterruptedException e){

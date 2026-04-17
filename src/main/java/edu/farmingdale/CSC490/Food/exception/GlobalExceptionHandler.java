@@ -97,6 +97,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(AISuggestionException.class)
+    public ResponseEntity<ErrorResponse> handleAISuggestion(
+            AISuggestionException e,
+            HttpServletRequest request) {
+        log.warn("AI Suggestion Exception: {} - {}", e.getMessage(), e.getDetail());
+        ErrorResponse error = new ErrorResponse(
+                e.getCode(),
+                e.getMessage(),
+                e.getDetail(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnknown(
             Exception e,
