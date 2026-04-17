@@ -102,25 +102,26 @@ public class Nutrition_log {
         double targetCarb;
         double targetFat;
 
-        // Calculate target nutrition based on user's core profile metrics
-        targetCals = 10 * user.getWeight() + 6.25 * user.getHeight() - 5 * user.getAge() + 5;
-        targetProtein = user.getWeight() * 2;
-        targetCarb = user.getWeight() * 3;
-        targetFat = user.getWeight() * 1;
+        // Calculation of Basal Metabolic Rate (BMR) Using the Mifflin-St Jeor Formula
+        double bmr;
         if (user.getGender().equalsIgnoreCase("female")) {
-            targetProtein *= 0.9;
-            targetCarb *= 0.7;
-            targetFat *= 0.5;
-        }else if (user.getGender().equalsIgnoreCase("male")) {
-            targetProtein *= 1.1;
-            targetCarb *= 1.2;
-            targetFat *= 1.3;
-        }else {
-            // Default values for other genders
-            targetProtein *= 1.1;
-            targetCarb *= 1.2;
-            targetFat *= 1.3;
+            bmr = 10 * user.getWeight() + 6.25 * user.getHeight() - 5 * user.getAge() - 161;
+        } else {
+            // By default, it is calculated as male, or includes other gender situations
+            bmr = 10 * user.getWeight() + 6.25 * user.getHeight() - 5 * user.getAge() + 5;
         }
+
+        // Assuming an activity factor of 1.2 (sedentary/light activity), it can be adjusted according to actual needs
+        double activityFactor = 1.2;
+        targetCals = bmr * activityFactor;
+
+        // Distribute macronutrients based on total caloric targets
+        // Protein: about 30% calories (1g protein = 4 kcal)
+        targetProtein = (targetCals * 0.30) / 4.0;
+        // Carbohydrates: about 40% calories (1g carbs = 4 kcal)
+        targetCarb = (targetCals * 0.40) / 4.0;
+        // Fat: Approximately 30% calories (1g fat = 9 kcal)
+        targetFat = (targetCals * 0.30) / 9.0;
 
         this.targetNutrition = new Nutrition();
         this.targetNutrition.setCals(String.valueOf(Math.round(targetCals)));

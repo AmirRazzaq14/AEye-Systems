@@ -92,7 +92,6 @@ public class NutritionLogController {
             Nutrition_log nutrition_log = service.getLog(uid, date);
 
             if(nutrition_log != null) {
-                getNutritionLogWithTarget(authHeader,nutrition_log);
                 log.info("Successfully get nutrition log by date:{}", date);
                 return ResponseEntity.ok(nutrition_log);
             }else {
@@ -105,11 +104,6 @@ public class NutritionLogController {
         }
     }
 
-    private void getNutritionLogWithTarget(String authHeader, Nutrition_log log) throws Exception {
-        String uid = tokenFilter.verifyAndGetUid(authHeader);
-        User user = userService.getUserById(uid);
-        log.updateTargetNutrition(user);
-    }
 
     @GetMapping("/week/{date}")
     public ResponseEntity<?> getByWeek(

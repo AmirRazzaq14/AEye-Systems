@@ -3,7 +3,11 @@ package edu.farmingdale.CSC490.Repository;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
+import edu.farmingdale.CSC490.Entity.User;
+import edu.farmingdale.CSC490.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.time.DayOfWeek;
@@ -17,6 +21,9 @@ import java.util.List;
 @Slf4j
 @Repository
 public class NutritionRepository {
+    
+    @Autowired
+    private UserService userService;
 
     private Firestore getDb() {
         return FirestoreClient.getFirestore();
@@ -46,7 +53,6 @@ public class NutritionRepository {
         if (snap.exists()) {
             Nutrition_log nutrition_log = snap.toObject(Nutrition_log.class);
             assert nutrition_log != null;
-            applyDefaultValues(uid, nutrition_log);
             log.info("Nutrition log exist on :{}", nutrition_log.getDate());
             return nutrition_log;
         }else {
@@ -126,16 +132,7 @@ public class NutritionRepository {
 
     public List<Nutrition_log> getWeekLog(String uid, String Date) throws Exception {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate inputDate = LocalDate.parse(Date, formatter);
-
-        // Get the Monday of the week of the specified date
-        LocalDate mondayOfWeek = inputDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-
-        // Build all dates of the week (from Monday to the specified date)
-        List<LocalDate> datesInWeekUpToDate = new ArrayList<>();
-        for (LocalDate date = mondayOfWeek; !date.isAfter(inputDate); date = date.plusDays(1)) {
-            datesInWeekUpToDate.add(date);
-        }
+        List<LocalDate> datesInWeekUpToDate = getLocalDates(Date, formatter);
 
         List<Nutrition_log> list = new ArrayList<>();
         for (DocumentSnapshot d : colRef(uid).get().get().getDocuments()) {
@@ -153,6 +150,21 @@ public class NutritionRepository {
         }
 
         return list;
+    }
+
+    @NotNull
+    private static List<LocalDate> getLocalDates(String Date, DateTimeFormatter formatter) {
+        LocalDate inputDate = LocalDate.parse(Date, formatter);
+
+        // Get the Monday of the week of the specified date
+        LocalDate mondayOfWeek = inputDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        // Build all dates of the week (from Monday to the specified date)
+        List<LocalDate> datesInWeekUpToDate = new ArrayList<>();
+        for (LocalDate date = mondayOfWeek; !date.isAfter(inputDate); date = date.plusDays(1)) {
+            datesInWeekUpToDate.add(date);
+        }
+        return datesInWeekUpToDate;
     }
 
 
@@ -194,7 +206,8 @@ public class NutritionRepository {
         }
 
         if (log.getTargetNutrition() == null){
-            log.setTargetNutrition(new Nutrition_log.Nutrition("2500","150","100","100"));
+            User user = userService.getUserById(uid);
+            log.updateTargetNutrition(user);
             needsUpdate = true;
         }
 
