@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="Initial Commit To get started">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/motion.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/motion.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="package.json" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="zuxin" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;AmirRazzaq14&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/AmirRazzaq14/AEye-Systems.git&quot;,
+    &quot;accountId&quot;: &quot;5fb91dcb-f852-4ed5-bcca-d424899b15b9&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="39DS7dWNynkxb3OkBGQ6OYivaEH" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.DashboardDemoTest.executor&quot;: &quot;Run&quot;,
+    &quot;Groovy.File per object.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PythonCallerIntegrationTest.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Notification.DisplayName-DoNotAsk-DatabaseConfigFileWatcher.found&quot;: &quot;New/updated database configurations found&quot;,
+    &quot;Notification.DoNotAsk-DatabaseConfigFileWatcher.found&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Spring Boot.AEyeSystemsApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Amir__Test__Party__Features&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.javacompiler&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources" />
+      <recent name="$PROJECT_DIR$/target/classes" />
+      <recent name="$PROJECT_DIR$/.vscode" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="AEyeSystemsApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AEye-Systems" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="edu.farmingdale.CSC490.AEyeSystemsApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28539.13" />
+        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.28539.13" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="" />
+      <created>1770228981546</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1770228981546</updated>
+      <workItem from="1770228982674" duration="46000" />
+      <workItem from="1770234682988" duration="2000" />
+      <workItem from="1771106848315" duration="40000" />
+      <workItem from="1771107066474" duration="33000" />
+      <workItem from="1771107118714" duration="49000" />
+      <workItem from="1771107169976" duration="848000" />
+      <workItem from="1771108022305" duration="936000" />
+      <workItem from="1771438299938" duration="35000" />
+      <workItem from="1771447703634" duration="8000" />
+      <workItem from="1772560245158" duration="33000" />
+      <workItem from="1772560283561" duration="188000" />
+      <workItem from="1772560516108" duration="35000" />
+      <workItem from="1772567404398" duration="20000" />
+      <workItem from="1772567426612" duration="530000" />
+      <workItem from="1772568672453" duration="143000" />
+      <workItem from="1772568817992" duration="32000" />
+      <workItem from="1772568851447" duration="567000" />
+      <workItem from="1772571749275" duration="2173000" />
+      <workItem from="1772635593586" duration="372000" />
+      <workItem from="1772636264166" duration="36000" />
+      <workItem from="1772636328714" duration="285000" />
+      <workItem from="1772636688698" duration="53000" />
+      <workItem from="1772636798478" duration="88000" />
+      <workItem from="1772636896329" duration="1000" />
+      <workItem from="1772636988222" duration="93000" />
+      <workItem from="1772657807448" duration="1000" />
+      <workItem from="1772658628327" duration="54000" />
+      <workItem from="1772658685286" duration="930000" />
+      <workItem from="1772660203995" duration="67000" />
+      <workItem from="1772660545941" duration="19000" />
+      <workItem from="1772660585125" duration="886000" />
+      <workItem from="1772668433704" duration="248000" />
+      <workItem from="1772668890827" duration="142000" />
+      <workItem from="1772679931399" duration="4215000" />
+      <workItem from="1772693840036" duration="375000" />
+      <workItem from="1772694877335" duration="461000" />
+      <workItem from="1772695380185" duration="1035000" />
+      <workItem from="1772703319183" duration="674000" />
+      <workItem from="1773023831459" duration="741000" />
+      <workItem from="1773024587780" duration="5488000" />
+      <workItem from="1773030447820" duration="1405000" />
+      <workItem from="1773081132236" duration="2851000" />
+      <workItem from="1773159815135" duration="5867000" />
+      <workItem from="1773248470017" duration="35000" />
+      <workItem from="1773248557910" duration="9000" />
+      <workItem from="1773728877587" duration="1000" />
+      <workItem from="1773728905831" duration="610000" />
+      <workItem from="1774791521126" duration="1557000" />
+      <workItem from="1774793085802" duration="464000" />
+      <workItem from="1774793553092" duration="16900000" />
+      <workItem from="1774819742459" duration="1845000" />
+      <workItem from="1774825090486" duration="15000" />
+      <workItem from="1774833818064" duration="3030000" />
+      <workItem from="1774836860034" duration="3151000" />
+      <workItem from="1774877975034" duration="7000" />
+      <workItem from="1774886913592" duration="6412000" />
+      <workItem from="1775226944580" duration="22000" />
+      <workItem from="1775665241965" duration="86000" />
+      <workItem from="1775665407885" duration="164000" />
+      <workItem from="1776270580529" duration="1485000" />
+      <workItem from="1776366441031" duration="325000" />
+      <workItem from="1776376192939" duration="1702000" />
+      <workItem from="1776540566234" duration="11000" />
+    </task>
+    <task id="LOCAL-00001" summary="Initial Commit To get started">
+      <option name="closed" value="true" />
+      <created>1771107594603</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1771107594603</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Initial Commit To get started">
+      <option name="closed" value="true" />
+      <created>1772568826691</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1772568826691</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Initial Commit To get started">
+      <option name="closed" value="true" />
+      <created>1774839355236</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1774839355236</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial Commit To get started" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial Commit To get started" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

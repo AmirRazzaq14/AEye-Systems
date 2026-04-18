@@ -1,0 +1,47 @@
+Index: src/main/resources/application.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Application Configuration\n\n# Server\nserver.port=${SERVER_PORT:8080}\nspring.application.name=AEye-Systems\n\n# Python API configuration\npython.api.url=${PYTHON_API_URL:http://localhost:8000}\npython.api.port=${PYTHON_API_PORT:8000}\npython.file.path = ${PYTHON_FILE_PATH:/src/main/resources/AI/AI_ImageAnalyzer.py}\n\n# prompt\nprompt.food_analyzer=food_analyze_prompt\napi.model = remote\n\n# Remote API configuration\napi.remote.key=AIzaSyBNkLU3zieWVA2OL4OD87q8PBHnWWKvxv8\napi.remote.url=https://generativelanguage.googleapis.com\napi.remote.model=gemini-3.1-flash-lite-preview\n\n# Local Ollama API configuration\napi.local.url=http://localhost:11434\napi.local.model=llava\n\n# Database Configuration (if using H2 in-memory database)\nspring.datasource.url=jdbc:h2:mem:testdb\nspring.datasource.driverClassName=org.h2.Driver\nspring.datasource.username=sa\nspring.datasource.password=\n\n# JPA/Hibernate Configuration\nspring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n# JPA - set to none since Firebase handles your database\nspring.jpa.hibernate.ddl-auto=none\nspring.jpa.show-sql=true\n\n# H2 Console (for development only)\nspring.h2.console.enabled=true\n\n# Logging\nlogging.level.edu.farmingdale.CSC490=DEBUG\nlogging.level.org.springframework.web=INFO\n\n\n# Firebase\nfirebase.config.path=firebase-key.json\nFIREBASE_API_KEY=AIzaSyC0qbR3juQh85AdwivHAHe0XCVNugSueGo\nFIREBASE_AUTH_DOMAIN=wizcoachdb.firebaseapp.com\nFIREBASE_PROJECT_ID=wizcoachdb\nFIREBASE_STORAGE_BUCKET=wizcoachdb.firebasestorage.app\nFIREBASE_MESSAGING_SENDER_ID=289172482586\nFIREBASE_APP_ID=1:289172482586:web:a3635f9c17161d0051ffa3\n\n# Disable DataSource auto-config since using Firebase\nspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+===================================================================
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+--- a/src/main/resources/application.properties	(revision c230a0bc9337199524b6d5fa895a970be0eb0f1b)
++++ b/src/main/resources/application.properties	(date 1773087521100)
+@@ -8,19 +8,22 @@
+ python.api.url=${PYTHON_API_URL:http://localhost:8000}
+ python.api.port=${PYTHON_API_PORT:8000}
+ python.file.path = ${PYTHON_FILE_PATH:/src/main/resources/AI/AI_ImageAnalyzer.py}
++python.model=${PYTHON_MODEL:REMOTE}
++REMOTE_API_KEY=AIzaSyBNkLU3zieWVA2OL4OD87q8PBHnWWKvxv8
++
+ 
+ # prompt
+ prompt.food_analyzer=food_analyze_prompt
+ api.model = remote
+ 
+ # Remote API configuration
+-api.remote.key=AIzaSyBNkLU3zieWVA2OL4OD87q8PBHnWWKvxv8
+-api.remote.url=https://generativelanguage.googleapis.com
+-api.remote.model=gemini-3.1-flash-lite-preview
++api.remote.key = AIzaSyDqshbeRzeILhSGc1WDpi94guUMsVhcVfk
++api.remote.url = https://generativelanguage.googleapis.com
++api.remote.model = gemini-3.1-flash-lite-preview
+ 
+ # Local Ollama API configuration
+-api.local.url=http://localhost:11434
+-api.local.model=llava
++api.local.url = http://localhost:11434
++api.local.model= llava
+ 
+ # Database Configuration (if using H2 in-memory database)
+ spring.datasource.url=jdbc:h2:mem:testdb
+@@ -52,4 +55,7 @@
+ FIREBASE_APP_ID=1:289172482586:web:a3635f9c17161d0051ffa3
+ 
+ # Disable DataSource auto-config since using Firebase
+-spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+\ No newline at end of file
++spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
++
++gemini.model=gemini-3.1-flash-lite
++gemini.api.key=AIzaSyC1wCmh9MlYu1OGyCb69iUEOrOusSIF8Ws
+\ No newline at end of file
