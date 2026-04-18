@@ -54,6 +54,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -117,7 +123,9 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <jvmArguments>-XX:+EnableDynamicAgentLoading</jvmArguments>
+                    <jvmArguments>
+                        -XX:+EnableDynamicAgentLoading -Djdk.instrument.traceUsage
+                    </jvmArguments>
                 </configuration>
             </plugin>
         </plugins>

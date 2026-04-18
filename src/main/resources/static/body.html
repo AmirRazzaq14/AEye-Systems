@@ -3,6 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("wizcoach-theme");
+                if (saved) {
+                    document.documentElement.setAttribute("data-theme", saved);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
     <title>WizCoach – Body</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -13,16 +27,11 @@
             --purple-light: #a78bfa;
             --blue: #3b82f6;
             --blue-dark: #2563eb;
-            --text: #1a1a2e;
-            --muted: #6b7280;
-            --border: #e5e7eb;
-            --card-bg: #ffffff;
-            --input-bg: #f9fafb;
         }
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background: linear-gradient(135deg, #e8ecf5 0%, #f0eeff 50%, #e8f0ff 100%);
+            background: var(--page-bg);
             min-height: 100vh;
             color: var(--text);
         }
@@ -34,7 +43,7 @@
             justify-content: space-between;
             padding: 0 2rem;
             height: 60px;
-            background: white;
+            background: var(--nav-bg);
             border-bottom: 1px solid var(--border);
             box-shadow: 0 1px 8px rgba(0,0,0,0.05);
             position: sticky; top: 0; z-index: 100;
@@ -76,7 +85,9 @@
             transition: color 0.15s, background 0.15s;
         }
 
-        .nav-link:hover { color: var(--text); background: #f3f4f6; }
+        /* FIXED: theme-friendly hover uses theme.css variable */
+        .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
+
         .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
 
         .nav-link svg {
@@ -234,7 +245,7 @@
             padding: 0.35rem 0.85rem;
             border: 1.5px solid var(--border);
             border-radius: 8px;
-            background: white;
+            background: var(--card-bg);
             font-family: inherit; font-size: 0.8rem; font-weight: 600;
             color: var(--muted); cursor: pointer;
             transition: all 0.15s;
@@ -262,11 +273,14 @@
             display: flex; align-items: center;
             justify-content: space-between;
             padding: 0.65rem 0.75rem;
-            border-radius: 10px; background: #f9fafb;
+            border-radius: 10px;
+            background: var(--input-bg);
             transition: background 0.15s;
+            border: 1px solid var(--border);
         }
 
-        .comp-item:hover { background: #f3f4f6; }
+        .comp-item:hover { background: var(--card-bg); }
+
         .comp-label { font-size: 0.85rem; color: var(--muted); }
         .comp-value { display: flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; font-weight: 600; color: var(--text); }
         .trend.down { color: #f59e0b; }
@@ -306,23 +320,25 @@
         .goal-meta span:first-child { color: var(--muted); }
         .goal-meta span:last-child  { font-weight: 600; color: var(--text); }
 
-        .track { height: 8px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+        .track { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
         .track-fill { height: 100%; border-radius: 99px; transition: width 0.8s ease; }
         .fill-blue   { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
         .fill-orange { background: linear-gradient(90deg, #f97316, #fb923c); }
 
-        /* Help */
         .help-btn {
             position: fixed; bottom: 1.5rem; right: 1.5rem;
             width: 40px; height: 40px;
-            background: #1a1a2e; color: white; border-radius: 50%;
+            background: var(--nav-bg); color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 1rem; font-weight: 700; cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: background 0.2s; text-decoration: none;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            text-decoration: none;
         }
 
-        .help-btn:hover { background: var(--purple); }
+        .help-btn:hover { background: var(--purple); color: white; border-color: transparent; }
 
         @media (max-width: 760px) {
             .page { grid-template-columns: 1fr; }
@@ -492,34 +508,26 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-
     /* ── AUTO-ACTIVE NAV ── */
     document.querySelectorAll('.nav-link').forEach(link => {
-        if (link.href === window.location.href) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
+        if (link.href === window.location.href) link.classList.add('active');
+        else link.classList.remove('active');
     });
 
     /* ── PROGRESS CHART ── */
     const periodData = {
-        '7d': {
-            labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-            a: [78, 77.5, 76.8, 76.2, 75.5, 74.9, 74.2],
-            b: [18, 17.8, 17.5, 17.2, 17.0, 16.9, 16.7]
-        },
-        '30d': {
-            labels: ['Week 1','Week 2','Week 3','Week 4'],
-            a: [78, 76.5, 75.2, 74.2],
-            b: [18, 17.5, 17.1, 16.7]
-        },
-        '90d': {
-            labels: ['Month 1','Month 2','Month 3'],
-            a: [80, 77, 74.2],
-            b: [19, 17.8, 16.7]
-        }
+        '7d': { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], a: [78, 77.5, 76.8, 76.2, 75.5, 74.9, 74.2], b: [18, 17.8, 17.5, 17.2, 17.0, 16.9, 16.7] },
+        '30d': { labels: ['Week 1','Week 2','Week 3','Week 4'], a: [78, 76.5, 75.2, 74.2], b: [18, 17.5, 17.1, 16.7] },
+        '90d': { labels: ['Month 1','Month 2','Month 3'], a: [80, 77, 74.2], b: [19, 17.8, 16.7] }
     };
+
+    function themeVars() {
+        const styles = getComputedStyle(document.documentElement);
+        const border = styles.getPropertyValue('--border').trim() || '#e5e7eb';
+        const muted  = styles.getPropertyValue('--muted').trim()  || '#6b7280';
+        const theme  = document.documentElement.getAttribute('data-theme') || 'light';
+        return { border, muted, theme };
+    }
 
     const progressChart = new Chart(document.getElementById('progressChart'), {
         type: 'line',
@@ -560,12 +568,13 @@
                 legend: {
                     labels: {
                         font: { family: 'DM Sans', size: 12 },
-                        color: '#6b7280',
+                        color: themeVars().muted,
                         boxWidth: 12, boxHeight: 12, borderRadius: 4,
                     }
                 },
                 tooltip: {
-                    backgroundColor: '#1a1a2e',
+                    /* FIXED: theme-safe tooltip background */
+                    backgroundColor: () => (themeVars().theme === 'dark' ? '#0b1020' : '#1a1a2e'),
                     titleFont: { family: 'DM Sans' },
                     bodyFont:  { family: 'DM Sans' },
                     cornerRadius: 8,
@@ -573,18 +582,18 @@
             },
             scales: {
                 x: {
-                    grid: { color: '#f3f4f6' },
-                    ticks: { font: { family: 'DM Sans', size: 11 }, color: '#9ca3af' }
+                    grid: { color: themeVars().border },
+                    ticks: { font: { family: 'DM Sans', size: 11 }, color: themeVars().muted }
                 },
                 y: {
                     position: 'left',
-                    grid: { color: '#f3f4f6' },
-                    ticks: { font: { family: 'DM Sans', size: 11 }, color: '#9ca3af' }
+                    grid: { color: themeVars().border },
+                    ticks: { font: { family: 'DM Sans', size: 11 }, color: themeVars().muted }
                 },
                 y1: {
                     position: 'right',
                     grid: { drawOnChartArea: false },
-                    ticks: { font: { family: 'DM Sans', size: 11 }, color: '#9ca3af' }
+                    ticks: { font: { family: 'DM Sans', size: 11 }, color: themeVars().muted }
                 }
             }
         }
@@ -594,11 +603,32 @@
         document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active-period'));
         btn.classList.add('active-period');
         const d = periodData[period];
-        progressChart.data.labels              = d.labels;
-        progressChart.data.datasets[0].data   = d.a;
-        progressChart.data.datasets[1].data   = d.b;
+        progressChart.data.labels = d.labels;
+        progressChart.data.datasets[0].data = d.a;
+        progressChart.data.datasets[1].data = d.b;
         progressChart.update();
     }
+
+    function applyChartTheme() {
+        const { border, muted } = themeVars();
+        progressChart.options.plugins.legend.labels.color = muted;
+        progressChart.options.scales.x.grid.color = border;
+        progressChart.options.scales.y.grid.color = border;
+        progressChart.options.scales.x.ticks.color = muted;
+        progressChart.options.scales.y.ticks.color = muted;
+        progressChart.options.scales.y1.ticks.color = muted;
+        progressChart.update();
+    }
+
+    (function hookThemeToggle(){
+        if (typeof window.toggleTheme === 'function') {
+            const original = window.toggleTheme;
+            window.toggleTheme = function () {
+                original();
+                applyChartTheme();
+            };
+        }
+    })();
 
     /* ── SCAN TOGGLE ── */
     let scanning = false;
@@ -644,6 +674,13 @@
         }
     }
 
+    applyChartTheme();
 </script>
+
+<button onclick="toggleTheme()"
+        class="help-btn"
+        style="bottom: 5rem; font-size: 1.2rem;"
+        title="Toggle Dark Mode">🌓</button>
+
 </body>
-</html>git --version
+</html>

@@ -1,32 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("wizcoach-theme");
+                if (saved) {
+                    document.documentElement.setAttribute("data-theme", saved);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>WizCoach – Nutrition</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
             --purple: #7c5cfc;
-            --purple-light: #a78bfa;
             --blue: #3b82f6;
-            --blue-dark: #2563eb;
             --text: #1a1a2e;
             --muted: #6b7280;
             --border: #e5e7eb;
-            --card-bg: #ffffff;
-            --input-bg: #f9fafb;
             --danger: #ef4444;
-            --danger-light: #fee2e2;
             --success: #10b981;
-            --success-light: #d1fae5;
             --warning: #f59e0b;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+
+            /* Nutrition Progress Bar Colors */
+            --protein-low: #3B82F6;
+            --protein-mid: #42A5F5;
+            --protein-high: #1E40AF;
+            --carb-low: #ffedb8;
+            --carb-mid: #FFCA28;
+            --carb-high: #bd8e03;
+            --fat-low: #10B981;
+            --fat-mid: #66BB6A;
+            --fat-high: #059669;
+            --calorie-ring: #FF7043;
+
+            /* Weekly Chart Colors */
+            --chart-cals: #FF7043;
+            --chart-protein: #42A5F5;
+            --chart-carb: #FFCA28;
+            --chart-fat: #66BB6A;
+            --chart-cals-bg: #efd5cd;
+            --chart-protein-bg: #cde4f7;
+            --chart-carb-bg: #fbf0d0;
+            --chart-fat-bg: #d6fdd8;
         }
 
         body {
@@ -44,7 +82,7 @@
             height: 60px;
             background: white;
             border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -60,12 +98,11 @@
         .nav-logo-icon {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, var(--purple), var(--purple-light));
+            background: linear-gradient(135deg, var(--purple), #a78bfa);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 3px 8px rgba(124,92,252,0.3);
         }
 
         .nav-logo-icon svg {
@@ -80,7 +117,6 @@
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--text);
-            letter-spacing: -0.02em;
         }
 
         .nav-links {
@@ -121,74 +157,307 @@
             stroke-width: 2;
         }
 
-        .page {
+        /* Layout */
+        .container {
             max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 2rem;
+            margin: 0 auto;
+            padding: 24px;
             display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 1.5rem;
-            animation: fadeUp 0.5s ease both;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
             align-items: start;
         }
 
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+        /* Left sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Main area on the right */
+        .main-content {
+            min-width: 0;
+        }
+
+
+        /* Bottom Diary  */
+        .journal-date {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        .journal-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .journal-input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .journal-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .journal-status {
+            margin-left: auto;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 16px;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+
+            .sidebar {
+                position: static;
+                order: 2;
+            }
+
+            .main-content {
+                order: 1;
+            }
+
+            .journal-section {
+                order: 3;
+            }
+
+            nav {
+                padding: 0 1rem;
+            }
+
+            .nav-logo-name {
+                display: none;
             }
         }
 
+        /* Card base style */
         .card {
             background: var(--card-bg);
             border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 24px;
+            box-shadow: var(--shadow);
         }
 
-        .card h3 {
-            font-size: 1rem;
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nutrition-metrics {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .nutrition-metrics-bottom {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .nutrition-metric {
+            padding: 20px 15px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nutrition-metric--wide {
+            padding: 24px 20px;
+        }
+
+        .nutrition-metric:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(59, 130, 246, 0.12);
+        }
+
+        .nutrition-metric-label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .nutrition-metric-value {
+            font-size: 22px;
             font-weight: 700;
             color: var(--text);
-            margin-bottom: 1.25rem;
+            line-height: 1.1;
         }
 
+        .nutrition-metric-subtext {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* Nutrition card */
+        .calorie-ring {
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        .calorie-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .calorie-ring-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 8;
+        }
+
+        .calorie-ring-progress {
+            fill: none;
+            stroke: var(--blue);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.6s ease;
+        }
+
+        .calorie-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .calorie-current {
+            font-size: 23px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1;
+        }
+
+        .calorie-total {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .macro-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .macro-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .macro-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .macro-name {
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .macro-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .macro-dot.protein {
+            background: #42A5F5;
+        }
+
+        .macro-dot.carb {
+            background:  #FFCA28;
+        }
+
+        .macro-dot.fat {
+            background:  #66BB6A;
+        }
+
+        .macro-value {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .macro-bar {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .macro-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+
+        /* Upload area */
         .upload-zone {
             border: 2px dashed #c7d2fe;
             border-radius: 14px;
             background: #f8f9ff;
-            padding: 3rem 2rem;
+            padding: 32px 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.75rem;
+            gap: 12px;
             cursor: pointer;
             transition: all 0.2s;
             text-align: center;
             position: relative;
-            min-height: 320px;
+            min-height: 180px;
         }
 
         .upload-zone:hover {
             border-color: var(--blue);
             background: #eff6ff;
-            transform: scale(1.01);
         }
 
         .upload-zone.drag-over {
             border-color: var(--blue);
             background: #dbeafe;
-            transform: scale(1.02);
+            transform: scale(1.01);
         }
 
         .upload-zone.processing {
             pointer-events: none;
             opacity: 0.7;
+        }
+
+        .upload-zone.has-image {
+            padding: 16px;
         }
 
         .upload-icon-wrap {
@@ -210,28 +479,26 @@
         }
 
         .upload-zone h4 {
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 15px;
+            font-weight: 600;
             color: var(--text);
         }
 
         .upload-zone p {
-            font-size: 0.82rem;
+            font-size: 13px;
             color: var(--muted);
-        }
-
-        .upload-zone.has-image .upload-icon-wrap,
-        .upload-zone.has-image h4,
-        .upload-zone.has-image p,
-        .upload-zone.has-image .btn-upload {
-            display: none;
         }
 
         .preview-img-container {
             display: none;
             width: 100%;
-            max-height: 260px;
             text-align: center;
+        }
+
+        .upload-zone.has-image .upload-icon-wrap,
+        .upload-zone.has-image h4,
+        .upload-zone.has-image p {
+            display: none;
         }
 
         .upload-zone.has-image .preview-img-container {
@@ -250,7 +517,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
+            gap: 12px;
             position: absolute;
             top: 0;
             left: 0;
@@ -271,395 +538,416 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--blue), #60a5fa);
-            color: white;
-            padding: 0.65rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            font-family: inherit;
-            font-size: 0.88rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 3px 10px rgba(59,130,246,0.35);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 14px rgba(59,130,246,0.45);
-        }
-
-        .btn-secondary {
-            padding: 0.55rem 1.25rem;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            background: white;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--muted);
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-            background: var(--danger-light);
-        }
-
-        .btn-success {
-            padding: 0.55rem 1.25rem;
-            border: 1.5px solid var(--success);
-            border-radius: 10px;
-            background: white;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--success);
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-success:hover {
-            background: var(--success-light);
-            border-color: var(--success);
-        }
-
-        .btn-icon {
-            background: var(--blue);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-icon:hover {
-            background: var(--blue-dark);
-            transform: scale(1.05);
-        }
-
-        .nutrition-row {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .nutrition-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.4rem;
-        }
-
-        .nutrition-meta span:first-child {
-            font-size: 0.85rem;
-            color: var(--muted);
-        }
-
-        .nutrition-meta span:last-child {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .track {
-            height: 6px;
-            background: #e5e7eb;
-            border-radius: 99px;
-            overflow: hidden;
-        }
-
-        .track-fill {
-            height: 100%;
-            border-radius: 99px;
-            background: linear-gradient(90deg, var(--blue), #60a5fa);
-            width: 0%;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
+        /* Food Log */
         .food-log-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 20px;
         }
 
-        .food-log-empty {
-            text-align: center;
-            color: var(--muted);
-            font-size: 0.85rem;
-            font-style: italic;
-            padding: 1.5rem 0;
-        }
-
-        .food-log-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.2s;
-        }
-
-        .food-log-item:hover {
-            background: #f9fafb;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-            margin: 0 -0.5rem;
-            border-radius: 8px;
-        }
-
-        .food-log-item:last-child {
-            border-bottom: none;
-        }
-
-        .food-log-content {
-            flex: 1;
-        }
-
-        .food-log-name {
-            font-weight: 600;
-            color: var(--text);
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-
-        .food-log-details {
-            font-size: 0.75rem;
-            color: var(--muted);
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .sync-badge {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
-            background: var(--warning);
+        .add-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--blue);
             color: white;
-            border-radius: 20px;
-            display: inline-block;
-        }
-
-        .sync-badge.synced {
-            background: var(--success);
-        }
-
-        .food-log-delete {
-            background: none;
             border: none;
-            font-size: 1.2rem;
-            color: #9ca3af;
+            font-size: 24px;
             cursor: pointer;
-            transition: all 0.2s;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
-        .food-log-delete:hover {
-            color: var(--danger);
-            background: var(--danger-light);
-            transform: scale(1.1);
+        .add-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
         }
 
         .manual-entry {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 16px;
             background: #f9fafb;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
         }
 
-        .manual-entry input {
-            padding: 0.75rem 1rem;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 0.88rem;
-            font-family: 'DM Sans', sans-serif;
+        .manual-entry-header {
+            font-size: 15px;
+            font-weight: 600;
             color: var(--text);
-            background: #ffffff;
-            outline: none;
-            transition: all 0.2s;
         }
 
-        .manual-entry input:focus {
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .journal-input {
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             width: 100%;
-            padding: 0.75rem;
+            gap: 5px;
+        }
+
+        .nutrition-grid > div {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .nutrition-grid > div span {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nutrition-grid > div input {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .meals-input {
+            width: 100%;
+            padding: 12px 16px;
             border: 1.5px solid var(--border);
             border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            resize: vertical;
+            font-size: 14px;
+            outline: none;
             transition: all 0.2s;
         }
 
-        .journal-input:focus {
+        #meals-nutrition {
+            width: 7em;
+        }
+
+        .food-info,
+        .food-details,
+        .manual-entry,
+        .nutrition-grid {
+            min-width: 0;
+        }
+
+        .nutrition-field {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nutrition-field label {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .nutrition-field input {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
             outline: none;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .nutrition-field input:focus {
             border-color: var(--blue);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .journal-footer {
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), #60a5fa);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(59, 130, 246, 0.45);
+        }
+
+        .food-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 490px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .food-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 0.5rem;
+            padding: 16px 20px;
+            background: #f9fafb;
+            border-radius: 14px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
         }
 
-        .journal-status {
-            font-size: 0.7rem;
-            color: var(--muted);
+        .food-item:hover {
+            border-color: var(--blue);
+            background: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
         }
 
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        .error-popup {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--danger-light);
-            color: var(--danger);
-            padding: 1rem 1.25rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 10000;
+        .food-info {
             display: flex;
             align-items: center;
             gap: 12px;
-            min-width: 300px;
-            border-left: 4px solid var(--danger);
-            animation: slideInRight 0.3s ease;
         }
 
-        .success-popup {
-            background: var(--success-light);
-            color: var(--success);
-            border-left-color: var(--success);
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .error-popup-close {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: inherit;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-        }
-
-        .help-btn {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
+        .food-emoji {
             width: 44px;
             height: 44px;
-            background: var(--text);
-            color: white;
-            border-radius: 50%;
+            background: white;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-size: 22px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .food-details h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .food-macros {
+            width: 100%;
+            font-size: 13px;
+            color: var(--muted);
+            display: flex;
+            gap: 16px;
+        }
+
+        .food-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .food-item:hover .food-actions {
+            opacity: 1;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.2s;
-            text-decoration: none;
+            font-size: 16px;
         }
 
-        .help-btn:hover {
-            background: var(--purple);
-            transform: scale(1.05);
+        .icon-btn:hover {
+            background: var(--border);
+            color: var(--text);
         }
 
-        .hidden {
-            display: none;
-        }
-
-        .text-danger {
+        .icon-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.1);
             color: var(--danger);
         }
 
-        .button-group {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 1rem;
+        .food-log-empty {
+            text-align: center;
+            color: var(--muted);
+            padding: 60px 0;
+            font-style: italic;
         }
 
-        @media (max-width: 720px) {
-            .page {
-                grid-template-columns: 1fr;
-            }
-            nav {
-                padding: 0 1rem;
-            }
-            .nav-logo-name {
-                display: none;
-            }
-            .error-popup {
-                left: 20px;
-                right: 20px;
-                min-width: auto;
-            }
+        .log-summary {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .log-summary .log-count {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .log-count {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Theme toggle button */
+        .theme-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Chart Styles */
+        #weeklyChart {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            padding: 5px;
+        }
+
+        /* Chart View Tabs */
+        .chart-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .chart-tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .chart-tab.active {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
+        }
+
+        .chart-tab:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        /* AI Suggestions Styles */
+        .ai-suggestions-card {
+            margin-top: 24px;
+        }
+
+        .ai-suggestions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .columns {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 30%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid var(--border);
+        }
+
+        .ai-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .ai-text-bubble {
+            background: #f8f9ff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 20px;
+            position: relative;
+            min-height: 130px;
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text);
+        }
+
+        .ai-text-bubble::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid var(--border);
+        }
+
+        .ai-text-bubble::after {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+            border-right: 7px solid #f8f9ff;
         }
     </style>
 </head>
+
 <body>
 
 <nav>
     <a href="dashboard.html" class="nav-logo">
         <div class="nav-logo-icon">
             <svg viewBox="0 0 24 24">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
         </div>
         <span class="nav-logo-name">WizCoach</span>
@@ -667,1184 +955,932 @@
     <div class="nav-links">
         <a href="dashboard.html" class="nav-link">
             <svg viewBox="0 0 24 24">
-                <rect x="3" y="3" width="7" height="7" rx="1"/>
-                <rect x="14" y="3" width="7" height="7" rx="1"/>
-                <rect x="3" y="14" width="7" height="7" rx="1"/>
-                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
             Dashboard
         </a>
         <a href="motion.html" class="nav-link">
             <svg viewBox="0 0 24 24">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
             Motion
         </a>
         <a href="nutrition.html" class="nav-link active">
             <svg viewBox="0 0 24 24">
-                <path d="M12 22s-8-4.5-8-11.8A8 8 0 01 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
+                <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
             </svg>
             Nutrition
         </a>
         <a href="ai-coach.html" class="nav-link">
             <svg viewBox="0 0 24 24">
-                <rect x="3" y="8" width="18" height="12" rx="3"/>
-                <path d="M12 8V4"/>
-                <circle cx="8" cy="14" r="1.5" fill="currentColor"/>
-                <circle cx="16" cy="14" r="1.5" fill="currentColor"/>
+                <rect x="3" y="8" width="18" height="12" rx="3" />
+                <path d="M12 8V4" />
+                <circle cx="8" cy="14" r="1.5" fill="currentColor" />
+                <circle cx="16" cy="14" r="1.5" fill="currentColor" />
             </svg>
             AI Coach
         </a>
     </div>
 </nav>
 
-<div class="page">
-    <div class="card">
-        <h3>Food Detection</h3>
+<div class="container">
 
-        <div class="upload-zone" id="uploadZone">
-            <div class="upload-icon-wrap">
-                <svg viewBox="0 0 24 24">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                    <circle cx="12" cy="13" r="4"/>
+    <!-- Sidebar: Nutrition Overview + Image Detection -->
+    <aside class="sidebar">
+
+        <!-- Today's Nutrition -->
+        <div class="card" style="height: 90%;">
+            <div class="card-title">
+                <span>📊</span>
+                Today's Nutrition
+            </div>
+
+            <!-- Calorie budget module -->
+            <div class="nutrition-metrics">
+              <div class="calorie-ring">
+                <svg viewBox="0 0 140 140">
+                    <circle class="calorie-ring-bg" cx="70" cy="70" r="62" />
+                    <circle class="calorie-ring-progress" cx="70" cy="70" r="62" stroke-dasharray="389.56"
+                            stroke-dashoffset="389.56" id="calorieRing" />
                 </svg>
-            </div>
-            <h4>Upload Food Image</h4>
-            <p>Take a photo or upload an image of your meal</p>
-            <div class="preview-img-container">
-                <img id="previewImg" src="" alt="Food preview">
-            </div>
-            <div class="processing-message" id="processingMessage">
-                <div class="spinner"></div>
-                <span>Analyzing your meal...</span>
-            </div>
-            <button class="btn-primary" id="uploadButton">Upload Image</button>
-        </div>
-
-        <input type="file" id="fileInput" accept="image/*" style="display: none;">
-
-    </div>
-
-    <div class="sidebar">
-        <div class="card">
-            <h3>Today's Nutrition</h3>
-            <div class="nutrition-row">
-                <div>
-                    <div class="nutrition-meta">
-                        <span>Calories</span>
-                        <span id="cal-label">0 / 2000 kcal</span>
-                    </div>
-                    <div class="track">
-                        <div class="track-fill" id="cal-fill"></div>
-                    </div>
+                <div class="calorie-text">
+                    <div class="calorie-current" id="calorieCurrent">0</div>
+                    <div class="calorie-total" id="calorieTotal">/ 2000 kcal</div>
                 </div>
-                <div>
-                    <div class="nutrition-meta">
-                        <span>Protein</span>
-                        <span id="prot-label">0g / 150g</span>
+            </div>
+                <div class="nutrition-metrics-bottom">
+                    <div class="nutrition-metric">
+                        <span class="nutrition-metric-label">Food Intake</span>
+                        <span class="nutrition-metric-value" id="intakeValue">0</span>
                     </div>
-                    <div class="track">
-                        <div class="track-fill" id="prot-fill"></div>
+                    <div class="nutrition-metric">
+                        <span class="nutrition-metric-label">Burned Calories</span>
+                        <span class="nutrition-metric-value" id="burnedValue">0</span>
                     </div>
                 </div>
             </div>
+
+
+
+            <div class="macro-list" id="macroList">
+                <div class="macro-item">
+                    <div class="macro-header">
+                            <span class="macro-name">
+                                <span class="macro-dot protein"></span>
+                                Protein
+                            </span>
+                        <span class="macro-value" id="proteinText">0 / 150 g</span>
+                    </div>
+                    <div class="macro-bar">
+                        <div class="macro-fill" id="proteinBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-header">
+                            <span class="macro-name">
+                                <span class="macro-dot carb"></span>
+                                Carbs
+                            </span>
+                        <span class="macro-value" id="carbText">0 / 250 g</span>
+                    </div>
+                    <div class="macro-bar">
+                        <div class="macro-fill" id="carbBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-header">
+                            <span class="macro-name">
+                                <span class="macro-dot fat"></span>
+                                Fat
+                            </span>
+                        <span class="macro-value" id="fatText">0 / 70 g</span>
+                    </div>
+                    <div class="macro-bar">
+                        <div class="macro-fill" id="fatBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Daily Journal Card -->
-        <div class="card">
-            <div class="food-log-header">
-                <h3>📔 Daily Journal</h3>
-                <span style="font-size: 0.75rem; color: var(--muted);" id="journalDate"></span>
+        <!-- Food Detection - Drag & Drop Upload Only (Supports JPEG, PNG, WebP, max 5MB) -->
+        <div class="card" style="height: 70%;">
+            <div class="card-title">
+                <span>📷</span>
+                Food Detection
             </div>
-            <label for="journalInput"></label><textarea
-                    id="journalInput"
-                    class="journal-input"
-                    rows="3"
-                    placeholder="How was your day? Write your thoughts here..."
-            ></textarea>
-            <div class="journal-footer">
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon-wrap">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                    </svg>
+                </div>
+                <h4>Drag & Drop Image</h4>
+                <p>Drop a food photo here to analyze</p>
+                <div class="preview-img-container">
+                    <img id="previewImg" src="" alt="Food preview">
+                </div>
+                <div class="processing-message" id="processingMessage">
+                    <span>Analyzing your meal...</span>
+                </div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+
+        <!-- Daily Journal -->
+        <div class="card">
+            <div class="card-title">
+                <span>📝</span>
+                Daily Journal
+                <span class="journal-date" id="journalDate" style="margin-left: auto; font-size: 13px; font-weight: 400;">-</span>
+            </div>
+            <textarea id="journalInput" class="journal-input"
+                    placeholder="How was your day? Write your thoughts here..."></textarea>
+            <div class="journal-actions" style="margin-top: 16px;">
                 <span id="journalStatus" class="journal-status"></span>
             </div>
         </div>
+    
+    </aside>
 
-        <!-- Food Log Card -->
-        <div class="card">
+    <!-- Right Main Area: Food Log  + weekly chart-->
+    <main class="main-content">
+        <div class="card" style="display: flex; flex-direction: column; gap: 20px;">
             <div class="food-log-header">
-                <h3>Food Log</h3>
-                <button class="btn-icon" id="addFoodBtn" aria-label="Add food">+</button>
+                <div>
+                    <div class="card-title">
+                        <span>🍽️</span>
+                        Food Log
+                    </div>
+                    <div class="log-summary" id="logSummary">
+                        <span id = "logCountSpan"> Toady 0 items - 0 kcal</span>
+                    </div>
+                </div>
+                <button class="add-btn" id="addFoodBtn">+</button>
             </div>
 
+            <!-- Manual Add Form -->
             <div id="manualEntryForm" class="manual-entry hidden">
-                <input type="text" id="foodName" placeholder="Food name (e.g., Grilled Chicken)">
-                <input type="number" id="foodCalories" placeholder="Calories (kcal)" min="0" step="1">
-                <input type="number" id="foodProtein" placeholder="Protein (g)" min="0" step="1">
-                <button class="btn-primary" id="saveManualFoodBtn">Add to Log</button>
-            </div>
-
-            <div id="foodLog">
-                <p class="food-log-empty">Loading...</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<a href="#" class="help-btn" id="helpBtn">?</a>
-
-<script>
-    // ==================== 1. CONFIGURATION MODULE ====================
-    const Config = (function() {
-        return {
-            NUTRITION_GOALS: {
-                calories: 2000,
-                protein: 150
-            },
-            MAX_IMAGE_SIZE_MB: 5,
-            ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
-            API_TIMEOUT_MS: 15000,
-            STORAGE_PREFIX: 'wizcoach_nutrition_v2_'
-        };
-    })();
-
-    // ==================== 2. UTILITY MODULE ====================
-    const Utils = (function() {
-        function sanitizeInput(input) {
-            if (!input) return '';
-            const div = document.createElement('div');
-            div.textContent = input;
-            return div.innerHTML;
-        }
-
-        function getTodayDate() {
-            return new Date().toISOString().split('T')[0];
-        }
-
-        function getCurrentTimestamp() {
-            return new Date().toISOString();
-        }
-
-        function generateLocalId() {
-            return `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        }
-
-        function showMessage(message, isError = true) {
-            const container = document.getElementById('errorPopupContainer');
-            if (!container) {
-                const newContainer = document.createElement('div');
-                newContainer.id = 'errorPopupContainer';
-                document.body.appendChild(newContainer);
-            }
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `error-popup ${!isError ? 'success-popup' : ''}`;
-            messageDiv.innerHTML = `
-                <span class="error-popup-icon">${isError ? '⚠️' : '✓'}</span>
-                <span class="error-popup-message">${sanitizeInput(message)}</span>
-                <button class="error-popup-close" onclick="this.parentElement.remove()">×</button>
-            `;
-            document.getElementById('errorPopupContainer').appendChild(messageDiv);
-
-            setTimeout(() => {
-                if (messageDiv.parentNode) messageDiv.remove();
-            }, 4000);
-        }
-
-        function showError(message) {
-            showMessage(message, true);
-        }
-
-        function showSuccess(message) {
-            showMessage(message, false);
-        }
-
-        function validateImageFile(file) {
-            if (!file) throw new Error('No file selected');
-            if (!Config.ALLOWED_IMAGE_TYPES.includes(file.type)) {
-                throw new Error(`Please upload a valid image file (${Config.ALLOWED_IMAGE_TYPES.map(t => t.split('/')[1]).join(', ')})`);
-            }
-            const fileSizeMB = file.size / (1024 * 1024);
-            if (fileSizeMB > Config.MAX_IMAGE_SIZE_MB) {
-                throw new Error(`Image size should be less than ${Config.MAX_IMAGE_SIZE_MB}MB (current: ${fileSizeMB.toFixed(1)}MB)`);
-            }
-            return true;
-        }
-
-        async function fetchWithTimeout(url, options, timeout = Config.API_TIMEOUT_MS) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeout);
-            try {
-                const response = await fetch(url, { ...options, signal: controller.signal });
-                clearTimeout(timeoutId);
-                return response;
-            } catch (error) {
-                clearTimeout(timeoutId);
-                if (error.name === 'AbortError') throw new Error('Request timeout');
-                throw error;
-            }
-        }
-
-        return {
-            sanitizeInput,
-            getTodayDate,
-            getCurrentTimestamp,
-            generateLocalId,
-            showError,
-            showSuccess,
-            validateImageFile,
-            fetchWithTimeout
-        };
-    })();
-
-    // ==================== 3. DATA MODEL MODULE ====================
-    const Models = (function() {
-        function normalizeToUnifiedFormat(input, source = 'manual') {
-            let name = 'Unknown Food';
-            let cals = '0';
-            let protein = '0';
-
-            if (input.name) name = String(input.name).trim();
-
-            if (input.cals !== undefined && input.cals !== null) {
-                cals = String(input.cals);
-            } else if (input.calories !== undefined && input.calories !== null) {
-                cals = String(input.calories);
-            }
-
-            if (input.protein !== undefined && input.protein !== null) {
-                protein = String(input.protein);
-            }
-
-            cals = isNaN(parseFloat(cals)) ? '0' : String(Math.round(parseFloat(cals)));
-            protein = isNaN(parseFloat(protein)) ? '0' : String(Math.round(parseFloat(protein)));
-
-            return {
-                id: input.id || Utils.generateLocalId(),
-                date: input.date || Utils.getTodayDate(),
-                meals: [{ name, cals, protein }],
-                notes: input.notes || '',
-                updatedAt: input.updatedAt || Utils.getCurrentTimestamp(),
-                _localId: Utils.generateLocalId(),
-                _synced: source === 'sync',
-                _source: source
-            };
-        }
-
-        function convertToBackendFormat(unifiedLog) {
-            return {
-                date: unifiedLog.date,
-                meals: unifiedLog.meals.map(meal => ({
-                    name: meal.name,
-                    cals: String(meal.cals),
-                    protein: String(meal.protein)
-                })),
-                notes: unifiedLog.notes || ''
-            };
-        }
-
-        function convertFromBackendFormat(backendLogs) {
-            if (!Array.isArray(backendLogs)) backendLogs = [backendLogs];
-
-            return backendLogs.map(log => ({
-                id: log.id,
-                date: log.date,
-                meals: (log.meals || []).map(meal => ({
-                    name: meal.name || 'Unknown Food',
-                    cals: String(meal.cals || '0'),
-                    protein: String(meal.protein || '0')
-                })),
-                notes: log.notes || '',
-                updatedAt: log.updatedAt || Utils.getCurrentTimestamp(),
-                _localId: Utils.generateLocalId(),
-                _synced: true,
-                _source: 'sync'
-            }));
-        }
-
-        function mergeMealsByDate(items) {
-            const map = new Map();
-            items.forEach(item => {
-                const date = item.date;
-                if (!map.has(date)) {
-                    map.set(date, { ...item, meals: [...item.meals] });
-                } else {
-                    const existing = map.get(date);
-                    existing.meals.push(...item.meals);
-                    existing.updatedAt = Utils.getCurrentTimestamp();
-                    existing._synced = false;
-                }
-            });
-            return Array.from(map.values());
-        }
-
-        return {
-            normalizeToUnifiedFormat,
-            convertToBackendFormat,
-            convertFromBackendFormat,
-            mergeMealsByDate
-        };
-    })();
-
-    // ==================== 4. STORAGE MODULE ====================
-    const Storage = (function() {
-        function getStorageKey(date = null) {
-            return date ? `${Config.STORAGE_PREFIX}${date}` : `${Config.STORAGE_PREFIX}all`;
-        }
-
-        async function saveToLocalStorage(nutritionLogs) {
-            try {
-                const mergedLogs = Models.mergeMealsByDate(nutritionLogs);
-                localStorage.setItem(getStorageKey(), JSON.stringify(mergedLogs));
-                mergedLogs.forEach(log => {
-                    localStorage.setItem(getStorageKey(log.date), JSON.stringify(log));
-                });
-                return true;
-            } catch (error) {
-                console.error('Error saving to local storage:', error);
-                return false;
-            }
-        }
-
-        async function loadFromLocalStorage(date = null) {
-            try {
-                if (date) {
-                    const data = localStorage.getItem(getStorageKey(date));
-                    return data ? JSON.parse(data) : null;
-                }
-                const data = localStorage.getItem(getStorageKey());
-                return data ? JSON.parse(data) : [];
-            } catch (error) {
-                console.error('Error loading from local storage:', error);
-                return date ? null : [];
-            }
-        }
-
-        async function clearLocalStorage() {
-            try {
-                const keysToRemove = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && key.startsWith(Config.STORAGE_PREFIX)) keysToRemove.push(key);
-                }
-                keysToRemove.forEach(key => localStorage.removeItem(key));
-                return true;
-            } catch (error) {
-                console.error('Error clearing local storage:', error);
-                return false;
-            }
-        }
-
-        return {
-            saveToLocalStorage,
-            loadFromLocalStorage,
-            clearLocalStorage
-        };
-    })();
-
-    // ==================== 5. API MODULE ====================
-    const API = (function() {
-        let firebaseInitialized = false;
-        let firebaseInitPromise = null;
-        let currentUser = null;
-
-        async function initFirebase() {
-            if (firebaseInitialized) return Promise.resolve();
-            if (firebaseInitPromise) return firebaseInitPromise;
-
-            firebaseInitPromise = (async () => {
-                try {
-                    const response = await Utils.fetchWithTimeout('/api/config', { method: 'GET' });
-                    if (!response.ok) throw new Error('Failed to fetch Firebase config');
-                    const config = await response.json();
-                    firebase.initializeApp(config);
-                    firebaseInitialized = true;
-                } catch (error) {
-                    console.error('Firebase initialization failed:', error);
-                    throw error;
-                }
-            })();
-            return firebaseInitPromise;
-        }
-
-        async function getAuthToken() {
-            await initFirebase();
-            const user = firebase.auth().currentUser;
-            if (!user) throw new Error('Not logged in');
-            return await user.getIdToken();
-        }
-
-        async function syncLogToBackend(foodData) {
-            try {
-                const token = await getAuthToken();
-                const unifiedLog = Models.normalizeToUnifiedFormat(foodData, 'manual');
-                const backendData = Models.convertToBackendFormat(unifiedLog);
-
-                const response = await Utils.fetchWithTimeout('/api/nutrition-logs', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(backendData)
-                });
-
-                if (!response.ok) throw new Error(`Sync failed: ${response.status}`);
-
-                const result = await response.json();
-                if (result.id) {
-                    unifiedLog.id = result.id;
-                    unifiedLog._synced = true;
-                    const allLogs = await Storage.loadFromLocalStorage();
-                    const filteredLogs = allLogs.filter(l => l.date !== unifiedLog.date);
-                    await Storage.saveToLocalStorage([...filteredLogs, unifiedLog]);
-                }
-                return true;
-            } catch (error) {
-                console.error('Error syncing to backend:', error);
-                return false;
-            }
-        }
-
-
-        async function loadAllFromBackend() {
-            try {
-                const token = await getAuthToken();
-                const response = await Utils.fetchWithTimeout('/api/nutrition-logs', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (!response.ok) throw new Error(`Load failed: ${response.status}`);
-
-                const backendLogs = await response.json();
-                const unifiedLogs = Models.convertFromBackendFormat(backendLogs);
-                await Storage.saveToLocalStorage(unifiedLogs);
-                return unifiedLogs;
-            } catch (error) {
-                console.error('Error loading from backend:', error);
-                return [];
-            }
-        }
-
-        async function deleteFromBackend(date) {
-            try {
-                if (date) {
-                    const token = await getAuthToken();
-                    const response = await Utils.fetchWithTimeout(`/api/nutrition-logs/${date}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (!response.ok) throw new Error(`Delete failed: ${response.status}`);
-                }
-                return true;
-            } catch (error) {
-                console.error('Error deleting from backend:', error);
-                return false;
-            }
-        }
-
-        async function updateLogOnBackend(updatedLog) {
-        try {
-            const token = await getAuthToken();
-            const backendData = Models.convertToBackendFormat(updatedLog);
-
-            const response = await Utils.fetchWithTimeout(`/api/nutrition-logs/${updatedLog.date}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(backendData)
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Update failed: ${response.status} - ${errorText}`);
-            }
-
-            // Mark as synced
-            updatedLog._synced = true;
-            const allLogs = await Storage.loadFromLocalStorage();
-            const index = allLogs.findIndex(l => l.date === updatedLog.date);
-            if (index !== -1) {
-                allLogs[index] = updatedLog;
-                await Storage.saveToLocalStorage(allLogs);
-            }
-
-            return true;
-        } catch (error) {
-            console.error('Error updating log on backend:', error);
-            return false;
-        }
-    }
-
-        async function analyzeFoodImage(imageFile) {
-            const formData = new FormData();
-            formData.append('image', imageFile);
-
-            const response = await Utils.fetchWithTimeout('/api/food/analyze', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) throw new Error(`Analysis failed: ${response.status}`);
-
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error('Server returned invalid response format');
-            }
-
-            return await response.json();
-        }
-
-        function onAuthStateChanged(callback) {
-            return firebase.auth().onAuthStateChanged(callback);
-        }
-
-        return {
-            initFirebase,
-            getAuthToken,
-            syncLogToBackend,
-            loadAllFromBackend,
-            deleteFromBackend,
-            updateLogOnBackend,
-            analyzeFoodImage,
-            onAuthStateChanged
-        };
-    })();
-
-    // ==================== 6. FOOD SERVICE MODULE ====================
-    const FoodService = (function() {
-        let cumulativeNutrition = { calories: 0, protein: 0 };
-
-        async function addFoodLog(inputData, source = 'manual') {
-            try {
-                const unifiedLog = Models.normalizeToUnifiedFormat(inputData, source);
-                const existingLogs = await Storage.loadFromLocalStorage();
-                const today = Utils.getTodayDate();
-                const todayLogIndex = existingLogs.findIndex(l => l.date === today);
-
-                // Preserve existing journal content
-                const currentJournal = document.getElementById('journalInput')?.value || '';
-
-                if (todayLogIndex !== -1) {
-                    const existingNotes = existingLogs[todayLogIndex].notes || '';
-                    existingLogs[todayLogIndex].meals.push(...unifiedLog.meals);
-                    existingLogs[todayLogIndex].updatedAt = Utils.getCurrentTimestamp();
-                    existingLogs[todayLogIndex]._synced = false;
-
-                    if (existingNotes) {
-                        existingLogs[todayLogIndex].notes = existingNotes;
-                    } else if (currentJournal) {
-                        existingLogs[todayLogIndex].notes = currentJournal;
-                    }
-
-                    await Storage.saveToLocalStorage(existingLogs);
-                } else {
-                    if (currentJournal) unifiedLog.notes = currentJournal;
-                    unifiedLog._synced = false;
-                    await Storage.saveToLocalStorage([...existingLogs, unifiedLog]);
-                }
-
-                await UI.updateAll();
-
-                // Sync to backend in background
-                const updatedLogs = await Storage.loadFromLocalStorage();
-                const updatedTodayLog = updatedLogs.find(l => l.date === today);
-                if (updatedTodayLog && updatedTodayLog.notes) {
-                    await API.syncLogToBackend(updatedTodayLog);
-                }
-                API.syncLogToBackend(unifiedLog).catch(err => console.warn('Background sync failed:', err));
-
-                return unifiedLog;
-            } catch (error) {
-                console.error('Error adding food log:', error);
-                Utils.showError('Failed to add food: ' + error.message);
-                throw error;
-            }
-        }
-
-        async function deleteFoodLog(mealIndex) {
-            try {
-                // 1. Load current data
-                const logs = await Storage.loadFromLocalStorage();
-                const today = Utils.getTodayDate();
-                const todayLog = logs.find(l => l.date === today);
-
-                // 2. Validate
-                if (!todayLog) {
-                    Utils.showError('No food log found for today');
-                    return false;
-                }
-
-                if (!todayLog.meals[mealIndex]) {
-                    Utils.showError('Meal not found');
-                    return false;
-                }
-
-                // 3. Save deleted meal info (for logging)
-                const deletedMeal = todayLog.meals[mealIndex];
-                console.log(`Deleting meal: ${deletedMeal.name} (${deletedMeal.cals} kcal)`);
-
-                // 4. Remove meal from local array
-                todayLog.meals.splice(mealIndex, 1);
-
-                // 5. Determine if the entire log should be deleted
-                const hasNoMeals = todayLog.meals.length === 0;
-                const hasNoJournal = !todayLog.notes || todayLog.notes.trim() === '';
-                const shouldDeleteEntireLog = hasNoMeals && hasNoJournal;
-
-                // 6. Save to local storage
-                if (shouldDeleteEntireLog) {
-                    // Remove the entire day's log
-                    const updatedLogs = logs.filter(l => l.date !== today);
-                    await Storage.saveToLocalStorage(updatedLogs);
-                } else {
-                    // Update existing log
-                    todayLog.updatedAt = Utils.getCurrentTimestamp();
-                    todayLog._synced = false;
-                    await Storage.saveToLocalStorage(logs);
-                }
-
-                // 7. Update backend (only if it was synced before)
-                if (todayLog.id && !todayLog.id.startsWith('local_')) {
-                    if (shouldDeleteEntireLog) {
-                        // Delete entire log from backend
-                        await API.deleteFromBackend(todayLog.date);
-                    } else {
-                        // Update log with remaining meals
-                        await API.updateLogOnBackend(todayLog);
-                    }
-                }
-
-                // 8. Update UI
-                await UI.updateAll();
-                Utils.showSuccess(`Removed ${deletedMeal.name}`);
-
-                return true;
-            } catch (error) {
-                console.error('Error deleting food log:', error);
-                Utils.showError('Failed to delete: ' + error.message);
-                return false;
-            }
-        }
-
-        async function getTodayNutrition() {
-            const logs = await Storage.loadFromLocalStorage();
-            const today = Utils.getTodayDate();
-            const todayLog = logs.find(l => l.date === today);
-
-            if (!todayLog || !todayLog.meals) {
-                return { calories: 0, protein: 0 };
-            }
-
-            const total = todayLog.meals.reduce((acc, meal) => ({
-                calories: acc.calories + (parseFloat(meal.cals) || 0),
-                protein: acc.protein + (parseFloat(meal.protein) || 0)
-            }), { calories: 0, protein: 0 });
-
-            cumulativeNutrition = total;
-            return total;
-        }
-
-        function getCumulativeNutrition() {
-            return cumulativeNutrition;
-        }
-
-        return {
-            addFoodLog,
-            deleteFoodLog,
-            getTodayNutrition,
-            getCumulativeNutrition
-        };
-    })();
-
-    // ==================== 7. JOURNAL SERVICE MODULE ====================
-    const JournalService = (function() {
-        async function updateJournal(content, syncToBackend = true) {
-            try {
-                const logs = await Storage.loadFromLocalStorage();
-                const today = Utils.getTodayDate();
-                const todayLogIndex = logs.findIndex(l => l.date === today);
-
-                let updatedLog;
-
-                if (todayLogIndex !== -1) {
-                    logs[todayLogIndex].notes = content;
-                    logs[todayLogIndex].updatedAt = Utils.getCurrentTimestamp();
-                    logs[todayLogIndex]._synced = false;
-                    updatedLog = logs[todayLogIndex];
-                    await Storage.saveToLocalStorage(logs);
-                } else if (content.trim()) {
-                    updatedLog = {
-                        id: Utils.generateLocalId(),
-                        date: today,
-                        meals: [],
-                        notes: content,
-                        updatedAt: Utils.getCurrentTimestamp(),
-                        _localId: Utils.generateLocalId(),
-                        _synced: false,
-                        _source: 'journal'
-                    };
-                    await Storage.saveToLocalStorage([...logs, updatedLog]);
-                } else {
-                    return null;
-                }
-
-                // Update UI
-                const journalInput = document.getElementById('journalInput');
-                if (journalInput && journalInput.value !== content) {
-                    journalInput.value = content;
-                }
-
-                // Sync to backend
-                if (syncToBackend && updatedLog && content.trim()) {
-                    await API.syncLogToBackend(updatedLog);
-                }
-
-                return updatedLog;
-            } catch (error) {
-                console.error('Error updating journal:', error);
-                throw error;
-            }
-        }
-
-        async function loadJournal() {
-            try {
-                const logs = await Storage.loadFromLocalStorage();
-                const today = Utils.getTodayDate();
-                const todayLog = logs.find(l => l.date === today);
-                return todayLog ? todayLog.notes || '' : '';
-            } catch (error) {
-                console.error('Error loading journal:', error);
-                return '';
-            }
-        }
-
-        async function saveJournal() {
-            const journalContent = document.getElementById('journalInput').value;
-            const saveBtn = document.getElementById('saveJournalBtn');
-            const statusSpan = document.getElementById('journalStatus');
-            const originalText = saveBtn.textContent;
-
-            if (!journalContent.trim()) {
-                return;
-            }
-
-            try {
-                saveBtn.textContent = 'Saving...';
-                saveBtn.disabled = true;
-                if (statusSpan) {
-                    statusSpan.textContent = 'Saving...';
-                    statusSpan.style.color = 'var(--warning)';
-                }
-
-                await updateJournal(journalContent, true);
-
-                if (statusSpan) {
-                    statusSpan.textContent = 'Saved!';
-                    statusSpan.style.color = 'var(--success)';
-                    setTimeout(() => { if (statusSpan.textContent === 'Saved!') statusSpan.textContent = ''; }, 2000);
-                }
-                Utils.showSuccess('Journal saved!');
-            } catch (error) {
-                console.error('Error saving journal:', error);
-                if (statusSpan) {
-                    statusSpan.textContent = 'Save failed';
-                    statusSpan.style.color = 'var(--danger)';
-                    setTimeout(() => { if (statusSpan.textContent === 'Save failed') statusSpan.textContent = ''; }, 3000);
-                }
-                Utils.showError('Failed to save journal');
-            } finally {
-                saveBtn.textContent = originalText;
-                saveBtn.disabled = false;
-            }
-        }
-
-        return {
-            updateJournal,
-            loadJournal,
-            saveJournal
-        };
-    })();
-
-    // ==================== 8. UI MODULE ====================
-    const UI = (function() {
-        async function updateNutritionDisplay() {
-            const nutrition = await FoodService.getTodayNutrition();
-            const goals = Config.NUTRITION_GOALS;
-
-            const calPercent = Math.min(100, (nutrition.calories / goals.calories) * 100);
-            const protPercent = Math.min(100, (nutrition.protein / goals.protein) * 100);
-
-            const calLabel = document.getElementById('cal-label');
-            const protLabel = document.getElementById('prot-label');
-            const calFill = document.getElementById('cal-fill');
-            const protFill = document.getElementById('prot-fill');
-
-            calLabel.textContent = `${Math.round(nutrition.calories)} / ${goals.calories} kcal`;
-            protLabel.textContent = `${Math.round(nutrition.protein)}g / ${goals.protein}g`;
-
-            if (nutrition.calories > goals.calories) {
-                calLabel.classList.add('text-danger');
-            } else {
-                calLabel.classList.remove('text-danger');
-            }
-
-            if (nutrition.protein > goals.protein) {
-                protLabel.classList.add('text-danger');
-            } else {
-                protLabel.classList.remove('text-danger');
-            }
-
-            calFill.style.width = calPercent + '%';
-            protFill.style.width = protPercent + '%';
-        }
-
-        async function updateFoodLogDisplay() {
-            const logs = await Storage.loadFromLocalStorage();
-            const today = Utils.getTodayDate();
-            const todayLog = logs.find(l => l.date === today);
-            const logContainer = document.getElementById('foodLog');
-
-            if (!todayLog || !todayLog.meals || todayLog.meals.length === 0) {
-                logContainer.innerHTML = '<p class="food-log-empty">No meals logged yet — food entries appear here</p>';
-                return;
-            }
-
-            logContainer.innerHTML = '';
-
-            todayLog.meals.forEach((meal, index) => {
-                const item = document.createElement('div');
-                item.className = 'food-log-item';
-                item.setAttribute('data-meal-index', index);
-
-                item.innerHTML = `
-                    <div class="food-log-content">
-                        <span class="food-log-name">${Utils.sanitizeInput(meal.name)}</span>
-                        <div class="food-log-details">
-                            <span>🔥 ${meal.cals} kcal</span>
-                            <span>💪 ${meal.protein}g protein</span>
+                <div class="food-item">
+                    <div class="food-info">
+                        <div class="food-emoji">🍽️</div>
+                        <div class="food-details">
+                            <h4><input class="meals-input" type="text" id="foodName" placeholder="Food name"></h4>
+                            <div class="nutrition-grid">
+                                <div>
+                                    <span>🔥Cals(kcal)</span>
+                                    <input type="number" id="foodCals" placeholder="0" min="0">
+                                </div>
+                                <div>
+                                    <span>💪Protein(g)</span>
+                                    <input type="number" id="foodProtein" placeholder="0" min="0">
+                                </div>
+                                <div>
+                                    <span>🍞Carbs(g)</span>
+                                    <input type="number" id="foodCarb" placeholder="0" min="0">
+                                </div>
+                                <div>
+                                    <span>🥑Fat(g)</span>
+                                    <input type="number" id="foodFat" placeholder="0" min="0">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <button class="food-log-delete" aria-label="Delete food entry">×</button>
-                `;
+                </div>
+                <button class="btn-primary" id="saveManualBtn">Add to Log</button>
+            </div>
 
-                logContainer.appendChild(item);
-            });
-        }
+            <!-- Food List -->
+            <div class="food-list" id="foodList">
+                <p class="food-log-empty">Loading...</p>
+            </div>
+             <!-- AI Suggestions -->
+            <div class="ai-suggestions">
+                <div class = "ai-suggestions columns">
+                    <div class="ai-logo">
+                        <img src="wizcoach-logo.png" alt="WizCoach Logo">
+                    </div>
+                    <button class="btn-primary" id="getSuggestionBtn" style="width: 90%; padding: 10px; gap: 10px;">Ask</button>
+                </div>
+                <div class="ai-text-bubble" id="aiSuggestionText">
+                    <p>Default suggestion</p>
+                </div>
+            </div>
+        </div>
+        <!-- Weekly Nutrition Chart -->
+        <div class="card" style="margin-top: 24px;">
+            <div class="card-title">
+                <span>📈</span>
+                Weekly Nutrition Trend
+            </div>
+            <div class="chart-tabs">
+                <button class="chart-tab active" data-view="cals">Calories</button>
+                <button class="chart-tab" data-view="protein">Protein</button>
+                <button class="chart-tab" data-view="carb">Carbs</button>
+                <button class="chart-tab" data-view="fat">Fat</button>
+            </div>
+            <canvas id="weeklyChart"></canvas>
+        </div>
+    </main>
+</div>
 
-        async function updateJournalDisplay() {
-            const journalInput = document.getElementById('journalInput');
-            const journalDateSpan = document.getElementById('journalDate');
+<button onclick="toggleTheme()" class="theme-btn" title="Toggle Dark Mode">🌓</button>
 
-            if (journalInput) {
-                const journal = await JournalService.loadJournal();
-                if (journalInput.value !== journal) {
-                    journalInput.value = journal;
+<script>
+    // API wrapper
+    const API = {
+        async fetch(path, options = {}) {
+            const user = firebase.auth().currentUser;
+            if (!user) throw new Error('Not logged in');
+            const token = await user.getIdToken();
+            const res = await fetch(`/api/nutrition-logs${path}`, {
+                ...options,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    ...options.headers
                 }
-            }
-
-            if (journalDateSpan) {
-                journalDateSpan.textContent = Utils.getTodayDate();
-            }
+            });
+            if (!res.ok) throw new Error(`API Error: ${res.status}`);
+            return res.json();
+        },
+        getToday() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        },
+        getTodayLog() {
+            return this.fetch(`/${this.getToday()}`);
+        },
+        getWeekLog() {
+            return this.fetch(`/week/${this.getToday()}`);
+        },
+        addMeal(meal) {
+            return this.fetch(`/meals/${this.getToday()}`, {
+                method: 'POST',
+                body: JSON.stringify(meal)
+            });
+        },
+        deleteMeal(mealId) {
+            return this.fetch(`/meals/${this.getToday()}/${mealId}`, {
+                method: 'DELETE'
+            });
+        },
+        saveNotes(notes) {
+            return this.fetch(`/notes/${this.getToday()}`, {
+                method: 'POST',
+                body: JSON.stringify({ notes })
+            });
+        },
+        getBurnedCalories() {
+            return this.fetch(`/burnedCalories/${this.getToday()}`);
+        },
+        getSuggestions() {
+            return this.fetch(`/suggestions/${this.getToday()}`);
+        },
+        async analyzeImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            const user = firebase.auth().currentUser;
+            const token = await user.getIdToken();
+            const res = await fetch('/api/nutrition-logs/analyze-image', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+            if (!res.ok) throw new Error('Analysis failed');
+            return res.json();
         }
+    };
 
-        async function updateAll() {
-            await updateNutritionDisplay();
-            await updateFoodLogDisplay();
-            await updateJournalDisplay();
-        }
+    const UI = {
+        data: null,
+        burned: null,
+        suggestions: null,
+        weekData: null,
+        currentChartView: 'cals',
 
-        function setUploadState(state) {
-            const zone = document.getElementById('uploadZone');
-            const processingMsg = document.getElementById('processingMessage');
+        getNutritionColor(key, percent) {
+            const root = getComputedStyle(document.documentElement);
+            if (key === 'protein') {
+                return percent > 80 ? root.getPropertyValue('--protein-high').trim() :
+                       percent > 50 ? root.getPropertyValue('--protein-mid').trim() :
+                       root.getPropertyValue('--protein-low').trim();
+            } else if (key === 'carb') {
+                return percent > 80 ? root.getPropertyValue('--carb-high').trim() :
+                       percent > 50 ? root.getPropertyValue('--carb-mid').trim() :
+                       root.getPropertyValue('--carb-low').trim();
+            } else if (key === 'fat') {
+                return percent > 80 ? root.getPropertyValue('--fat-high').trim() :
+                       percent > 50 ? root.getPropertyValue('--fat-mid').trim() :
+                       root.getPropertyValue('--fat-low').trim();
+            }
+            return root.getPropertyValue('--calorie-ring').trim();
+        },
 
-            if (state === 'processing') {
-                zone.classList.add('processing');
-                processingMsg.style.display = 'flex';
+        getChartColor(view) {
+            const root = getComputedStyle(document.documentElement);
+            const colors = {
+                cals: root.getPropertyValue('--chart-cals').trim(),
+                protein: root.getPropertyValue('--chart-protein').trim(),
+                carb: root.getPropertyValue('--chart-carb').trim(),
+                fat: root.getPropertyValue('--chart-fat').trim()
+            };
+            return colors[view] || root.getPropertyValue('--chart-cals').trim();
+        },
+
+        getChartBackground(view) {
+            const root = getComputedStyle(document.documentElement);
+            const backgrounds = {
+                cals: root.getPropertyValue('--chart-cals-bg').trim(),
+                protein: root.getPropertyValue('--chart-protein-bg').trim(),
+                carb: root.getPropertyValue('--chart-carb-bg').trim(),
+                fat: root.getPropertyValue('--chart-fat-bg').trim()
+            };
+            return backgrounds[view] || root.getPropertyValue('--chart-cals-bg').trim();
+        },
+
+        init() {
+            this.bindEvents();
+            this.load();
+        },
+
+        async load() {
+            try {
+                this.data = await API.getTodayLog();
+                this.data.meals = this.data.meals || [];
+                this.burned = await API.getBurnedCalories();
+
+                try {
+                    this.weekData = await API.getWeekLog();
+                } catch (weekErr) {
+                    console.warn('Failed to load week data:', weekErr);
+                    this.weekData = null; 
+                }
+                this.render();
+                this.renderChart();
+            } catch (err) {
+                console.error('Failed to load:', err);
+                console.log('Using mock data for demo');
+                // Use mock data for demo
+                this.data = this.getMockData();
+                this.weekData = this.getMockWeekData();
+                this.burned = this.getMockBurned();
+                this.render();
+                this.renderChart();
+            }
+        },
+
+        render() {
+            this.renderNutrition();
+            this.renderFoodList();
+            this.renderNotes();
+            this.renderAISuggestions();
+            this.renderChart();
+
+
+        }, 
+
+        renderNutrition() {
+            console.log('Rendering with data:', this.data);
+            const {
+                totalNutrition,
+                targetNutrition,
+                meals,
+                notes
+            } = this.data;
+
+            const intake = totalNutrition?.cals || 0;
+            const burned = this.burned || 0;
+            document.getElementById('intakeValue').textContent = `${Math.round(intake)}`;
+            document.getElementById('burnedValue').textContent = `${Math.round(burned)}`;
+            
+            const targetCals = targetNutrition?.cals || 2000;
+            const netCals = intake - burned;
+
+            // Update calorie ring
+            const circumference = 2 * Math.PI * 62;
+            const current = parseFloat(netCals);
+            const target = parseFloat(targetNutrition?.cals);
+            const percent = Math.min(current / target, 1);
+            const offset = circumference - (percent * circumference);
+            document.getElementById('calorieRing').style.strokeDashoffset = offset;
+            document.getElementById('calorieCurrent').textContent = Math.round(current);
+            document.getElementById('calorieTotal').textContent = `/ ${Math.round(target)} kcal`;
+
+            // Color change for calorie ring based on progress
+            let ringColor = getComputedStyle(document.documentElement).getPropertyValue('--calorie-ring').trim();
+        
+
+            document.getElementById('calorieRing').style.stroke = ringColor;
+
+            // Update macros
+            const macros = [{
+                    key: 'protein',
+                    label: 'Protein',
+                    target: targetNutrition?.protein
+                },
+                {
+                    key: 'carb',
+                    label: 'Carbs',
+                    target: targetNutrition?.carb
+                },
+                {
+                    key: 'fat',
+                    label: 'Fat',
+                    target: targetNutrition?.fat
+                }
+            ];
+
+            macros.forEach(({
+                key,
+                target
+            }) => {
+                const current = parseFloat(totalNutrition?.[key] || 0);
+                const percent = Math.min((current / target) * 100, 100);
+                document.getElementById(`${key}Text`).textContent = `${Math.round(current)} / ${target} g`;
+                document.getElementById(`${key}Bar`).style.width = `${percent}%`;
+
+                // Color change for macro bars based on progress
+                let barColor = this.getNutritionColor(key, percent);
+                document.getElementById(`${key}Bar`).style.backgroundColor = barColor;
+            });
+        },
+
+
+        renderFoodList() {
+            const {
+                meals,
+                totalNutrition
+            } = this.data;
+            const list = document.getElementById('foodList');
+            if (!meals.length) {
+                list.innerHTML = '<p class="food-log-empty">No meals logged yet. Add your first meal!</p>';
+                document.getElementById('logSummary').style.display = 'none';
             } else {
-                zone.classList.remove('processing');
-                processingMsg.style.display = 'none';
+                function escape(str) {
+                    const div = document.createElement('div');
+                    div.textContent = str;
+                    return div.innerHTML;
+                }
+                list.innerHTML = meals.map(m => `
+                    <div class="food-item" data-id="${m.mealId}">
+                        <div class="food-info">
+                            <div class="food-emoji">🍽️</div>
+                            <div class="food-details">
+                                <h4>${escape(m.name)}</h4>
+                                <div class="food-macros">
+                                    <span>🔥 ${m.cals}kcal</span>
+                                    <span>💪 ${m.protein}g</span>
+                                    <span>🍞 ${m.carb}g</span>
+                                    <span>🥑 ${m.fat}g</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="food-actions">
+                            <button class="icon-btn delete" data-action="delete" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('logSummary').style.display = 'flex';
+                document.getElementById('logCountSpan').textContent = `Today ${meals.length} item${meals.length > 1 ? 's' : ''} - ${Math.round(totalNutrition?.cals || 0)} kcal`;
             }
-        }
 
-        function showPreview(file) {
+            
+        },
+
+        renderNotes() {
+            const {
+                notes
+            } = this.data;
+            document.getElementById('journalInput').value = notes || '';
+            document.getElementById('journalDate').textContent = new Date().toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });     
+        },
+
+        renderAISuggestions() {
+            const bubble = document.getElementById('aiSuggestionText');
+            const p = bubble.querySelector('p');
+
+             if (this.suggestions) {
+                // Adapts to multiple formats: string, array, or object with suggestions property
+                let text = null;
+                if (typeof this.suggestions === 'string') {
+                    text = this.suggestions;
+                } else if (Array.isArray(this.suggestions) && this.suggestions.length > 0) {
+                    text = this.suggestions[0].text || this.suggestions[0];
+                } else if (this.suggestions && typeof this.suggestions === 'object' && this.suggestions.suggestions) {
+                    text = this.suggestions.suggestions;
+                }
+
+            
+                console.log('AI suggestions loaded:', text);
+
+                if (text) {
+                    p.textContent = text.trim();
+                } else {
+                    p.textContent = 'Conversation format not recognized, showing default message';
+                }
+            } else {
+                console.log('No suggestions available, showing default message');
+                p.textContent = 'Ask me for personalized nutrition suggestions based on your today\'s dietary habits.';
+            }
+        },
+
+    
+        renderChart() {
+            console.log('Rendering chart with weekData:', this.weekData, 'view:', this.currentChartView);
+            if (this.weeklyChartInstance) {
+                this.weeklyChartInstance.destroy();
+            }
+            if (!this.weekData) {
+                // Render default chart with zeros
+                const ctx = document.getElementById('weeklyChart').getContext('2d');
+                this.weeklyChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: this.getChartLabel(this.currentChartView),
+                            data: [0, 0, 0, 0, 0, 0, 0],
+                            borderColor: this.getChartColor(this.currentChartView),
+                            backgroundColor: this.getChartBackground(this.currentChartView),
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: (value) => value + this.getChartUnit(this.currentChartView)
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            const labels = [];
+            const data = [];
+            const today = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                labels.push(date.toLocaleDateString('en-US', {
+                    weekday: 'short'
+                }));
+                const dayData = this.weekData.find(d => d.date === dateStr);
+                data.push(dayData ? parseFloat(dayData.totalNutrition?.[this.currentChartView] || 0) : 0);
+            }
+            this.weeklyChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: this.getChartLabel(this.currentChartView),
+                        data,
+                        borderColor: this.getChartColor(this.currentChartView),
+                        backgroundColor: this.getChartBackground(this.currentChartView),
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => value + this.getChartUnit(this.currentChartView)
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        },
+
+        getChartLabel(view) {
+            const labels = {
+                cals: 'Calories',
+                protein: 'Protein',
+                carb: 'Carbs',
+                fat: 'Fat'
+            };
+            return labels[view] || 'Calories';
+        },
+        
+        getChartUnit(view) {
+            return view === 'cals' ? ' kcal' : ' g';
+        },
+
+        getMockData() {
+            return {
+                totalNutrition: {
+                    cals: 2500,
+                    protein: 85,
+                    carb: 180,
+                    fat: 45
+                },
+                targetNutrition: {
+                    cals: 3000,
+                    protein: 150,
+                    carb: 250,
+                    fat: 70
+                },
+                meals: [
+                    {
+                        mealId: 'meal1',
+                        name: 'Grilled Chicken Salad',
+                        cals: '450',
+                        protein: '35',
+                        carb: '20',
+                        fat: '25'
+                    },
+                    {
+                        mealId: 'meal2',
+                        name: 'Oatmeal with Berries',
+                        cals: '300',
+                        protein: '10',
+                        carb: '50',
+                        fat: '8'
+                    },
+                    {
+                        mealId: 'meal3',
+                        name: 'Greek Yogurt',
+                        cals: '150',
+                        protein: '15',
+                        carb: '10',
+                        fat: '5'
+                    },
+                    {
+                        mealId: 'meal4',
+                        name: 'Quinoa Bowl',
+                        cals: '550',
+                        protein: '25',
+                        carb: '100',
+                        fat: '12'
+                    },
+                    {
+                        mealId: 'meal5',
+                        name: 'toast with avocado',
+                        cals: '300',
+                        protein: '125',
+                        carb: '40',
+                        fat: '52'
+                    }
+                ],
+                notes: 'Feeling good today! Had a productive workout and ate healthy meals.',
+                
+
+            };
+
+
+        },
+
+        getMockWeekData() {
+            const today = new Date();
+            const weekData = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const calories = Math.floor(Math.random() * 500) + 1500; // Random between 1500-2000
+                const protein = Math.floor(calories * 0.3 / 4); // Approx 30% from protein
+                const carb = Math.floor(calories * 0.5 / 4); // Approx 50% from carbs
+                const fat = Math.floor(calories * 0.2 / 9); // Approx 20% from fat
+                weekData.push({
+                    date: dateStr,
+                    totalNutrition: {
+                        cals: calories,
+                        protein: protein,
+                        carb: carb,
+                        fat: fat
+                    }
+                });
+            }
+            return weekData;
+        },
+
+        getMockBurned() {
+            return 300; 
+        },
+
+        bindEvents() {
+            const zone = document.getElementById('uploadZone');
+            const input = document.getElementById('fileInput');
+
+            zone.addEventListener('click', () => input.click());
+            input.addEventListener('change', (e) => {
+                if (e.target.files[0]) this.handleImage(e.target.files[0]);
+            });
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file?.type.startsWith('image/')) this.handleImage(file);
+            });
+
+            const addBtn = document.getElementById('addFoodBtn');
+            const form = document.getElementById('manualEntryForm');
+            addBtn.addEventListener('click', () => {
+                form.classList.toggle('hidden');
+                addBtn.textContent = form.classList.contains('hidden') ? '+' : '−';
+            });
+
+            document.getElementById('saveManualBtn').addEventListener('click', () => this.addManual());
+
+            // Delete button event delegation
+            document.getElementById('foodList').addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action="delete"]');
+                if (btn) {
+                    const foodItem = btn.closest('.food-item');
+                    if (foodItem) {
+                        const mealId = foodItem.getAttribute('data-id');
+                        if (mealId) this.deleteMeal(mealId);
+                    }
+                }
+            });
+
+            // Diary is auto-saved
+            let timeout;
+            const journalInput = document.getElementById('journalInput');
+            const status = document.getElementById('journalStatus');
+            journalInput.addEventListener('input', () => {
+                status.textContent = 'Unsaved...';
+                status.style.color = 'var(--warning)';
+                clearTimeout(timeout);
+                timeout = setTimeout(() => saveJournal(), 1500);
+            });
+
+            // Chart view tabs
+            document.querySelectorAll('.chart-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const view = e.target.getAttribute('data-view');
+                    this.switchChartView(view);
+                });
+            });
+
+            // AI Suggestions button
+            document.getElementById('getSuggestionBtn').addEventListener('click', () => this.getSuggestions());
+        },
+
+        async getSuggestions() {
+            try {
+                const suggestions = await API.getSuggestions();
+                this.suggestions = suggestions;
+                console.log('Received AI suggestions:', this.suggestions);
+                this.renderAISuggestions();
+            } catch (err) {
+                alert('Failed to get suggestions: ' + err.message);
+            }
+        },
+
+        switchChartView(view) {
+            this.currentChartView = view;
+            // Update active tab
+            document.querySelectorAll('.chart-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.getAttribute('data-view') === view);
+            });
+            // Re-render chart
+            this.renderChart();
+        },
+
+        async handleImage(file) {
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                return alert('Please upload JPEG, PNG or WebP');
+            }
+            if (file.size > 5 * 1024 * 1024) return alert('Image too large (max 5MB)');
+
+            const zone = document.getElementById('uploadZone');
+
+            // Preview
             const reader = new FileReader();
             reader.onload = (e) => {
                 document.getElementById('previewImg').src = e.target.result;
-                document.getElementById('uploadZone').classList.add('has-image');
-                setUploadState('processing');
-                handleImageAnalysis(file);
+                zone.classList.add('has-image');
             };
             reader.readAsDataURL(file);
-        }
 
-        async function handleImageAnalysis(file) {
+            // Analyze
+            zone.classList.add('processing');
             try {
-                const data = await API.analyzeFoodImage(file);
-                await FoodService.addFoodLog({
-                    name: data.name || 'Unknown Food',
-                    cals: String(data.cals || 0),
-                    protein: String(data.protein || 0)
-                }, 'vision');
-                Utils.showSuccess('Food analyzed and added to log!');
-            } catch (error) {
-                console.error('Analysis error:', error);
-                Utils.showError(error.message || 'Failed to analyze food image');
-            } finally {
-                setUploadState('idle');
+                const result = await API.analyzeImage(file);
+                await API.addMeal({
+                    mealId: result.mealId || 'meal_' + Date.now(),
+                    name: result.name || 'Analyzed Food',
+                    cals: String(result.cals || 0),
+                    protein: String(result.protein || 0),
+                    carb: String(result.carb || 0),
+                    fat: String(result.fat || 0)
+                });
+                await this.load();
+                setTimeout(() => {
+                    zone.classList.remove('has-image', 'processing');
+                    document.getElementById('previewImg').src = '';
+                    document.getElementById('fileInput').value = '';
+                }, 1500);
+            } catch (err) {
+                alert('Analysis failed: ' + err.message);
+                zone.classList.remove('processing');
             }
-        }
+        },
 
-        function handleFileSelect(file) {
-            if (!file) return;
+        async addManual() {
+            const meal = {
+                mealId: 'meal_' + Date.now(),
+                name: document.getElementById('foodName').value.trim() || 'Manual Entry',
+                cals: document.getElementById('foodCals').value || '0',
+                protein: document.getElementById('foodProtein').value || '0',
+                carb: document.getElementById('foodCarb').value || '0',
+                fat: document.getElementById('foodFat').value || '0'
+            };
             try {
-                Utils.validateImageFile(file);
-                showPreview(file);
-            } catch (error) {
-                Utils.showError(error.message);
-                document.getElementById('fileInput').value = '';
+                await API.addMeal(meal);
+                await this.load();
+                ['foodName', 'foodCals', 'foodProtein', 'foodCarb', 'foodFat'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('manualEntryForm').classList.add('hidden');
+                document.getElementById('addFoodBtn').textContent = '+';
+            } catch (err) {
+                alert('Failed to add: ' + err.message);
             }
-        }
+        },
 
-        return {
-            updateAll,
-            setUploadState,
-            showPreview,
-            handleFileSelect,
-            updateNutritionDisplay,
-            updateFoodLogDisplay,
-            updateJournalDisplay
-        };
-    })();
-
-    // ==================== 9. EVENT HANDLERS MODULE ====================
-    const Events = (function() {
-        let autoSaveTimeout = null;
-
-        function setupUploadEvents() {
-            const uploadZone = document.getElementById('uploadZone');
-            const fileInput = document.getElementById('fileInput');
-            const uploadButton = document.getElementById('uploadButton');
-
-            uploadZone.addEventListener('click', (e) => {
-                if (e.target === uploadButton || uploadButton.contains(e.target)) return;
-                fileInput.click();
-            });
-
-            uploadButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) UI.handleFileSelect(e.target.files[0]);
-            });
-
-            uploadZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadZone.classList.add('drag-over');
-            });
-
-            uploadZone.addEventListener('dragleave', () => {
-                uploadZone.classList.remove('drag-over');
-            });
-
-            uploadZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadZone.classList.remove('drag-over');
-                const file = e.dataTransfer.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    UI.handleFileSelect(file);
-                } else if (file) {
-                    Utils.showError('Please drop an image file');
-                }
-            });
-        }
-
-        function setupFoodEvents() {
-            const addFoodBtn = document.getElementById('addFoodBtn');
-            const manualForm = document.getElementById('manualEntryForm');
-            const saveManualBtn = document.getElementById('saveManualFoodBtn');
-
-            if (addFoodBtn) {
-                addFoodBtn.addEventListener('click', () => {
-                    manualForm.classList.toggle('hidden');
-                    addFoodBtn.textContent = manualForm.classList.contains('hidden') ? '+' : '−';
-                    if (!manualForm.classList.contains('hidden')) {
-                        document.getElementById('foodName').focus();
-                    }
-                });
-            }
-
-            if (saveManualBtn) {
-                saveManualBtn.addEventListener('click', async () => {
-                    const name = document.getElementById('foodName').value.trim();
-                    const cals = document.getElementById('foodCalories').value;
-                    const protein = document.getElementById('foodProtein').value;
-
-                    if (!name && !cals && !protein) {
-                        Utils.showError('Please enter at least one field');
-                        return;
-                    }
-
-                    await FoodService.addFoodLog({
-                        name: name || 'Manual Entry',
-                        cals: cals || '0',
-                        protein: protein || '0'
-                    }, 'manual');
-
-                    document.getElementById('foodName').value = '';
-                    document.getElementById('foodCalories').value = '';
-                    document.getElementById('foodProtein').value = '';
-                    manualForm.classList.add('hidden');
-                    addFoodBtn.textContent = '+';
-                    Utils.showSuccess('Food added successfully!');
-                });
-            }
-
-
-
-            // Event delegation for delete buttons
-            document.getElementById('foodLog').addEventListener('click', async (e) => {
-                const deleteBtn = e.target.closest('.food-log-delete');
-                if (deleteBtn) {
-                    const item = deleteBtn.closest('.food-log-item');
-                    const index = parseInt(item.getAttribute('data-meal-index'));
-                    if (!isNaN(index)) await FoodService.deleteFoodLog(index);
-                }
-            });
-
-            // Enter key support for manual entry
-            ['foodName', 'foodCalories', 'foodProtein'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') saveManualBtn.click();
-                    });
-                }
-            });
-        }
-        let originalJournalContent = '';
-        function setupJournalEvents() {
-            const journalInput = document.getElementById('journalInput');
-
-            if (journalInput) {
-                journalInput.addEventListener('input', async () => {
-                    const statusSpan = document.getElementById('journalStatus');
-                    if (statusSpan) {
-                        statusSpan.textContent = 'Unsaved changes';
-                        statusSpan.style.color = 'var(--warning)';
-
-                        // Clear any existing timeout
-                        if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
-
-                        // Set a new timeout for auto-save
-                        autoSaveTimeout = setTimeout(async () => {
-                            try {
-                                const content = journalInput.value;
-                                // Only save if content has changed
-                                if (content !== originalJournalContent) {
-                                    await JournalService.updateJournal(content, true);
-                                    if (statusSpan) {
-                                        statusSpan.textContent = 'Saved!';
-                                        statusSpan.style.color = 'var(--success)';
-                                        setTimeout(() => {
-                                            if (statusSpan.textContent === 'Saved!')
-                                                statusSpan.textContent = '';
-                                        }, 2000);
-                                    }
-                                    originalJournalContent = content;
-                                }
-                            } catch (error) {
-                                if (statusSpan) {
-                                    statusSpan.textContent = 'Save failed';
-                                    statusSpan.style.color = 'var(--danger)';
-                                    setTimeout(() => {
-                                        if (statusSpan.textContent === 'Save failed')
-                                            statusSpan.textContent = '';
-                                    }, 3000);
-                                }
-                            }
-                        }, 2000); // Auto-save after 2 seconds of inactivity
-                    }
-                });
-            }
-        }
-
-        function setupHelpEvent() {
-            const helpBtn = document.getElementById('helpBtn');
-            if (helpBtn) {
-                helpBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    Utils.showSuccess('📖 Help: Upload food images to analyze nutrition, or manually add meals. Data is synced to your account.');
-                });
-            }
-        }
-
-        function setupAllEvents() {
-            setupUploadEvents();
-            setupFoodEvents();
-            setupJournalEvents();
-            setupHelpEvent();
-        }
-
-        return { setupAllEvents };
-    })();
-
-    // ==================== 10. APP INITIALIZATION ====================
-    const App = (function() {
-        async function initialize() {
+        async deleteMeal(mealId) {
+            if (!confirm('Delete this meal?')) return;
             try {
-                await API.initFirebase();
-
-                API.onAuthStateChanged(async (user) => {
-                    if (!user) {
-                        window.location.href = 'login.html';
-                        return;
-                    }
-
-                    // Load data from local storage first, then sync from backend
-                    const localData = await Storage.loadFromLocalStorage();
-                    if (localData.length === 0) {
-                        await API.loadAllFromBackend();
-                    }
-
-                    // Update UI
-                    await UI.updateAll();
-
-                    // Setup event handlers
-                    Events.setupAllEvents();
-
-                    Utils.showSuccess('Ready! Add your meals to get started.');
-                });
-            } catch (error) {
-                console.error('Initialization failed:', error);
-                Utils.showError('Failed to initialize app. Please refresh the page.');
+                await API.deleteMeal(mealId);
+                await this.load();
+            } catch (err) {
+                alert('Failed to delete');
             }
         }
+    };
 
-        function setActiveNavLink() {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.getAttribute('href') === 'nutrition.html') {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
+    // Diary save
+    async function saveJournal() {
+        const status = document.getElementById('journalStatus');
+        const notes = document.getElementById('journalInput').value;
+        status.textContent = 'Saving...';
+        try {
+            await API.saveNotes(notes);
+            status.textContent = 'Saved!';
+            status.style.color = 'var(--success)';
+            setTimeout(() => status.textContent = '', 2000);
+        } catch (err) {
+            status.textContent = 'Failed';
+            status.style.color = 'var(--danger)';
+        }
+    }
+
+    // Init
+    async function init() {
+        try {
+            const res = await fetch('/api/config');
+            const config = await res.json();
+            firebase.initializeApp(config);
+            firebase.auth().onAuthStateChanged(user => {
+                if (!user) return window.location.href = 'login.html';
+                UI.init();
             });
+        } catch (err) {
+            console.log('Dev mode: no firebase');
+            UI.init(); // Dev mode, no auth
         }
+    }
 
-        function start() {
-            setActiveNavLink();
-            initialize();
-        }
-
-        return { start };
-    })();
-
-    // Start the application
-    document.addEventListener('DOMContentLoaded', () => {
-        App.start();
-    });
+    document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
+
 </html>

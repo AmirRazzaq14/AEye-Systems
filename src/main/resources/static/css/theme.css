@@ -1,0 +1,63 @@
+/* theme.css */
+
+/* LIGHT THEME (default) */
+:root{
+    --page-bg: linear-gradient(135deg,#e8ecf5 0%,#f0eeff 50%,#e8f0ff 100%);
+    --nav-bg: #ffffff;
+
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+
+    --card-bg: #ffffff;
+    --input-bg: #f9fafb;
+
+    /* NEW: shared hover backgrounds */
+    --nav-hover-bg: #f3f4f6;
+}
+
+/* DARK THEME */
+:root[data-theme="dark"]{
+    --page-bg: linear-gradient(135deg,#0b1020 0%,#0f172a 55%,#111827 100%);
+    --nav-bg: rgba(17,24,39,0.92);
+
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --border: rgba(255,255,255,0.06);
+
+    --card-bg: rgba(22, 32, 51, 0.95);
+    --input-bg: rgba(12, 20, 34, 0.95);
+
+    --nav-hover-bg: rgba(148,163,184,0.12);
+}
+
+/* global styles that use the variables */
+
+body{
+    background: var(--page-bg);
+    color: var(--text);
+}
+
+nav{
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--border);
+}
+
+/* if you have other card class names, you can add them here too */
+.card{
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+}
+
+/* inputs */
+input,textarea{
+    background: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+/* FIXED: theme-safe hover */
+.nav-link:hover{
+    background: var(--nav-hover-bg);
+}

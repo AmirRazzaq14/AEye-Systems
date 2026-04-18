@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 public class ApiClientFactory {
     
     private final OllamaClient ollamaClient;
-    private final GeminiClient geminiClient;
+    private final GeminiImageAnalyzeClient geminiClient;
     private final ApiProperties apiProperties;
     
     public ApiClientFactory(OllamaClient localClient,
-                           GeminiClient remoteClient,
+                           GeminiImageAnalyzeClient remoteClient,
                            ApiProperties apiProperties) {
         this.ollamaClient = localClient;
         this.geminiClient = remoteClient;

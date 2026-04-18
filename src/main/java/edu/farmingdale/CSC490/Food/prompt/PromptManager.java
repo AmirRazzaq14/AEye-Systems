@@ -22,35 +22,19 @@ public class PromptManager {
 
 
     /**
-     * Port 1, get the prompt from an existing file
+     * get the prompt from an existing file
      * @param promptFile the prompt file name
      * @return the formatted prompt text
      */
     public String getPromptFromFile(String promptFile) {
-        log.info("===Getting prompt from file===");
-        log.info("1.  Read the prompt file");
+        log.info("Getting prompt from file");
+        //1.  Read the prompt file
         String promptText = readTextFile(promptFile);
 
-        log.info("2.  Format the prompt");
-        String formattedPrompt = formatPrompt(promptText);
-
-        log.info("3.  Return the formatted prompt");
-        return formattedPrompt;
+        //2.  Return the formatted prompt
+        return formatPrompt(promptText);
     }
 
-    /**
-     * port 2, get the input from the front-end
-     *
-     * @param promptText the input prompt text from the front-end
-     * @return the formatted prompt text
-     */
-    public String getPromptFromInput(String promptText) {
-        log.info("===Getting prompt from input==");
-        log.info("1.  Format the prompt");
-        String formattedPrompt = formatPrompt(promptText);
-        log.info("2.  Return the formatted prompt");
-        return formattedPrompt;
-    }
 
     /**
      * Formats the prompt text for use in the API call

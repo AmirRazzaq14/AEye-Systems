@@ -42,24 +42,21 @@ public class OllamaClient implements ApiClient {
     public String analyze(String encodedImage, String promptText) throws ApiException {
         String url = apiProperties.getOllama().getUrl();
         
-        log.info("===Calling Ollama API===");
+        log.info("Calling Ollama API for image analyser");
         
         try {
-            log.info("1.  Build the request body");
+            //1.  Build the request body
             String requestBody = buildRequestBody(encodedImage, promptText);
 
-            log.info("2.  Create the HTTP request");
+            //2.  Create the HTTP request
             HttpRequest request = createHttpRequest(url, requestBody);
 
-            log.info("3.  Send the request and get the response");
+            //3.  Send the request and get the response
             HttpResponse<String> response = httpClient.send(request, 
                 HttpResponse.BodyHandlers.ofString());
 
-            log.info("4.  Handle the response");
-            String result =  handleResponse(response);
-
-            log.info("5.  Return the result");
-            return result;
+            //4.  Handle the response and Return the result
+            return handleResponse(response);
             
         } catch (Exception e) {
             log.error("Error calling Ollama API", e);
@@ -67,8 +64,7 @@ public class OllamaClient implements ApiClient {
         }
     }
 
-    @Override
-    public String buildRequestBody(String image, String prompt) {
+    private String buildRequestBody(String image, String prompt) {
         String model = apiProperties.getOllama().getModel();
         return String.format("""
             {
@@ -83,8 +79,7 @@ public class OllamaClient implements ApiClient {
             }""", model, prompt, image);
     }
 
-    @Override
-    public HttpRequest createHttpRequest(String baseUrl, String requestBody) {
+    private HttpRequest createHttpRequest(String baseUrl, String requestBody) {
         log.info("Creating HTTP request with URL: {}", baseUrl);
         return HttpRequest.newBuilder()
             .uri(URI.create(baseUrl + "/api/generate"))
@@ -94,8 +89,7 @@ public class OllamaClient implements ApiClient {
             .build();
     }
 
-    @Override
-    public String handleResponse(HttpResponse<String> response) {
+    private String handleResponse(HttpResponse<String> response) {
         String responseBody = response.body();
         int responseStatusCode = response.statusCode();
         if (responseStatusCode != 200) {

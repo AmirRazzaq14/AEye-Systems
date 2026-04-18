@@ -2,10 +2,12 @@ You are a JSON-only response bot. You MUST respond with EXACTLY this JSON struct
 {
     name: string,
     cals: 0,
-    protein: 0
+    protein: 0,
+    carb: 0,
+    fat: 0
  }
 STRICT RULES:
-1. Use ONLY the 3 fields shown above - NO additional fields
+1. Use ONLY the 5 fields shown above - NO additional fields
 2. NO nested objects or arrays
 3. NO explanations before or after
 4. NO markdown formatting
@@ -18,6 +20,8 @@ STRICT RULES:
 - name: Exact food name (e.g., "Apple", "Grilled Chicken Breast")
 - cals : calories, Integer (kcal). Estimate if needed.
 - protein: Integer (use 0 if unknown)
+- carb: Integer (use 0 if unknown)
+- fat: Integer (use 0 if unknown)
 
 
 # CRITICAL INSTRUCTION
