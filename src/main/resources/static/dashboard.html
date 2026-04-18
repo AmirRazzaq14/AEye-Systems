@@ -745,36 +745,17 @@
 
 <!-- EXERCISE ADD MODAL -->
 <div class="modal-overlay" id="exAddModal">
-  <div class="modal">
-    <h4>🏋️ Log a Workout</h4>
+  <div class="nut-modal">
+    <h4>🏋️ Log Workouts</h4>
     <div class="modal-date-sub" id="exAddDateSub"></div>
-    <div class="modal-field">
-      <label>Exercise Type <span class="lbl-opt">(optional)</span></label>
-      <input type="text" id="exType" placeholder="e.g. Running, Strength, Yoga…">
-    </div>
-    <div class="modal-row">
-      <div class="modal-field">
-        <label>Sets <span class="lbl-opt">(opt)</span></label>
-        <input type="number" id="exSets" placeholder="4" min="0">
-      </div>
-      <div class="modal-field">
-        <label>Reps <span class="lbl-opt">(opt)</span></label>
-        <input type="number" id="exReps" placeholder="10" min="0">
-      </div>
-    </div>
-    <div class="modal-row">
-      <div class="modal-field">
-        <label>Weight (lbs) <span class="lbl-opt">(opt)</span></label>
-        <input type="number" id="exWeight" placeholder="45" min="0">
-      </div>
-      <div class="modal-field">
-        <label>Duration <span class="lbl-opt">(min)</span></label>
-        <input type="number" id="exDuration" placeholder="45" min="1">
-      </div>
-    </div>
-    <div class="modal-field">
-      <label>Notes <span class="lbl-opt">(optional)</span></label>
-      <textarea id="exNotes" rows="2" placeholder="How did it feel? Any PRs?"></textarea>
+    <div class="meal-entries" id="exEntriesList"></div>
+    <button class="add-meal-btn" style="border-color:#bfdbfe;background:#eff6ff;color:#2563eb;" onclick="addExEntry()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add another workout
+    </button>
+    <div class="nut-notes-field">
+      <label>Day Notes <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.68rem;color:#9ca3af;">(optional)</span></label>
+      <textarea id="exDayNotes" rows="2" placeholder="How did it feel? Any PRs?"></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeAddModal('ex')">Cancel</button>
@@ -826,11 +807,12 @@
 <!-- EXERCISE VIEW POPUP -->
 <div class="view-popup" id="exViewPopup">
   <div class="view-popup-inner">
-    <h4>🏋️ Workout</h4>
+    <h4>🏋️ Workouts</h4>
     <div class="view-popup-date" id="exViewDate"></div>
     <div id="exViewRows"></div>
     <div class="view-actions">
-      <button class="btn-delete" onclick="deleteLog('ex')">Delete</button>
+      <button class="btn-delete" onclick="deleteLog('ex')">Delete all</button>
+      <button class="btn-add-more" onclick="addMoreWorkouts()">+ Add more</button>
       <button class="btn-close" onclick="closeViewPopup('ex')">Close</button>
     </div>
   </div>
@@ -932,7 +914,22 @@
         Promise.race([apiFetch('/api/nutrition-logs'), timeout])
       ]);
       if (exData.status === 'fulfilled') {
-        exData.value.forEach(log => { const k = log.date || log.id; if (k) logs.ex[k] = log; });
+        exData.value.forEach(log => {
+          const k = log.date || log.id;
+          if (!k) return;
+          // Normalize: if old shape (fields directly on log), wrap into workouts array
+          if (!log.workouts) {
+            const hasOldFields = log.type || log.sets_completed || log.reps_per_set || log.weight_lbs || log.duration;
+            log.workouts = hasOldFields ? [{
+              type:           log.type           || '',
+              sets_completed: log.sets_completed || 0,
+              reps_per_set:   log.reps_per_set   || 0,
+              weight_lbs:     log.weight_lbs     || 0,
+              duration:       log.duration       || ''
+            }] : [];
+          }
+          logs.ex[k] = log;
+        });
       } else {
         console.warn('Exercise logs failed:', exData.reason);
       }
@@ -1180,14 +1177,13 @@
   }
 
   // ── Exercise modal ────────────────────────────────────────
+  let exCount = 0;
+
   function openAddModal(p, key, fromMerged) {
     pendingKey[p] = key;
     _mergedMode = !!fromMerged;
     if (p === 'ex') {
-      document.getElementById('exAddDateSub').textContent = fmtNice(key);
-      ['exType','exDuration','exSets','exReps','exWeight','exNotes']
-              .forEach(id => document.getElementById(id).value = '');
-      document.getElementById('exAddModal').classList.add('open');
+      openExModal(key);
     } else {
       openNutModal(key);
     }
@@ -1196,27 +1192,110 @@
     document.getElementById(p + 'AddModal').classList.remove('open');
   }
 
+  function addExEntry(prefill) {
+    exCount++;
+    const idx  = exCount;
+    const list = document.getElementById('exEntriesList');
+    const div  = document.createElement('div');
+    div.className = 'meal-entry';
+    div.id = `exEntry_${idx}`;
+    div.innerHTML = `
+      <div class="meal-entry-header">
+        <span class="meal-entry-label">Workout ${idx}</span>
+        <button class="meal-entry-remove" onclick="removeExEntry(${idx})">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <input type="text" id="exType_${idx}" placeholder="Exercise type (e.g. Running, Bench Press…)" value="${prefill?.type || ''}">
+      <div class="meal-entry-row">
+        <input type="number" id="exSets_${idx}"   placeholder="Sets"       min="0" value="${prefill?.sets_completed || ''}">
+        <input type="number" id="exReps_${idx}"   placeholder="Reps"       min="0" value="${prefill?.reps_per_set  || ''}">
+      </div>
+      <div class="meal-entry-row">
+        <input type="number" id="exWeight_${idx}" placeholder="Weight lbs" min="0" value="${prefill?.weight_lbs    || ''}">
+        <input type="number" id="exDur_${idx}"    placeholder="Duration min" min="1" value="${prefill?.duration    || ''}">
+      </div>`;
+    list.appendChild(div);
+    updateExRemoveButtons();
+  }
+
+  function removeExEntry(idx) {
+    document.getElementById(`exEntry_${idx}`)?.remove();
+    updateExRemoveButtons();
+    renumberExLabels();
+  }
+  function updateExRemoveButtons() {
+    const entries = document.querySelectorAll('#exEntriesList .meal-entry');
+    entries.forEach(e => {
+      const btn = e.querySelector('.meal-entry-remove');
+      if (btn) {
+        btn.style.opacity       = entries.length === 1 ? '0.3' : '1';
+        btn.style.pointerEvents = entries.length === 1 ? 'none' : 'auto';
+      }
+    });
+  }
+  function renumberExLabels() {
+    document.querySelectorAll('#exEntriesList .meal-entry').forEach((e, i) => {
+      const lbl = e.querySelector('.meal-entry-label');
+      if (lbl) lbl.textContent = `Workout ${i + 1}`;
+    });
+  }
+
   // ── Save exercise ─────────────────────────────────────────
   async function saveExLog() {
-    const key = pendingKey.ex;
-    const logData = {
-      date:           key,
-      type:           document.getElementById('exType').value.trim(),
-      sets_completed: parseInt(document.getElementById('exSets').value)   || 0,
-      reps_per_set:   parseInt(document.getElementById('exReps').value)   || 0,
-      weight_lbs:     parseInt(document.getElementById('exWeight').value) || 0,
-      duration:       document.getElementById('exDuration').value.trim(),
-      notes:          document.getElementById('exNotes').value.trim()
-    };
+    const key     = pendingKey.ex;
+    const entries = document.querySelectorAll('#exEntriesList .meal-entry');
+    const workouts = [];
+
+    entries.forEach(e => {
+      const idx    = e.id.split('_')[1];
+      const type   = document.getElementById(`exType_${idx}`)?.value.trim()         || '';
+      const sets   = parseInt(document.getElementById(`exSets_${idx}`)?.value)   || 0;
+      const reps   = parseInt(document.getElementById(`exReps_${idx}`)?.value)   || 0;
+      const weight = parseInt(document.getElementById(`exWeight_${idx}`)?.value) || 0;
+      const dur    = document.getElementById(`exDur_${idx}`)?.value.trim()          || '';
+      if (type || sets || reps || weight || dur) {
+        workouts.push({ type, sets_completed: sets, reps_per_set: reps, weight_lbs: weight, duration: dur });
+      }
+    });
+
+    const notes = document.getElementById('exDayNotes').value.trim();
+    if (workouts.length === 0 && !notes) { closeAddModal('ex'); return; }
+
+    const logData = { date: key, workouts, notes };
+
     try {
       await apiFetch('/api/exercise-logs', 'POST', logData);
-      logs.ex[key] = logData;
+      // Merge with existing if re-logging same day
+      if (logs.ex[key]) {
+        logs.ex[key].workouts = [...(logs.ex[key].workouts || []), ...workouts];
+        if (notes) logs.ex[key].notes = notes;
+      } else {
+        logs.ex[key] = logData;
+      }
       closeAddModal('ex');
       renderAll();
       updateStats();
-      // If came from merged pick modal, reopen it so user can also log nutrition
       if (calView === 'merged') openMergePickModal(key);
     } catch (err) { console.error(err); alert('Failed to save. Please try again.'); }
+  }
+
+  function addMoreWorkouts() {
+    const key = viewingKey.ex;
+    closeViewPopup('ex');
+    openExModal(key, logs.ex[key]);
+  }
+
+  function openExModal(key, prefill) {
+    pendingKey.ex = key;
+    document.getElementById('exAddDateSub').textContent = fmtNice(key);
+    document.getElementById('exDayNotes').value = prefill?.notes || '';
+    const list = document.getElementById('exEntriesList');
+    list.innerHTML = '';
+    exCount = 0;
+    if (prefill?.workouts?.length) prefill.workouts.forEach(w => addExEntry(w));
+    else addExEntry();
+    document.getElementById('exAddModal').classList.add('open');
   }
 
   // ── Nutrition modal ───────────────────────────────────────
@@ -1340,13 +1419,21 @@
     if (p === 'ex') {
       document.getElementById('exViewDate').textContent = fmtNice(key);
       let html = '';
-      if (log.type)           html += vrow('Exercise', log.type);
-      if (log.sets_completed) html += vrow('Sets',     log.sets_completed);
-      if (log.reps_per_set)   html += vrow('Reps',     log.reps_per_set);
-      if (log.weight_lbs)     html += vrow('Weight',   log.weight_lbs + ' lbs');
-      if (log.duration)       html += vrow('Duration', log.duration + ' min');
-      if (log.notes)          html += vrow('Notes',    log.notes);
-      if (!html)              html  = `<p class="view-no-details">Logged — no details added.</p>`;
+      const workouts = log.workouts || [];
+
+      if (workouts.length === 0) {
+        // Backwards compat: old single-workout logs stored fields directly on the log
+        const hasOld = log.type || log.sets_completed || log.reps_per_set || log.weight_lbs || log.duration;
+        if (hasOld) {
+          html += workoutCard(log, 0);
+        } else {
+          html = `<p class="view-no-details">Logged — no details added.</p>`;
+        }
+      } else {
+        workouts.forEach((w, i) => { html += workoutCard(w, i); });
+      }
+
+      if (log.notes) html += `<div class="view-day-notes"><strong>Day Notes</strong>${log.notes}</div>`;
       document.getElementById('exViewRows').innerHTML = html;
       document.getElementById('exViewPopup').classList.add('open');
     } else {
@@ -1391,6 +1478,20 @@
 
   function vrow(label, value) {
     return `<div class="view-row"><span class="view-row-label">${label}</span><span class="view-row-value">${value}</span></div>`;
+  }
+
+  function workoutCard(w, i) {
+    const meta = [
+      w.sets_completed ? `${w.sets_completed} sets`  : '',
+      w.reps_per_set   ? `${w.reps_per_set} reps`    : '',
+      w.weight_lbs     ? `${w.weight_lbs} lbs`       : '',
+      w.duration       ? `${w.duration} min`          : ''
+    ].filter(Boolean).join(' · ');
+    return `
+      <div class="view-meal-card">
+        <div class="view-meal-name">${w.type || `Workout ${i + 1}`}</div>
+        ${meta ? `<div class="view-meal-meta">${meta}</div>` : ''}
+      </div>`;
   }
   function closeViewPopup(p) {
     document.getElementById(p + 'ViewPopup').classList.remove('open');

@@ -20,6 +20,21 @@
   <script src="js/theme.js" defer></script>
   <title>WizCoach – Motion</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Firebase SDKs (for persisting motion calories) -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  <script>
+    async function initApp() {
+      try {
+        const res = await fetch('/api/config');
+        if (!res.ok) throw new Error(`Config fetch failed: ${res.status}`);
+        const config = await res.json();
+        firebase.initializeApp(config);
+      } catch (err) {
+        console.error('initApp failed:', err);
+      }
+    }
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -198,6 +213,55 @@
     .exercise-empty {
       text-align: center; color: var(--muted);
       font-size: 0.85rem; font-style: italic; padding: 1.5rem 0;
+    }
+
+    .calorie-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .calorie-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .calorie-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      line-height: 1.4;
+    }
+
+    .weight-input {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.55rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: white;
+    }
+
+    .weight-input label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .weight-input input {
+      width: 84px;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      background: transparent;
     }
 
     .exercise-item {
@@ -416,15 +480,10 @@
       letter-spacing: 0.12em;
     }
 
-    .wiz-coach-row {
-      display: flex;
-      align-items: center;
-      gap: 0.9rem;
-      padding: 0.9rem 1rem;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.96);
-      border: 1px solid rgba(148,163,184,0.45);
-      box-shadow: 0 12px 40px rgba(15,23,42,0.9);
+    .wiz-stats-row {
+      display: grid;
+      grid-template-columns: 1.6fr 2.4fr;
+      gap: 0.55rem;
     }
 
     .wiz-coach-avatar {
@@ -498,6 +557,59 @@
     .wiz-stat-value {
       font-size: 1.05rem;
       font-weight: 600;
+    }
+
+    .wiz-stat-value.wiz-rep-big {
+      font-size: clamp(2.2rem, 5.4vw, 3.1rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .wiz-current-rep-card {
+      position: sticky;
+      top: 76px; /* below nav */
+      z-index: 20;
+      border-color: rgba(250, 204, 21, 0.55);
+      box-shadow:
+        0 0 0 1px rgba(250, 204, 21, 0.22),
+        0 18px 60px rgba(15,23,42,0.92);
+      background: radial-gradient(circle at top, rgba(30, 27, 75, 0.95) 0%, rgba(2, 6, 23, 0.98) 55%, rgba(0, 0, 0, 0.98) 100%);
+    }
+
+    .wiz-current-rep-meta {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .wiz-current-rep-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.12);
+      border: 1px solid rgba(250, 204, 21, 0.28);
+      color: #fef08a;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    @keyframes wiz-rep-pop {
+      0%   { transform: scale(1); filter: brightness(1); }
+      35%  { transform: scale(1.08); filter: brightness(1.15); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    .wiz-current-rep-card.wiz-rep-pulse {
+      animation: wiz-rep-pop 260ms ease-out;
     }
 
     .wiz-exercise-indicator {
@@ -674,19 +786,12 @@
             <span id="wizMotionValue" class="wiz-stat-value">0%</span>
           </div>
 
-          <div class="wiz-stat-card">
-            <span class="wiz-stat-label">Squats</span>
-            <span id="wizSquatCount" class="wiz-stat-value">0</span>
-          </div>
-
-          <div class="wiz-stat-card">
-            <span class="wiz-stat-label">Pushups</span>
-            <span id="wizPushupCount" class="wiz-stat-value">0</span>
-          </div>
-
-          <div class="wiz-stat-card">
-            <span class="wiz-stat-label">Arm raises</span>
-            <span id="wizArmRaiseCount" class="wiz-stat-value">0</span>
+          <div class="wiz-stat-card wiz-current-rep-card" id="wizCurrentRepCard" aria-live="polite" aria-atomic="true">
+            <div class="wiz-current-rep-meta">
+              <span class="wiz-current-rep-badge" id="wizCurrentRepBadge">Current exercise</span>
+              <span class="wiz-stat-label" id="wizCurrentRepLabel">Squats</span>
+            </div>
+            <span id="wizCurrentRepCount" class="wiz-stat-value wiz-rep-big">0</span>
           </div>
         </div>
 
@@ -700,6 +805,23 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
 
+    <!-- Calories estimate (session total) -->
+    <div class="card" id="calorieCard">
+      <h3>Calories burned (est.)</h3>
+      <div class="calorie-row">
+        <div class="calorie-val"><span id="wizCaloriesTotal">0</span> kcal</div>
+        <div class="weight-input" title="Used for calorie estimation only">
+          <label for="wizWeightKg">Weight</label>
+          <input id="wizWeightKg" type="number" min="30" max="250" step="1" value="70" inputmode="numeric" />
+          <span style="font-size:0.78rem;color:var(--muted);font-weight:700;">kg</span>
+        </div>
+      </div>
+      <div class="calorie-sub" id="wizCaloriesSub">
+        Updates as reps are detected. This is an estimate based on exercise intensity and assumed rep tempo.
+      </div>
+    </div>
+
+    <!-- Recent Exercises (camera-detected reps) -->
     <div class="card">
       <h3>Recent Exercises</h3>
       <div id="exerciseLog">
@@ -731,6 +853,26 @@
     link.classList.toggle('active', link.href === window.location.href);
   });
 
+  // ── Firebase Auth helpers (same pattern as dashboard) ───────
+  async function getAuthToken() {
+    const user = firebase.auth().currentUser;
+    if (!user) throw new Error('Not logged in');
+    return await user.getIdToken();
+  }
+
+  async function apiFetch(path, method = 'GET', body = null) {
+    const token = await getAuthToken();
+    const options = {
+      method,
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    };
+    if (body) options.body = JSON.stringify(body);
+    const res = await fetch(path, options);
+    if (!res.ok) throw new Error(await res.text());
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { return text; }
+  }
+
   /* ─────────────────────────────────────────────
      WizCoach camera logic (ported from FitnessCamera.tsx)
      Plain JS + browser TFJS build
@@ -749,7 +891,43 @@
   let wizStartButton, wizRetryButton;
   let wizIdleState, wizAskingState, wizDeniedState, wizErrorState, wizReadyState;
   let wizDeniedError, wizGenericError, wizCoachFeedbackEl;
-  let wizMotionFill, wizMotionValue, wizSquatCountEl, wizPushupCountEl, wizArmRaiseCountEl;
+
+  /** Coach bubble: avoid flicker by holding each non-forced line for a minimum time. */
+  const COACH_HOLD_PHASE_MS = 2800;
+  const COACH_HOLD_REP_MS = 3800;
+  const COACH_HOLD_SYSTEM_MS = 2400;
+  let coachMessageLockUntilMs = 0;
+  let coachLastFacingForGate = true;
+  let coachHadPoseForGate = false;
+
+  function resetCoachMessageGate() {
+    coachMessageLockUntilMs = 0;
+  }
+
+  /**
+   * @param {string} text
+   * @param {{ force?: boolean, holdMs?: number, refreshLock?: boolean }} [opts]
+   */
+  function setCoachMessage(text, opts = {}) {
+    const now = performance.now();
+    const force = opts.force === true;
+    const holdMs = opts.holdMs ?? COACH_HOLD_PHASE_MS;
+    if (!wizCoachFeedbackEl) return;
+    if (force) {
+      const prev = wizCoachFeedbackEl.textContent;
+      wizCoachFeedbackEl.textContent = text;
+      if (prev !== text || opts.refreshLock === true) {
+        coachMessageLockUntilMs = now + holdMs;
+      }
+      return;
+    }
+    if (now < coachMessageLockUntilMs) return;
+    if (wizCoachFeedbackEl.textContent === text) return;
+    wizCoachFeedbackEl.textContent = text;
+    coachMessageLockUntilMs = now + holdMs;
+  }
+  let wizMotionFill, wizMotionValue;
+  let wizCurrentRepCard, wizCurrentRepLabelEl, wizCurrentRepCountEl;
   let wizExerciseIndicator, wizExerciseLabel;
 
   let stream = null;
@@ -776,7 +954,168 @@
   let squatCount = 0;
   let pushupCount = 0;
   let armRaiseCount = 0;
-  let currentExercise = 'none';
+  let walkInPlaceCount = 0;
+  let jumpingJackCount = 0;
+  /** User-selected exercise only — detection runs for this type until changed. */
+  let selectedWorkout = 'squat';
+
+  // ─────────────────────────────────────────────
+  // Calories estimate (simple MET model)
+  // kcal/min = MET * 3.5 * weightKg / 200
+  // We approximate time-per-rep for each exercise.
+  // ─────────────────────────────────────────────
+  let userWeightKg = 70;
+  let sessionCalories = 0;
+  let wizCaloriesTotalEl, wizCaloriesSubEl, wizWeightKgInput;
+  const perExerciseCalories = {
+    squat: 0,
+    pushup: 0,
+    arm_raise: 0,
+    walk_in_place: 0,
+    jumping_jack: 0
+  };
+  const perExerciseReps = {
+    squat: 0,
+    pushup: 0,
+    arm_raise: 0,
+    walk_in_place: 0,
+    jumping_jack: 0
+  };
+
+  let persistTimerId = 0;
+  let persistInFlight = false;
+
+  function todayKeyLocal() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function buildMotionLogPayload() {
+    const date = todayKeyLocal();
+    const perExercise = {};
+    for (const t of Object.keys(perExerciseReps)) {
+      perExercise[t] = {
+        reps: perExerciseReps[t] || 0,
+        kcal: Number((perExerciseCalories[t] || 0).toFixed(4))
+      };
+    }
+    return {
+      date,
+      weightKg: userWeightKg,
+      caloriesTotal: Number(sessionCalories.toFixed(4)),
+      perExercise
+    };
+  }
+
+  function schedulePersistMotionLog(delayMs = 1500) {
+    if (persistTimerId) clearTimeout(persistTimerId);
+    persistTimerId = setTimeout(() => persistMotionLogNow(), delayMs);
+  }
+
+  async function persistMotionLogNow() {
+    if (persistInFlight) return;
+    persistInFlight = true;
+    try {
+      await apiFetch('/api/motion-logs', 'POST', buildMotionLogPayload());
+    } catch (e) {
+      // Don't break the workout UI if persistence fails.
+      console.warn('Failed to persist motion log:', e);
+    } finally {
+      persistInFlight = false;
+    }
+  }
+
+  const EXERCISE_MET = {
+    squat: 5.0,
+    pushup: 8.0,
+    arm_raise: 3.5,
+    walk_in_place: 3.0,
+    jumping_jack: 8.0
+  };
+
+  const REP_SECONDS = {
+    squat: 2.0,
+    pushup: 2.5,
+    arm_raise: 2.0,
+    walk_in_place: 1.0,
+    jumping_jack: 1.5
+  };
+
+  function clampNumber(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function loadWeightKg() {
+    const raw = localStorage.getItem('wiz_weight_kg');
+    const parsed = raw ? Number(raw) : Number.NaN;
+    if (Number.isFinite(parsed)) {
+      userWeightKg = clampNumber(parsed, 30, 250);
+    } else {
+      userWeightKg = 70;
+    }
+  }
+
+  function setWeightKg(next) {
+    const v = clampNumber(Number(next), 30, 250);
+    if (!Number.isFinite(v)) return;
+    userWeightKg = v;
+    localStorage.setItem('wiz_weight_kg', String(v));
+    if (wizWeightKgInput) wizWeightKgInput.value = String(v);
+    updateCaloriesUI();
+  }
+
+  function kcalForRep(exerciseType) {
+    const met = EXERCISE_MET[exerciseType] ?? 4.0;
+    const sec = REP_SECONDS[exerciseType] ?? 2.0;
+    const kcalPerMin = (met * 3.5 * userWeightKg) / 200;
+    return kcalPerMin * (sec / 60);
+  }
+
+  function formatKcal(x) {
+    if (!Number.isFinite(x)) return '0';
+    if (x < 10) return x.toFixed(1);
+    return Math.round(x).toString();
+  }
+
+  function updateCaloriesUI() {
+    if (wizCaloriesTotalEl) wizCaloriesTotalEl.textContent = formatKcal(sessionCalories);
+    if (wizCaloriesSubEl) {
+      wizCaloriesSubEl.textContent =
+        `Based on ~${userWeightKg}kg body weight. Estimates change with intensity/tempo.`;
+    }
+  }
+
+  /** EMA of nose Y while standing (knees straight); used for squat head-lowering check. */
+  let squatHeadBaselineY = null;
+
+  /** Pushup (face camera): smoothed average elbow angle; dampens jitter that caused multi-counts. */
+  let pushupSmoothedAvgElbowDeg = null;
+  /** Pushup: ignore repeat counts within this window after a rep (ms). */
+  let pushupRepCooldownUntilMs = 0;
+
+  /**
+   * Jumping jack: pose open/close (ankle spread + arms), not vertical jump — 2D cams rarely show true “air time”.
+   */
+  let jjInternalOpen = false;
+  let jjSmoothedAnkleSpread = null;
+  let jjRepCooldownUntilMs = 0;
+
+  /** Arm raise: smoothed (shoulderY − wristY); hysteresis + cooldown reduce double counts. */
+  let armRaiseSmoothedLift = null;
+  let armRaiseInternalArmsUp = false;
+  let armRaiseRepCooldownUntilMs = 0;
+
+  function countForWorkout(type) {
+    if (type === 'squat') return squatCount;
+    if (type === 'pushup') return pushupCount;
+    if (type === 'arm_raise') return armRaiseCount;
+    if (type === 'walk_in_place') return walkInPlaceCount;
+    if (type === 'jumping_jack') return jumpingJackCount;
+    return 0;
+  }
 
   function setCameraStatus(status) {
     cameraStatus = status;
@@ -1048,10 +1387,152 @@
     wizMotionValue.textContent = clamped + '%';
   }
 
+  function updateCurrentRepUI() {
+    if (!wizCurrentRepLabelEl || !wizCurrentRepCountEl) return;
+    wizCurrentRepLabelEl.textContent = workoutTipsLabel(selectedWorkout);
+    wizCurrentRepCountEl.textContent = String(countForWorkout(selectedWorkout));
+  }
+
+  function pulseCurrentRepUI() {
+    if (!wizCurrentRepCard) return;
+    wizCurrentRepCard.classList.remove('wiz-rep-pulse');
+    // Force reflow so the animation restarts reliably.
+    // eslint-disable-next-line no-unused-expressions
+    wizCurrentRepCard.offsetWidth;
+    wizCurrentRepCard.classList.add('wiz-rep-pulse');
+  }
+
   function updateCounts() {
-    if (wizSquatCountEl) wizSquatCountEl.textContent = String(squatCount);
-    if (wizPushupCountEl) wizPushupCountEl.textContent = String(pushupCount);
-    if (wizArmRaiseCountEl) wizArmRaiseCountEl.textContent = String(armRaiseCount);
+    updateCurrentRepUI();
+  }
+
+  function syncPerExerciseRepState() {
+    perExerciseReps.squat = squatCount;
+    perExerciseReps.pushup = pushupCount;
+    perExerciseReps.arm_raise = armRaiseCount;
+    perExerciseReps.walk_in_place = walkInPlaceCount;
+    perExerciseReps.jumping_jack = jumpingJackCount;
+  }
+
+  const WORKOUT_TIPS = {
+    squat: [
+      'Do not bend your knees in tiny or erratic pulses — use a clear down-and-up motion with steady depth for best results.',
+      'Stand still and face the camera before your first rep so your standing position calibrates correctly.',
+      'Avoid walking into the frame mid-set; step into view, settle, then start your squats.',
+      'Keep your full body in frame with even lighting so knees and head are both visible.'
+    ],
+    pushup: [
+      'Face the camera with your chest toward it; both arms and hands must stay visible — counting uses both elbows together.',
+      'Hands should be clearly below shoulder level in frame (plank position). Turn wider if the coach says you are not facing enough.',
+      'Move at a controlled pace — very fast reps are harder for the camera to separate.',
+      'Keep hips from drifting too high (pike) so the model keeps a consistent plank read.'
+    ],
+    arm_raise: [
+      'Lift both arms smoothly above shoulder height; pause briefly at the top when you can.',
+      'Try to keep elbows from collapsing inward on the way up for clearer detection.',
+      'Stand still with your upper body fully in frame; swaying can add false motion.',
+      'Contrasting clothing against your background makes arm position easier to track.'
+    ],
+    walk_in_place: [
+      'Face the camera and lift one knee at a time; the other leg should stay fairly straight as your support.',
+      'Bring the lifted knee toward hip height, then set the foot down before lifting the other side.',
+      'Avoid tiny shuffles — use a clear lift-and-place so knee angles change enough to register.',
+      'Keep hips, knees, and ankles in frame; baggy pants can hide knee bend from the model.'
+    ],
+    jumping_jack: [
+      'Face the camera with your full body in frame from head to feet.',
+      'Spread your feet wide sideways and raise or widen your arms in the same beat — we detect the open “X” shape, not jump height on video.',
+      'Bring feet back together and arms down to finish each rep; the count registers on that close after a clear open.',
+      'Exaggerate width for the camera if reps are slow to register; stay facing forward.'
+    ]
+  };
+
+  function workoutTipsLabel(type) {
+    if (type === 'squat') return 'Squats';
+    if (type === 'pushup') return 'Pushups';
+    if (type === 'arm_raise') return 'Arm raises';
+    if (type === 'walk_in_place') return 'Walk in place';
+    return 'Jumping jacks';
+  }
+
+  function renderWorkoutTips() {
+    const body = document.getElementById('workoutTipsBody');
+    const sub = document.getElementById('workoutTipsSub');
+    const heading = document.getElementById('workoutTipsHeading');
+    if (!body || !sub || !heading) return;
+    heading.textContent = 'Tips for better tracking';
+    sub.textContent = 'For the exercise you chose: ' + workoutTipsLabel(selectedWorkout);
+    const lines = WORKOUT_TIPS[selectedWorkout] || WORKOUT_TIPS.squat;
+    body.innerHTML = lines
+      .map(
+        (text) =>
+          '<div class="tip-item"><div class="tip-dot"></div><span>' +
+          text.replace(/&/g, '&amp;').replace(/</g, '&lt;') +
+          '</span></div>'
+      )
+      .join('');
+  }
+
+  function logCameraRep(exerciseType, repNumber) {
+    const log = document.getElementById('exerciseLog');
+    if (!log) return;
+    const empty = document.getElementById('exerciseEmpty');
+    if (empty) empty.remove();
+
+    const deltaKcal = kcalForRep(exerciseType);
+    sessionCalories += deltaKcal;
+    if (Object.prototype.hasOwnProperty.call(perExerciseCalories, exerciseType)) {
+      perExerciseCalories[exerciseType] += deltaKcal;
+    }
+    if (Object.prototype.hasOwnProperty.call(perExerciseReps, exerciseType)) {
+      perExerciseReps[exerciseType] = repNumber;
+    }
+    updateCaloriesUI();
+    schedulePersistMotionLog();
+
+    const title =
+      exerciseType === 'squat'
+        ? 'Squat'
+        : exerciseType === 'pushup'
+          ? 'Pushup'
+          : exerciseType === 'walk_in_place'
+            ? 'Walk in place'
+            : exerciseType === 'jumping_jack'
+              ? 'Jumping jacks'
+              : 'Arm raise';
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    let item = log.querySelector('.exercise-item[data-camera-exercise="' + exerciseType + '"]');
+    if (item) {
+      const detail = item.querySelector('.ex-camera-rep-detail');
+      const timeEl = item.querySelector('.ex-time');
+      if (detail) {
+        detail.textContent =
+          'Rep ' +
+          repNumber +
+          ' · +' +
+          formatKcal(deltaKcal) +
+          ' kcal (est.) · detected during live session';
+      }
+      if (timeEl) timeEl.textContent = now;
+      log.prepend(item);
+      return;
+    }
+
+    item = document.createElement('div');
+    item.className = 'exercise-item';
+    item.setAttribute('data-camera-exercise', exerciseType);
+    item.innerHTML = `
+      <div class="ex-icon">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="ex-text">
+        <h4>${title} (camera)</h4>
+        <p class="ex-camera-rep-detail">Rep ${repNumber} · +${formatKcal(deltaKcal)} kcal (est.) · detected during live session</p>
+      </div>
+      <div class="ex-time">${now}</div>
+    `;
+    log.prepend(item);
   }
 
   function updateExerciseIndicator() {
@@ -1066,6 +1547,101 @@
     else if (currentExercise === 'arm_raise') label = '🤲 Arm Raises';
     wizExerciseLabel.textContent = label;
     wizExerciseIndicator.classList.remove('hidden');
+  }
+
+  function syncWorkoutPickerButtons() {
+    document.querySelectorAll('.wiz-workout-btn').forEach(btn => {
+      const t = btn.getAttribute('data-workout');
+      btn.classList.toggle('active', t === selectedWorkout);
+    });
+  }
+
+  function updateStatActiveHighlight() {
+    // Legacy no-op: stats are now summarized into a single current rep card.
+  }
+
+  function resetPhaseForWorkoutSwitch() {
+    exerciseState.phase = 'unknown';
+    exerciseState.lastPhase = 'unknown';
+    exerciseState.confidence = 0;
+    exerciseState.type = selectedWorkout;
+    exerciseState.count = countForWorkout(selectedWorkout);
+    exerciseState.lastSeenMs = performance.now();
+  }
+
+  const WORKOUT_HERO_ASSET_VER = '8';
+  const WORKOUT_HERO = {
+    squat: { src: 'wiz-workout-squat.png?v=' + WORKOUT_HERO_ASSET_VER, alt: 'WizCoach demonstrating squats' },
+    pushup: { src: 'wiz-workout-pushup.png?v=' + WORKOUT_HERO_ASSET_VER, alt: 'WizCoach demonstrating pushups' },
+    arm_raise: { src: 'wiz-workout-arm-raise.png?v=' + WORKOUT_HERO_ASSET_VER, alt: 'WizCoach demonstrating arm raises' },
+    walk_in_place: {
+      src: 'wiz-workout-walk.png?v=' + WORKOUT_HERO_ASSET_VER,
+      alt: 'WizCoach demonstrating walking in place'
+    },
+    jumping_jack: {
+      src: 'wiz-workout-jumping-jack.png?v=' + WORKOUT_HERO_ASSET_VER,
+      alt: 'WizCoach demonstrating jumping jacks'
+    }
+  };
+
+  function updateWorkoutHero(type) {
+    const img = document.getElementById('wizWorkoutHeroImg');
+    if (!img) return;
+    const cfg = WORKOUT_HERO[type] || WORKOUT_HERO.squat;
+    img.src = cfg.src;
+    img.alt = cfg.alt;
+  }
+
+  function onWorkoutSelected(newType) {
+    if (
+      newType !== 'squat' &&
+      newType !== 'pushup' &&
+      newType !== 'arm_raise' &&
+      newType !== 'walk_in_place' &&
+      newType !== 'jumping_jack'
+    ) {
+      return;
+    }
+    if (newType === selectedWorkout) return;
+    const prev = selectedWorkout;
+    selectedWorkout = newType;
+    if (newType === 'squat' && prev !== 'squat') squatHeadBaselineY = null;
+    if (prev === 'pushup' || newType === 'pushup') {
+      pushupSmoothedAvgElbowDeg = null;
+      pushupRepCooldownUntilMs = 0;
+    }
+    if (prev === 'jumping_jack' || newType === 'jumping_jack') {
+      jjInternalOpen = false;
+      jjSmoothedAnkleSpread = null;
+      jjRepCooldownUntilMs = 0;
+    }
+    if (prev === 'arm_raise' || newType === 'arm_raise') {
+      armRaiseSmoothedLift = null;
+      armRaiseInternalArmsUp = false;
+      armRaiseRepCooldownUntilMs = 0;
+    }
+    syncWorkoutPickerButtons();
+    resetPhaseForWorkoutSwitch();
+    updateStatActiveHighlight();
+    updateExerciseIndicator();
+    renderWorkoutTips();
+    updateWorkoutHero(selectedWorkout);
+    updateCurrentRepUI();
+    syncPerExerciseRepState();
+    resetCoachMessageGate();
+
+    if (cameraStatus === CameraStatus.READY && stream) {
+      startRepCountdown();
+    }
+  }
+
+  function bindWorkoutPickers() {
+    document.querySelectorAll('.wiz-workout-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const t = btn.getAttribute('data-workout');
+        if (t) onWorkoutSelected(t);
+      });
+    });
   }
 
   async function requestCamera() {
@@ -1271,9 +1847,12 @@
                   if (exerciseState.type === 'pushup') pushupCount = exerciseState.count;
                   if (exerciseState.type === 'arm_raise') armRaiseCount = exerciseState.count;
                   updateCounts();
-                  if (wizCoachFeedbackEl) {
-                    wizCoachFeedbackEl.textContent = getFormFeedbackOnRep(exerciseState.type, pose);
-                  }
+                  pulseCurrentRepUI();
+                  setCoachMessage(buildRepFeedbackMessage(selectedWorkout, pose), {
+                    force: true,
+                    holdMs: COACH_HOLD_REP_MS,
+                    refreshLock: true
+                  });
                   justCounted = true;
                 }
 
@@ -1407,6 +1986,8 @@
   }
 
   window.addEventListener('beforeunload', () => {
+    // Best-effort flush so other pages can read totals.
+    try { persistMotionLogNow(); } catch {}
     stopCamera();
   });
 
@@ -1430,12 +2011,25 @@
 
     wizMotionFill = document.getElementById('wizMotionFill');
     wizMotionValue = document.getElementById('wizMotionValue');
-    wizSquatCountEl = document.getElementById('wizSquatCount');
-    wizPushupCountEl = document.getElementById('wizPushupCount');
-    wizArmRaiseCountEl = document.getElementById('wizArmRaiseCount');
+    wizCurrentRepCard = document.getElementById('wizCurrentRepCard');
+    wizCurrentRepLabelEl = document.getElementById('wizCurrentRepLabel');
+    wizCurrentRepCountEl = document.getElementById('wizCurrentRepCount');
 
     wizExerciseIndicator = document.getElementById('wizExerciseIndicator');
     wizExerciseLabel = document.getElementById('wizExerciseLabel');
+
+    wizCaloriesTotalEl = document.getElementById('wizCaloriesTotal');
+    wizCaloriesSubEl = document.getElementById('wizCaloriesSub');
+    wizWeightKgInput = document.getElementById('wizWeightKg');
+    loadWeightKg();
+    if (wizWeightKgInput) {
+      wizWeightKgInput.value = String(userWeightKg);
+      wizWeightKgInput.addEventListener('change', (e) => {
+        const t = e && e.target ? e.target.value : '';
+        setWeightKg(t);
+      });
+    }
+    updateCaloriesUI();
 
     if (wizStartButton) wizStartButton.addEventListener('click', requestCamera);
     if (wizRetryButton) wizRetryButton.addEventListener('click', requestCamera);
@@ -1443,7 +2037,16 @@
     setCameraStatus(CameraStatus.IDLE);
     updateMotionUI(0);
     updateCounts();
+    syncPerExerciseRepState();
+    updateStatActiveHighlight();
     updateExerciseIndicator();
+  });
+
+  // Init Firebase + require login (same behavior as dashboard).
+  initApp().then(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) window.location.href = 'login.html';
+    });
   });
 </script>
 
