@@ -5,8 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="Initial Commit To get started">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/static/wizcoach-mascot-whitebackground.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Controller/NutritionLogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Controller/NutritionLogController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Service/MotionLogService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Service/MotionLogService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/ai-coach.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/ai-coach.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/body.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/body.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/css/theme.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/css/theme.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/login.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/motion.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/motion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/profile-setup.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/profile-setup.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -175,6 +186,10 @@
       <workItem from="1776366441031" duration="325000" />
       <workItem from="1776376192939" duration="1702000" />
       <workItem from="1776540566234" duration="11000" />
+      <workItem from="1776540755440" duration="1954000" />
+      <workItem from="1776544308084" duration="567000" />
+      <workItem from="1776544878751" duration="1967000" />
+      <workItem from="1776546855499" duration="1000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit To get started">
       <option name="closed" value="true" />

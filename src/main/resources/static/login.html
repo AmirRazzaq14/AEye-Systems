@@ -49,8 +49,16 @@
         .left { padding: 1rem 0; animation: fadeUp 0.5s ease 0.1s both; }
 
         .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
-        .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--purple), var(--purple-light)); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(124,92,252,0.35); }
-        .logo-icon svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .logo-icon.wizcoach-mark {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        :root[data-theme="dark"] .logo-icon.wizcoach-mark {
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+        }
         .logo-name { font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
 
         .hero-title { font-size: 2rem; font-weight: 700; color: var(--text); line-height: 1.2; letter-spacing: -0.03em; margin-bottom: 1rem; animation: fadeUp 0.5s ease 0.2s both; }
@@ -156,32 +164,27 @@
 
         .help-btn:hover { background: var(--purple); color: white; border-color: transparent; }
 
-        /* Theme toggle button (separate class — no conflicts) */
-        .theme-btn {
-            position: fixed; bottom: 5rem; right: 1.5rem;
-            width: 40px; height: 40px;
-            background: var(--nav-bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        /* Theme toggle: position override (global styles in theme.css) */
+        .login-page .theme-btn {
+            left: auto;
+            right: 1.5rem;
+            bottom: 5rem;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
         }
-
-        .theme-btn:hover { background: var(--purple); color: white; border-color: transparent; }
 
         @media (max-width: 680px) { .container { grid-template-columns: 1fr; } .left { order: 2; } .card { order: 1; } }
     </style>
 </head>
-<body>
+<body class="login-page">
 
 <div class="container">
     <div class="left">
         <div class="logo">
-            <div class="logo-icon">
-                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <div class="logo-icon wizcoach-mark">
+                <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="48" height="48" decoding="async"/>
+                <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="48" height="48" decoding="async"/>
             </div>
             <span class="logo-name">WizCoach</span>
         </div>
