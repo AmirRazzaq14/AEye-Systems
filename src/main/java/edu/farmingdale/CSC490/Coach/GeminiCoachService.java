@@ -5,7 +5,9 @@ import com.google.genai.types.Content;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.Part;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,35 +35,80 @@ public class GeminiCoachService {
     @Value("${gemini.api.key:}")
     private String apiKeyProperty;
 
+    @Autowired(required = false)
+    private Environment environment;
+
     private Client client;
 
     @PostConstruct
     public void init() {
+        tryBuildClient();
+    }
+
+    /**
+     * Resolves the same key as {@code api.gemini.*} / food pipeline: env vars, then Spring properties.
+     */
+    private String resolveApiKey() {
+        String key = firstNonBlank(
+                apiKeyProperty,
+                System.getenv("GEMINI_API_KEY"),
+                System.getenv("GOOGLE_API_KEY"),
+                System.getenv("GOOGLE_AI_API_KEY"),
+                System.getenv("API_GEMINI_KEY"));
+        if (!isBlank(key)) {
+            return key.trim();
+        }
+        if (environment != null) {
+            key = firstNonBlank(
+                    environment.getProperty("gemini.api.key"),
+                    environment.getProperty("api.gemini.key"));
+            if (!isBlank(key)) {
+                return key.trim();
+            }
+        }
+        return null;
+    }
+
+    private static String firstNonBlank(String... values) {
+        if (values == null) {
+            return null;
+        }
+        for (String v : values) {
+            if (!isBlank(v)) {
+                return v;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
+    }
+
+    private synchronized void tryBuildClient() {
+        if (client != null) {
+            return;
+        }
         String key = resolveApiKey();
-        if (key != null && !key.isBlank()) {
+        if (!isBlank(key)) {
             this.client = Client.builder().apiKey(key).build();
             System.out.println("Gemini client initialized successfully.");
         } else {
-            System.err.println("Gemini API key not set! Please configure gemini.api.key or GEMINI_API_KEY.");
+            System.err.println(
+                    "Gemini API key not set. Set Railway variable GEMINI_API_KEY (or GOOGLE_API_KEY), "
+                            + "or gemini.api.key / api.gemini.key in configuration.");
         }
-    }
-
-    private String resolveApiKey() {
-        String key = Optional.ofNullable(apiKeyProperty)
-                .filter(s -> !s.isBlank())
-                .orElseGet(() -> System.getenv("GEMINI_API_KEY"));
-        if (key == null || key.isBlank()) {
-            key = System.getenv("GOOGLE_API_KEY");
-        }
-        return key;
     }
 
     /**
      * Sends the user message, optional history, and optional image to Gemini.
      */
     public String chat(String userMessage, List<CoachChatRequest.ChatTurn> history, MultipartFile image) throws IOException {
+        tryBuildClient();
         if (client == null) {
-            throw new IllegalStateException("Gemini API key not set.");
+            throw new IllegalStateException(
+                    "Gemini API key not set. In Railway → Variables add GEMINI_API_KEY with your Google AI / Gemini key "
+                            + "(same key as in Google AI Studio). Redeploy after saving.");
         }
 
         String text = userMessage != null ? userMessage.trim() : "";

@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 
 @Configuration
 public class FirebaseConfig {
@@ -23,7 +24,8 @@ public class FirebaseConfig {
     /**
      * Credential resolution order (production-friendly):
      * <ol>
-     *   <li>{@code FIREBASE_CREDENTIALS_JSON} — full service-account JSON string (set in Railway)</li>
+     *   <li>{@code FIREBASE_CREDENTIALS_JSON} — full service-account JSON string (Railway Variables)</li>
+     *   <li>{@code FIREBASE_CREDENTIALS_BASE64} — same JSON, Base64-encoded (easier if newlines break)</li>
      *   <li>{@code GOOGLE_APPLICATION_CREDENTIALS} — path to a JSON key file</li>
      *   <li>{@code classpath:firebase-key.json} — local development only</li>
      * </ol>
@@ -52,6 +54,14 @@ public class FirebaseConfig {
             }
         }
 
+        String inlineB64 = System.getenv("FIREBASE_CREDENTIALS_BASE64");
+        if (inlineB64 != null && !inlineB64.isBlank()) {
+            byte[] decoded = Base64.getDecoder().decode(inlineB64.trim().replace("\n", "").replace("\r", ""));
+            try (InputStream in = new ByteArrayInputStream(decoded)) {
+                return GoogleCredentials.fromStream(in);
+            }
+        }
+
         String pathEnv = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
         if (pathEnv != null && !pathEnv.isBlank()) {
             Path path = Path.of(pathEnv);
@@ -65,9 +75,10 @@ public class FirebaseConfig {
         ClassPathResource resource = new ClassPathResource("firebase-key.json");
         if (!resource.exists()) {
             throw new IOException(
-                    "Firebase credentials missing. On Railway set FIREBASE_CREDENTIALS_JSON to your "
-                            + "service account JSON, or GOOGLE_APPLICATION_CREDENTIALS to a key file path. "
-                            + "Locally, add src/main/resources/firebase-key.json (gitignored)."
+                    "Firebase credentials missing. In Railway → Variables add FIREBASE_CREDENTIALS_JSON "
+                            + "(paste full service-account JSON), or FIREBASE_CREDENTIALS_BASE64 (same file "
+                            + "Base64-encoded), or GOOGLE_APPLICATION_CREDENTIALS (path). Locally use "
+                            + "src/main/resources/firebase-key.json (gitignored)."
             );
         }
         try (InputStream in = resource.getInputStream()) {

@@ -942,6 +942,14 @@
             </svg>
             AI Coach
         </a>
+        <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign Out
+        </button>
     </div>
 </nav>
 
@@ -1228,7 +1236,23 @@
                 },
                 body: formData
             });
-            if (!res.ok) throw new Error('Analysis failed');
+            if (!res.ok) {
+                let msg = `Server returned ${res.status}`;
+                try {
+                    const ct = res.headers.get('content-type') || '';
+                    if (ct.includes('application/json')) {
+                        const j = await res.json();
+                        const parts = [j.message, j.detail].filter(Boolean);
+                        msg = parts.length ? parts.join(' — ') : JSON.stringify(j);
+                    } else {
+                        const t = await res.text();
+                        if (t) msg = t;
+                    }
+                } catch (e) {
+                    console.warn('Could not read error body', e);
+                }
+                throw new Error(msg);
+            }
             return res.json();
         }
     };
@@ -1808,7 +1832,7 @@
                     document.getElementById('fileInput').value = '';
                 }, 1500);
             } catch (err) {
-                alert('Analysis failed: ' + err.message);
+                alert(err.message || 'Analysis failed');
                 zone.classList.remove('processing');
             }
         },
@@ -1859,7 +1883,16 @@
             status.style.color = 'var(--danger)';
         }
     }
-
+    async function handleSignOut() {
+        try {
+            if (firebase.apps.length) {
+                await firebase.auth().signOut();
+            }
+        } catch (err) {
+            console.warn('Sign out error:', err);
+        }
+        window.location.href = 'login.html';
+    }
     // Init
     async function init() {
         try {
