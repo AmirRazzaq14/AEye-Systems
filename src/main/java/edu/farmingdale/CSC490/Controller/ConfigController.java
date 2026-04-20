@@ -13,22 +13,24 @@ import java.util.Map;
 @RequestMapping("/api")
 public class ConfigController {
 
-    @Value("${FIREBASE_API_KEY}")
+    // Optional web SDK config (Firebase Console → Project settings → Your apps). Empty defaults so
+    // the app still starts on Railway when only server credentials (FIREBASE_CREDENTIALS_JSON) are set.
+    @Value("${FIREBASE_API_KEY:}")
     private String apiKey;
 
-    @Value("${FIREBASE_AUTH_DOMAIN}")
+    @Value("${FIREBASE_AUTH_DOMAIN:}")
     private String authDomain;
 
-    @Value("${FIREBASE_PROJECT_ID}")
+    @Value("${FIREBASE_PROJECT_ID:}")
     private String projectId;
 
-    @Value("${FIREBASE_STORAGE_BUCKET}")
+    @Value("${FIREBASE_STORAGE_BUCKET:}")
     private String storageBucket;
 
-    @Value("${FIREBASE_MESSAGING_SENDER_ID}")
+    @Value("${FIREBASE_MESSAGING_SENDER_ID:}")
     private String messagingSenderId;
 
-    @Value("${FIREBASE_APP_ID}")
+    @Value("${FIREBASE_APP_ID:}")
     private String appId;
 
     @GetMapping("/config")

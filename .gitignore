@@ -1,9 +1,9 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
-!/src/main//target/
-!/src/test//target/
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-IntelliJ IDEA
+### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositaries.xml
 .idea/compiler.xml
@@ -12,7 +12,7 @@ IntelliJ IDEA
 *.iml
 *.ipr
 
-Eclipse
+### Eclipse ###
 .apt_generated
 .classpath
 .factorypath
@@ -21,23 +21,23 @@ Eclipse
 .springBeans
 .sts4-cache
 
-NetBeans
+### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 build/
-!/src/main//build/
-!/src/test//build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-VS Code
+### VS Code ###
 .vscode/
 
-Mac OS
+### Mac OS ###
 .DS_Store
 
-Secrets
+### Secrets ###
 src/main/resources/firebase-key.json
 src/main/resources/application.properties
 *.env

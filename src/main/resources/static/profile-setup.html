@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("wizcoach-theme");
+                if (saved) {
+                    document.documentElement.setAttribute("data-theme", saved);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
+    <title>WizCoach – Setup Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --purple: #7c5cfc;
+            --purple-dark: #6344e8;
+            --purple-light: #a78bfa;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--page-bg);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 2rem;
+            color: var(--text);
+        }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { 
+            background: var(--card-bg); border-radius: 24px; padding: 2.5rem 2.25rem; 
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04); 
+            animation: fadeUp 0.5s ease 0.15s both; border: 1px solid var(--border); 
+            max-width: 480px; width: 100%;
+        }
+        .card-header { text-align: center; margin-bottom: 2rem; }
+        .logo-icon.wizcoach-mark {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        :root[data-theme="dark"] .logo-icon.wizcoach-mark {
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+        }
+        .card-title    { font-size: 1.75rem; font-weight: 700; color: var(--text); letter-spacing: -0.03em; margin-bottom: 0.4rem; }
+        .card-subtitle { color: var(--muted); font-size: 0.95rem; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em; }
+
+        input[type="number"], select {
+            width: 100%; padding: 0.75rem 1rem;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            background: var(--input-bg); font-family: inherit;
+            font-size: 0.95rem; color: var(--text); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            appearance: none;
+        }
+
+        /* Custom select arrow */
+        .select-wrap { position: relative; }
+        .select-wrap::after {
+            content: "";
+            position: absolute; right: 14px; top: 50%;
+            transform: translateY(-50%);
+            width: 10px; height: 6px;
+            background-color: var(--muted);
+            clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+            pointer-events: none;
+        }
+
+        input:focus, select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,92,252,0.12); background: var(--card-bg); }
+        .input-error { border-color: #ef4444 !important; }
+        .error-msg   { font-size: 0.78rem; color: #ef4444; margin-top: 0.35rem; display: none; }
+        .error-msg.show { display: block; }
+
+        select option { background: var(--card-bg); color: var(--text); }
+
+        .btn-submit {
+            width: 100%; padding: 0.875rem; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, var(--purple) 0%, #9b6bfd 100%);
+            color: white; font-family: inherit; font-size: 1rem; font-weight: 700;
+            cursor: pointer; letter-spacing: 0.01em;
+            box-shadow: 0 4px 16px rgba(124,92,252,0.4);
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,92,252,0.5); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+        .toast {
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--nav-bg); color: var(--text); padding: 0.75rem 1.5rem;
+            border-radius: 12px; font-size: 0.88rem; font-weight: 500;
+            border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="card-header">
+        <div class="logo-icon wizcoach-mark">
+            <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="56" height="56" decoding="async"/>
+            <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="56" height="56" decoding="async"/>
+        </div>
+        <h2 class="card-title">Setup Your Profile</h2>
+        <p class="card-subtitle">Let's personalize your coaching experience</p>
+    </div>
+
+    <form onsubmit="handleSetup(event)">
+        <div class="form-row">
+            <div class="form-group" style="margin-bottom:0;">
+                <label for="age">Age</label>
+                <input type="number" id="age" placeholder="e.g. 25" min="1" max="120" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label for="gender">Gender</label>
+                <div class="select-wrap">
+                    <select id="gender" required>
+                        <option value="" disabled selected>Select...</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row" style="margin-bottom:0.5rem;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label for="weight">Weight (lbs)</label>
+                <input type="number" id="weight" placeholder="e.g. 170" step="0.1" min="1" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Height</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <input type="number" id="heightFt" placeholder="Ft" min="1" max="8" required>
+                    <input type="number" id="heightIn" placeholder="In" min="0" max="11" required>
+                </div>
+            </div>
+        </div>
+        
+        <p class="error-msg" id="form-error">Please fill out all fields correctly.</p>
+
+        <button type="submit" class="btn-submit" id="submitBtn">Complete Setup</button>
+    </form>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    async function initApp() {
+        try {
+            const res = await fetch('/api/config');
+            const config = await res.json();
+            firebase.initializeApp(config);
+
+            firebase.auth().onAuthStateChanged(user => {
+                if (!user) {
+                    window.location.href = 'login.html';
+                }
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    initApp();
+
+    async function handleSetup(e) {
+        e.preventDefault();
+
+        const btn = document.getElementById('submitBtn');
+        const age = document.getElementById('age').value;
+        const gender = document.getElementById('gender').value;
+        const weight = document.getElementById('weight').value;
+        const ft = document.getElementById('heightFt').value;
+        const inc = document.getElementById('heightIn').value;
+
+        if (!age || !gender || !weight || !ft || inc === '') {
+            document.getElementById('form-error').classList.add('show');
+            return;
+        }
+        document.getElementById('form-error').classList.remove('show');
+
+        // Calculate total inches
+        const totalInches = (parseInt(ft, 10) * 12) + parseInt(inc, 10);
+
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        try {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const token = await user.getIdToken();
+            const payload = {
+                email: user.email,
+                age: parseInt(age, 10),
+                gender: gender,
+                weight: parseFloat(weight),
+                height: parseFloat(totalInches)
+            };
+
+            const response = await fetch('/api/auth/profile', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to save profile");
+            }
+
+            window.location.href = 'dashboard.html';
+
+        } catch (err) {
+            showToast("Error saving profile. Try again.");
+            btn.disabled = false;
+            btn.textContent = "Complete Setup";
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    </script>
+
+<button type="button" onclick="toggleTheme()" class="theme-btn" title="Toggle dark mode">🌓</button>
+</body>
+</html>
