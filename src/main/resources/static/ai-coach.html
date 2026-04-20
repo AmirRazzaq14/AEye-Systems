@@ -75,7 +75,7 @@
             gap: 1.5rem;
 
             flex: 1;
-            height: calc(100vh - 60px);
+            min-height: calc(100vh - 60px);
 
             animation: fadeUp 0.5s ease both;
         }
@@ -92,7 +92,9 @@
 
             flex: 1;
             align-items: stretch;
+            min-height: 0;
         }
+
 
         .chat-card {
             background: var(--card-bg);
@@ -104,6 +106,7 @@
             overflow: hidden;
 
             height: 60%;
+            min-height: 0;
         }
 
         .chat-header {
