@@ -1228,7 +1228,23 @@
                 },
                 body: formData
             });
-            if (!res.ok) throw new Error('Analysis failed');
+            if (!res.ok) {
+                let msg = `Server returned ${res.status}`;
+                try {
+                    const ct = res.headers.get('content-type') || '';
+                    if (ct.includes('application/json')) {
+                        const j = await res.json();
+                        const parts = [j.message, j.detail].filter(Boolean);
+                        msg = parts.length ? parts.join(' — ') : JSON.stringify(j);
+                    } else {
+                        const t = await res.text();
+                        if (t) msg = t;
+                    }
+                } catch (e) {
+                    console.warn('Could not read error body', e);
+                }
+                throw new Error(msg);
+            }
             return res.json();
         }
     };
@@ -1808,7 +1824,7 @@
                     document.getElementById('fileInput').value = '';
                 }, 1500);
             } catch (err) {
-                alert('Analysis failed: ' + err.message);
+                alert(err.message || 'Analysis failed');
                 zone.classList.remove('processing');
             }
         },
