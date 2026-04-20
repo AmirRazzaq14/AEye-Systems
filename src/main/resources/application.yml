@@ -23,3 +23,7 @@ api:
   ollama:
     url: ${OLLAMA_URL:http://127.0.0.1:11434}
     model: ${OLLAMA_MODEL:llava}
+
+# Browser Firebase SDK (ConfigController GET /api/config). Optional at startup; set in Railway
+# if the frontend uses Firebase Auth: FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, FIREBASE_PROJECT_ID,
+# FIREBASE_STORAGE_BUCKET, FIREBASE_MESSAGING_SENDER_ID, FIREBASE_APP_ID (from Firebase Console).
