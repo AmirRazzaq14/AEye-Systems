@@ -863,7 +863,7 @@
 
 <script>
   // ── Sign Out ──────────────────────────────────────────────
-  async function signOut() {
+  async function handleSignOut() {
     const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
     days.forEach(day => {
       localStorage.removeItem(`planner_split_${day}`);
