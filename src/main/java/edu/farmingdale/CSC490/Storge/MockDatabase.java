@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -48,9 +47,9 @@ public class MockDatabase {
 
         // Add Nutrition using new meal-based structure
         List<Nutrition_log.Meal> meals = new ArrayList<>();
-        meals.add(new Nutrition_log.Meal("Breakfast", "600", "30"));
-        meals.add(new Nutrition_log.Meal("Lunch", "900", "40"));
-        meals.add(new Nutrition_log.Meal("Dinner", "900", "45"));
+        meals.add(new Nutrition_log.Meal("meal1","Breakfast", "600", "30",  "50",  "20"));
+        meals.add(new Nutrition_log.Meal("meal2","Lunch", "900", "40","10","15"));
+        meals.add(new Nutrition_log.Meal("meal2","Dinner", "900", "45","30","20"));
 
         Nutrition_log n1 = new Nutrition_log();
         n1.setUserId("1");

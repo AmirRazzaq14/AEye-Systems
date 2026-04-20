@@ -4,35 +4,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('wizcoach-theme');
+        if (saved) {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="js/theme.js" defer></script>
   <title>WizCoach – Motion</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Firebase SDKs (for persisting motion calories) -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+  <script>
+    async function initApp() {
+      try {
+        const res = await fetch('/api/config');
+        if (!res.ok) throw new Error(`Config fetch failed: ${res.status}`);
+        const config = await res.json();
+        firebase.initializeApp(config);
+      } catch (err) {
+        console.error('initApp failed:', err);
+      }
+    }
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --purple: #7c5cfc; --purple-light: #a78bfa;
+      --purple: #7c5cfc;
+      --purple-light: #a78bfa;
       --blue: #3b82f6;
-      --text: #1a1a2e; --muted: #6b7280;
-      --border: #e5e7eb; --card-bg: #ffffff;
-    }
-
-    @keyframes page-bg-drift {
-      0%, 100% { background-position: 0% 40%; }
-      50% { background-position: 100% 60%; }
     }
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background: linear-gradient(125deg, #e0e8f4 0%, #f0eeff 25%, #e8ecfc 50%, #eef6ff 75%, #e8ecf5 100%);
-      background-size: 240% 240%;
-      animation: page-bg-drift 22s ease-in-out infinite;
-      min-height: 100vh; color: var(--text);
+      background: var(--page-bg);
+      min-height: 100vh;
+      color: var(--text);
     }
 
     /* NAV */
     nav {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem; height: 60px; background: white;
+      padding: 0 2rem; height: 60px;
+      background: var(--nav-bg);
       border-bottom: 1px solid var(--border);
       box-shadow: 0 1px 8px rgba(0,0,0,0.05);
       position: sticky; top: 0; z-index: 100;
@@ -40,14 +62,6 @@
 
     .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
 
-    .nav-logo-icon {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--purple), var(--purple-light));
-      border-radius: 10px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 3px 8px rgba(124,92,252,0.3);
-    }
-
-    .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
     .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
     .nav-links { display: flex; align-items: center; gap: 0.25rem; }
 
@@ -59,7 +73,7 @@
       transition: color 0.15s, background 0.15s;
     }
 
-    .nav-link:hover { color: var(--text); background: #f3f4f6; }
+    .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
     .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
     .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -77,8 +91,11 @@
 
     /* CARDS */
     .card {
-      background: var(--card-bg); border-radius: 20px;
-      padding: 1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      border: 1px solid var(--border);
     }
 
     .card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem; }
@@ -174,9 +191,11 @@
     .session-stats.visible { display: grid; }
 
     .stat-pill {
-      background: #f8f9ff; border-radius: 12px;
-      padding: 0.75rem 1rem; text-align: center;
-      border: 1px solid #e0e7ff;
+      background: var(--input-bg);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      border: 1px solid var(--border);
     }
 
     .stat-pill span { display: block; }
@@ -195,6 +214,55 @@
       font-size: 0.85rem; font-style: italic; padding: 1.5rem 0;
     }
 
+    .calorie-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .calorie-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .calorie-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      line-height: 1.4;
+    }
+
+    .weight-input {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.55rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--input-bg);
+    }
+
+    .weight-input label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .weight-input input {
+      width: 84px;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      background: transparent;
+    }
+
     .exercise-item {
       display: flex; align-items: center; gap: 0.875rem;
       padding: 0.75rem 0; border-bottom: 1px solid var(--border);
@@ -204,7 +272,9 @@
 
     .ex-icon {
       width: 36px; height: 36px; border-radius: 10px;
-      background: #eff6ff; color: var(--blue);
+      background: var(--input-bg);
+      color: var(--blue);
+      border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
 
@@ -272,14 +342,25 @@
 
     .help-btn {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
-      width: 40px; height: 40px; background: #1a1a2e; color: white;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; font-weight: 700; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: background 0.2s; text-decoration: none;
+      z-index: 999;
+      width: 40px; height: 40px;
+      background: var(--nav-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      text-decoration: none;
       animation: help-btn-glow 4s ease-in-out infinite;
     }
 
-    .help-btn:hover { background: var(--purple); }
+    .help-btn:hover { background: var(--purple); color: #fff; border-color: transparent; }
 
     @media (prefers-reduced-motion: reduce) {
       body,
@@ -314,15 +395,19 @@
       gap: 0.5rem;
     }
 
-    .wiz-logo img {
-      width: 36px;
-      height: 36px;
+    .wiz-logo-avatar.wizcoach-mark {
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
-      object-fit: cover;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      flex-shrink: 0;
+      display: block;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+    :root[data-theme="dark"] .wiz-logo-avatar.wizcoach-mark {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
     }
 
-    .wiz-logo span {
+    .wiz-logo-title {
       font-weight: 700;
       font-size: 1rem;
       letter-spacing: -0.02em;
@@ -497,7 +582,7 @@
 
     .wiz-stats-row {
       display: grid;
-      grid-template-columns: 1.6fr repeat(5, minmax(0, 1fr));
+      grid-template-columns: 1.6fr 2.4fr;
       gap: 0.55rem;
     }
 
@@ -548,6 +633,59 @@
     .wiz-stat-value {
       font-size: 1.05rem;
       font-weight: 600;
+    }
+
+    .wiz-stat-value.wiz-rep-big {
+      font-size: clamp(2.2rem, 5.4vw, 3.1rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .wiz-current-rep-card {
+      position: sticky;
+      top: 76px; /* below nav */
+      z-index: 20;
+      border-color: rgba(250, 204, 21, 0.55);
+      box-shadow:
+        0 0 0 1px rgba(250, 204, 21, 0.22),
+        0 18px 60px rgba(15,23,42,0.92);
+      background: radial-gradient(circle at top, rgba(30, 27, 75, 0.95) 0%, rgba(2, 6, 23, 0.98) 55%, rgba(0, 0, 0, 0.98) 100%);
+    }
+
+    .wiz-current-rep-meta {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .wiz-current-rep-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.12);
+      border: 1px solid rgba(250, 204, 21, 0.28);
+      color: #fef08a;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    @keyframes wiz-rep-pop {
+      0%   { transform: scale(1); filter: brightness(1); }
+      35%  { transform: scale(1.08); filter: brightness(1.15); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    .wiz-current-rep-card.wiz-rep-pulse {
+      animation: wiz-rep-pop 260ms ease-out;
     }
 
     .wiz-exercise-indicator {
@@ -731,7 +869,8 @@
 <nav>
   <a href="dashboard.html" class="nav-logo">
     <div class="nav-logo-icon">
-      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
+      <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
     </div>
     <span class="nav-logo-name">WizCoach</span>
   </a>
@@ -758,6 +897,14 @@
       <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
       AI Coach
     </a>
+    <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
+    </button>
   </div>
 </nav>
 
@@ -768,8 +915,11 @@
   <div class="card motion-card">
     <div class="wiz-page-header">
       <div class="wiz-logo">
-        <img src="wizcoach-logo.png" alt="WizCoach logo"/>
-        <span>WizCoach Motion</span>
+        <span class="wiz-logo-avatar wizcoach-mark" aria-hidden="true">
+          <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="40" height="40" decoding="async"/>
+          <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="40" height="40" decoding="async"/>
+        </span>
+        <span class="wiz-logo-title">WizCoach Motion</span>
       </div>
       <small style="color: var(--muted);">AI-powered motion coach</small>
     </div>
@@ -855,29 +1005,12 @@
             <span id="wizMotionValue" class="wiz-stat-value">0%</span>
           </div>
 
-          <div class="wiz-stat-card" id="wizStatSquat">
-            <span class="wiz-stat-label">Squats</span>
-            <span id="wizSquatCount" class="wiz-stat-value">0</span>
-          </div>
-
-          <div class="wiz-stat-card" id="wizStatPushup">
-            <span class="wiz-stat-label">Pushups</span>
-            <span id="wizPushupCount" class="wiz-stat-value">0</span>
-          </div>
-
-          <div class="wiz-stat-card" id="wizStatArmRaise">
-            <span class="wiz-stat-label">Arm raises</span>
-            <span id="wizArmRaiseCount" class="wiz-stat-value">0</span>
-          </div>
-
-          <div class="wiz-stat-card" id="wizStatWalk">
-            <span class="wiz-stat-label">Steps</span>
-            <span id="wizWalkCount" class="wiz-stat-value">0</span>
-          </div>
-
-          <div class="wiz-stat-card" id="wizStatJack">
-            <span class="wiz-stat-label">Jacks</span>
-            <span id="wizJackCount" class="wiz-stat-value">0</span>
+          <div class="wiz-stat-card wiz-current-rep-card" id="wizCurrentRepCard" aria-live="polite" aria-atomic="true">
+            <div class="wiz-current-rep-meta">
+              <span class="wiz-current-rep-badge" id="wizCurrentRepBadge">Current exercise</span>
+              <span class="wiz-stat-label" id="wizCurrentRepLabel">Squats</span>
+            </div>
+            <span id="wizCurrentRepCount" class="wiz-stat-value wiz-rep-big">0</span>
           </div>
         </div>
 
@@ -890,6 +1023,22 @@
 
   <!-- SIDEBAR -->
   <div class="sidebar">
+
+    <!-- Calories estimate (session total) -->
+    <div class="card" id="calorieCard">
+      <h3>Calories burned (est.)</h3>
+      <div class="calorie-row">
+        <div class="calorie-val"><span id="wizCaloriesTotal">0</span> kcal</div>
+        <div class="weight-input" title="Used for calorie estimation only">
+          <label for="wizWeightKg">Weight</label>
+          <input id="wizWeightKg" type="number" min="30" max="250" step="1" value="70" inputmode="numeric" />
+          <span style="font-size:0.78rem;color:var(--muted);font-weight:700;">kg</span>
+        </div>
+      </div>
+      <div class="calorie-sub" id="wizCaloriesSub">
+        Updates as reps are detected. This is an estimate based on exercise intensity and assumed rep tempo.
+      </div>
+    </div>
 
     <!-- Recent Exercises (camera-detected reps) -->
     <div class="card">
@@ -910,6 +1059,7 @@
   </div>
 </div>
 
+<button type="button" onclick="toggleTheme()" class="theme-btn" title="Toggle dark mode">🌓</button>
 <a href="#" class="help-btn">?</a>
 
 <!-- TensorFlow.js + Pose Detection (browser builds) -->
@@ -923,6 +1073,39 @@
   document.querySelectorAll('.nav-link').forEach(link => {
     link.classList.toggle('active', link.href === window.location.href);
   });
+
+  /* SIGN OUT */
+  async function handleSignOut() {
+    stopCamera(); // turns off webcam light before navigating away
+    try {
+      if (firebase.apps.length) {
+        await firebase.auth().signOut();
+      }
+    } catch (err) {
+      console.warn('Sign out error:', err);
+    }
+    window.location.href = 'login.html';
+  }
+
+  // ── Firebase Auth helpers (same pattern as dashboard) ───────
+  async function getAuthToken() {
+    const user = firebase.auth().currentUser;
+    if (!user) throw new Error('Not logged in');
+    return await user.getIdToken();
+  }
+
+  async function apiFetch(path, method = 'GET', body = null) {
+    const token = await getAuthToken();
+    const options = {
+      method,
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    };
+    if (body) options.body = JSON.stringify(body);
+    const res = await fetch(path, options);
+    if (!res.ok) throw new Error(await res.text());
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { return text; }
+  }
 
   /* ─────────────────────────────────────────────
      WizCoach camera logic (ported from FitnessCamera.tsx)
@@ -977,7 +1160,8 @@
     wizCoachFeedbackEl.textContent = text;
     coachMessageLockUntilMs = now + holdMs;
   }
-  let wizMotionFill, wizMotionValue, wizSquatCountEl, wizPushupCountEl, wizArmRaiseCountEl, wizWalkCountEl, wizJackCountEl;
+  let wizMotionFill, wizMotionValue;
+  let wizCurrentRepCard, wizCurrentRepLabelEl, wizCurrentRepCountEl;
   let wizExerciseIndicator, wizExerciseLabel;
 
   let stream = null;
@@ -1012,6 +1196,192 @@
   let jumpingJackCount = 0;
   /** User-selected exercise only — detection runs for this type until changed. */
   let selectedWorkout = 'squat';
+
+  // ─────────────────────────────────────────────
+  // Calories estimate (simple MET model)
+  // kcal/min = MET * 3.5 * weightKg / 200
+  // We approximate time-per-rep for each exercise.
+  // ─────────────────────────────────────────────
+  let userWeightKg = 70;
+  let sessionCalories = 0;
+  let wizCaloriesTotalEl, wizCaloriesSubEl, wizWeightKgInput;
+  const perExerciseCalories = {
+    squat: 0,
+    pushup: 0,
+    arm_raise: 0,
+    walk_in_place: 0,
+    jumping_jack: 0
+  };
+  const perExerciseReps = {
+    squat: 0,
+    pushup: 0,
+    arm_raise: 0,
+    walk_in_place: 0,
+    jumping_jack: 0
+  };
+
+  let persistTimerId = 0;
+  let persistInFlight = false;
+
+  function todayKeyLocal() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function buildMotionLogPayload() {
+    const date = todayKeyLocal();
+    const perExercise = {};
+    for (const t of Object.keys(perExerciseReps)) {
+      perExercise[t] = {
+        reps: perExerciseReps[t] || 0,
+        kcal: Number((perExerciseCalories[t] || 0).toFixed(4))
+      };
+    }
+    return {
+      date,
+      weightKg: userWeightKg,
+      caloriesTotal: Number(sessionCalories.toFixed(4)),
+      perExercise
+    };
+  }
+
+  /** Restore today’s saved totals from Firestore so a fresh page load does not POST zeros over real data. */
+  let motionPageDomReady = false;
+
+  function tryHydrateMotionLogAfterDom() {
+    if (!motionPageDomReady) return;
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    hydrateTodayMotionLogFromServer().catch((e) => console.warn('Hydrate motion log failed:', e));
+  }
+
+  async function hydrateTodayMotionLogFromServer() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    let motion;
+    try {
+      motion = await apiFetch(`/api/motion-logs/${encodeURIComponent(todayKeyLocal())}`);
+    } catch {
+      return;
+    }
+    if (!motion || typeof motion !== 'object') return;
+
+    const pe = motion.perExercise;
+    if (pe && typeof pe === 'object') {
+      for (const t of Object.keys(perExerciseReps)) {
+        const row = pe[t];
+        if (!row || typeof row !== 'object') continue;
+        const r = Math.round(Number(row.reps));
+        const k = Number(row.kcal);
+        if (Number.isFinite(r)) perExerciseReps[t] = Math.max(perExerciseReps[t] || 0, r);
+        if (Number.isFinite(k)) perExerciseCalories[t] = Math.max(perExerciseCalories[t] || 0, k);
+      }
+    }
+
+    squatCount = perExerciseReps.squat || 0;
+    pushupCount = perExerciseReps.pushup || 0;
+    armRaiseCount = perExerciseReps.arm_raise || 0;
+    walkInPlaceCount = perExerciseReps.walk_in_place || 0;
+    jumpingJackCount = perExerciseReps.jumping_jack || 0;
+
+    const serverCals = Number(motion.caloriesTotal);
+    if (Number.isFinite(serverCals)) {
+      sessionCalories = Math.max(sessionCalories, serverCals);
+    }
+
+    const w = Number(motion.weightKg);
+    if (Number.isFinite(w) && w > 0) {
+      setWeightKg(w);
+    }
+
+    exerciseState.count = countForWorkout(selectedWorkout);
+    updateCaloriesUI();
+    updateCounts();
+    syncPerExerciseRepState();
+    updateStatActiveHighlight();
+    updateExerciseIndicator();
+  }
+
+  function schedulePersistMotionLog(delayMs = 1500) {
+    if (persistTimerId) clearTimeout(persistTimerId);
+    persistTimerId = setTimeout(() => persistMotionLogNow(), delayMs);
+  }
+
+  async function persistMotionLogNow() {
+    if (persistInFlight) return;
+    persistInFlight = true;
+    try {
+      await apiFetch('/api/motion-logs', 'POST', buildMotionLogPayload());
+    } catch (e) {
+      // Don't break the workout UI if persistence fails.
+      console.warn('Failed to persist motion log:', e);
+    } finally {
+      persistInFlight = false;
+    }
+  }
+
+  const EXERCISE_MET = {
+    squat: 5.0,
+    pushup: 8.0,
+    arm_raise: 3.5,
+    walk_in_place: 3.0,
+    jumping_jack: 8.0
+  };
+
+  const REP_SECONDS = {
+    squat: 2.0,
+    pushup: 2.5,
+    arm_raise: 2.0,
+    walk_in_place: 1.0,
+    jumping_jack: 1.5
+  };
+
+  function clampNumber(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function loadWeightKg() {
+    const raw = localStorage.getItem('wiz_weight_kg');
+    const parsed = raw ? Number(raw) : Number.NaN;
+    if (Number.isFinite(parsed)) {
+      userWeightKg = clampNumber(parsed, 30, 250);
+    } else {
+      userWeightKg = 70;
+    }
+  }
+
+  function setWeightKg(next) {
+    const v = clampNumber(Number(next), 30, 250);
+    if (!Number.isFinite(v)) return;
+    userWeightKg = v;
+    localStorage.setItem('wiz_weight_kg', String(v));
+    if (wizWeightKgInput) wizWeightKgInput.value = String(v);
+    updateCaloriesUI();
+  }
+
+  function kcalForRep(exerciseType) {
+    const met = EXERCISE_MET[exerciseType] ?? 4.0;
+    const sec = REP_SECONDS[exerciseType] ?? 2.0;
+    const kcalPerMin = (met * 3.5 * userWeightKg) / 200;
+    return kcalPerMin * (sec / 60);
+  }
+
+  function formatKcal(x) {
+    if (!Number.isFinite(x)) return '0';
+    if (x < 10) return x.toFixed(1);
+    return Math.round(x).toString();
+  }
+
+  function updateCaloriesUI() {
+    if (wizCaloriesTotalEl) wizCaloriesTotalEl.textContent = formatKcal(sessionCalories);
+    if (wizCaloriesSubEl) {
+      wizCaloriesSubEl.textContent =
+        `Based on ~${userWeightKg}kg body weight. Estimates change with intensity/tempo.`;
+    }
+  }
 
   /** EMA of nose Y while standing (knees straight); used for squat head-lowering check. */
   let squatHeadBaselineY = null;
@@ -1650,12 +2020,31 @@
     wizMotionValue.textContent = clamped + '%';
   }
 
+  function updateCurrentRepUI() {
+    if (!wizCurrentRepLabelEl || !wizCurrentRepCountEl) return;
+    wizCurrentRepLabelEl.textContent = workoutTipsLabel(selectedWorkout);
+    wizCurrentRepCountEl.textContent = String(countForWorkout(selectedWorkout));
+  }
+
+  function pulseCurrentRepUI() {
+    if (!wizCurrentRepCard) return;
+    wizCurrentRepCard.classList.remove('wiz-rep-pulse');
+    // Force reflow so the animation restarts reliably.
+    // eslint-disable-next-line no-unused-expressions
+    wizCurrentRepCard.offsetWidth;
+    wizCurrentRepCard.classList.add('wiz-rep-pulse');
+  }
+
   function updateCounts() {
-    if (wizSquatCountEl) wizSquatCountEl.textContent = String(squatCount);
-    if (wizPushupCountEl) wizPushupCountEl.textContent = String(pushupCount);
-    if (wizArmRaiseCountEl) wizArmRaiseCountEl.textContent = String(armRaiseCount);
-    if (wizWalkCountEl) wizWalkCountEl.textContent = String(walkInPlaceCount);
-    if (wizJackCountEl) wizJackCountEl.textContent = String(jumpingJackCount);
+    updateCurrentRepUI();
+  }
+
+  function syncPerExerciseRepState() {
+    perExerciseReps.squat = squatCount;
+    perExerciseReps.pushup = pushupCount;
+    perExerciseReps.arm_raise = armRaiseCount;
+    perExerciseReps.walk_in_place = walkInPlaceCount;
+    perExerciseReps.jumping_jack = jumpingJackCount;
   }
 
   const WORKOUT_TIPS = {
@@ -1723,6 +2112,17 @@
     const empty = document.getElementById('exerciseEmpty');
     if (empty) empty.remove();
 
+    const deltaKcal = kcalForRep(exerciseType);
+    sessionCalories += deltaKcal;
+    if (Object.prototype.hasOwnProperty.call(perExerciseCalories, exerciseType)) {
+      perExerciseCalories[exerciseType] += deltaKcal;
+    }
+    if (Object.prototype.hasOwnProperty.call(perExerciseReps, exerciseType)) {
+      perExerciseReps[exerciseType] = repNumber;
+    }
+    updateCaloriesUI();
+    schedulePersistMotionLog();
+
     const title =
       exerciseType === 'squat'
         ? 'Squat'
@@ -1739,7 +2139,14 @@
     if (item) {
       const detail = item.querySelector('.ex-camera-rep-detail');
       const timeEl = item.querySelector('.ex-time');
-      if (detail) detail.textContent = 'Rep ' + repNumber + ' · detected during live session';
+      if (detail) {
+        detail.textContent =
+          'Rep ' +
+          repNumber +
+          ' · +' +
+          formatKcal(deltaKcal) +
+          ' kcal (est.) · detected during live session';
+      }
       if (timeEl) timeEl.textContent = now;
       log.prepend(item);
       return;
@@ -1754,7 +2161,7 @@
       </div>
       <div class="ex-text">
         <h4>${title} (camera)</h4>
-        <p class="ex-camera-rep-detail">Rep ${repNumber} · detected during live session</p>
+        <p class="ex-camera-rep-detail">Rep ${repNumber} · +${formatKcal(deltaKcal)} kcal (est.) · detected during live session</p>
       </div>
       <div class="ex-time">${now}</div>
     `;
@@ -1785,20 +2192,7 @@
   }
 
   function updateStatActiveHighlight() {
-    const map = {
-      squat: 'wizStatSquat',
-      pushup: 'wizStatPushup',
-      arm_raise: 'wizStatArmRaise',
-      walk_in_place: 'wizStatWalk',
-      jumping_jack: 'wizStatJack'
-    };
-    ['wizStatSquat', 'wizStatPushup', 'wizStatArmRaise', 'wizStatWalk', 'wizStatJack'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.classList.remove('wiz-stat-active');
-    });
-    const activeId = map[selectedWorkout];
-    const activeEl = activeId ? document.getElementById(activeId) : null;
-    if (activeEl) activeEl.classList.add('wiz-stat-active');
+    // Legacy no-op: stats are now summarized into a single current rep card.
   }
 
   function resetPhaseForWorkoutSwitch() {
@@ -1867,6 +2261,8 @@
     updateExerciseIndicator();
     renderWorkoutTips();
     updateWorkoutHero(selectedWorkout);
+    updateCurrentRepUI();
+    syncPerExerciseRepState();
     resetCoachMessageGate();
 
     if (cameraStatus === CameraStatus.READY && stream) {
@@ -2167,6 +2563,7 @@
                     jjRepCooldownUntilMs = now + 520;
                   }
                   updateCounts();
+                  pulseCurrentRepUI();
                   setCoachMessage(buildRepFeedbackMessage(selectedWorkout, pose), {
                     force: true,
                     holdMs: COACH_HOLD_REP_MS,
@@ -2307,6 +2704,8 @@
   }
 
   window.addEventListener('beforeunload', () => {
+    // Best-effort flush so other pages can read totals.
+    try { persistMotionLogNow(); } catch {}
     stopCamera();
   });
 
@@ -2330,14 +2729,25 @@
 
     wizMotionFill = document.getElementById('wizMotionFill');
     wizMotionValue = document.getElementById('wizMotionValue');
-    wizSquatCountEl = document.getElementById('wizSquatCount');
-    wizPushupCountEl = document.getElementById('wizPushupCount');
-    wizArmRaiseCountEl = document.getElementById('wizArmRaiseCount');
-    wizWalkCountEl = document.getElementById('wizWalkCount');
-    wizJackCountEl = document.getElementById('wizJackCount');
+    wizCurrentRepCard = document.getElementById('wizCurrentRepCard');
+    wizCurrentRepLabelEl = document.getElementById('wizCurrentRepLabel');
+    wizCurrentRepCountEl = document.getElementById('wizCurrentRepCount');
 
     wizExerciseIndicator = document.getElementById('wizExerciseIndicator');
     wizExerciseLabel = document.getElementById('wizExerciseLabel');
+
+    wizCaloriesTotalEl = document.getElementById('wizCaloriesTotal');
+    wizCaloriesSubEl = document.getElementById('wizCaloriesSub');
+    wizWeightKgInput = document.getElementById('wizWeightKg');
+    loadWeightKg();
+    if (wizWeightKgInput) {
+      wizWeightKgInput.value = String(userWeightKg);
+      wizWeightKgInput.addEventListener('change', (e) => {
+        const t = e && e.target ? e.target.value : '';
+        setWeightKg(t);
+      });
+    }
+    updateCaloriesUI();
 
     if (wizStartButton) wizStartButton.addEventListener('click', requestCamera);
     if (wizRetryButton) wizRetryButton.addEventListener('click', requestCamera);
@@ -2352,8 +2762,23 @@
     setCameraStatus(CameraStatus.IDLE);
     updateMotionUI(0);
     updateCounts();
+    syncPerExerciseRepState();
     updateStatActiveHighlight();
     updateExerciseIndicator();
+
+    motionPageDomReady = true;
+    tryHydrateMotionLogAfterDom();
+  });
+
+  // Init Firebase + require login (same behavior as dashboard).
+  initApp().then(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      tryHydrateMotionLogAfterDom();
+    });
   });
 </script>
 </body>
