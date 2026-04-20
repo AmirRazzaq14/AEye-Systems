@@ -19,7 +19,6 @@ import java.util.Optional;
 @Service
 public class GeminiCoachService {
 
-    @Value("${gemini.api.key:}")
     private static final String MODEL_ID = "gemini-3.1-flash-lite-preview";
     private static final String COACH_SYSTEM_PROMPT =
             "You are a friendly, knowledgeable AI fitness and nutrition coach. "

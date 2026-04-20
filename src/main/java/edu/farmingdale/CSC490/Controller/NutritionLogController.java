@@ -1,10 +1,12 @@
 package edu.farmingdale.CSC490.Controller;
 
 import edu.farmingdale.CSC490.Config.FirebaseTokenFilter;
+import edu.farmingdale.CSC490.Entity.Motion_log;
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import edu.farmingdale.CSC490.Entity.User;
 import edu.farmingdale.CSC490.Food.AISuggestionService;
 import edu.farmingdale.CSC490.Food.FoodAnalyzeService;
+import edu.farmingdale.CSC490.Service.MotionLogService;
 import edu.farmingdale.CSC490.Service.NutritionLogService;
 import edu.farmingdale.CSC490.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,9 @@ public class NutritionLogController {
 
     @Autowired
     private AISuggestionService aiSuggestionService;
+
+    @Autowired
+    private MotionLogService motionLogService;
 
     @PostMapping("/analyze-image")
     public ResponseEntity<Nutrition_log.Meal> analyzeFood(
@@ -235,8 +240,11 @@ public class NutritionLogController {
             @PathVariable String date) {
 
         try {
-            log.info("Successfully get exercise calories");
-            return ResponseEntity.ok("123");
+            String uid = tokenFilter.verifyAndGetUid(authHeader);
+            Motion_log motionLog = motionLogService.getLog(uid, date);
+            double burned = motionLog != null ? motionLog.getCaloriesTotal() : 0.0;
+            log.info("Burned calories for uid {} date {}: {}", uid, date, burned);
+            return ResponseEntity.ok(Map.of("burnedCalories", burned));
         } catch (Exception e) {
             log.error("Error to get exercise calories by this date {} : {}", date, e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
