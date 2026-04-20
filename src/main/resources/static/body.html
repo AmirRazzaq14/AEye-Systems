@@ -54,20 +54,6 @@
             text-decoration: none;
         }
 
-        .nav-logo-icon {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, var(--purple), var(--purple-light));
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 3px 8px rgba(124,92,252,0.3);
-        }
-
-        .nav-logo-icon svg {
-            width: 20px; height: 20px;
-            stroke: white; fill: none;
-            stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
-        }
-
         .nav-logo-name {
             font-size: 1.1rem; font-weight: 700;
             color: var(--text); letter-spacing: -0.02em;
@@ -340,6 +326,15 @@
 
         .help-btn:hover { background: var(--purple); color: white; border-color: transparent; }
 
+        .body-page .theme-btn {
+            left: auto;
+            right: 1.5rem;
+            bottom: 5rem;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+
         @media (max-width: 760px) {
             .page { grid-template-columns: 1fr; }
             .sidebar { grid-column: 1; grid-row: auto; }
@@ -348,13 +343,14 @@
         }
     </style>
 </head>
-<body>
+<body class="body-page">
 
 <!-- NAV -->
 <nav>
     <a href="dashboard.html" class="nav-logo">
         <div class="nav-logo-icon">
-            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
+            <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
         </div>
         <span class="nav-logo-name">WizCoach</span>
     </a>
@@ -681,20 +677,22 @@
     applyChartTheme();
 </script>
 
-<button onclick="toggleTheme()"
-        class="help-btn"
-        style="bottom: 5rem; font-size: 1.2rem;"
-        title="Toggle Dark Mode">🌓</button>
-
 <script>
   (function loadLocalAvatar() {
       const saved = localStorage.getItem('wizcoach-avatar');
-      if(saved) {
+      if (saved) {
           const img = document.getElementById('navAvatarImg');
           const txt = document.getElementById('navAvatarText');
-          if(img && txt) { img.src = saved; img.style.display = 'block'; txt.style.display = 'none'; }
+          if (img && txt) {
+              img.src = saved;
+              img.style.display = 'block';
+              txt.style.display = 'none';
+          }
       }
   })();
 </script>
+
+<button type="button" onclick="toggleTheme()" class="theme-btn" title="Toggle dark mode">🌓</button>
+
 </body>
 </html>

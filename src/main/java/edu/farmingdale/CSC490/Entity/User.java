@@ -22,4 +22,4 @@ public class User {
     private String gender;
     private Integer age;
     private String profilePicture;
-}
+}

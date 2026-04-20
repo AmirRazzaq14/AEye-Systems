@@ -81,7 +81,7 @@ public class DashboardService {
                 .sum();
     }
 
-    // ── Helper: safely parse updatedAt string to Instant ──
+    // ── Helper: safely mealParse updatedAt string to Instant ──
     private Instant parseInstant(String updatedAt) {
         if (updatedAt == null) return Instant.now();
         try { return Instant.parse(updatedAt); }

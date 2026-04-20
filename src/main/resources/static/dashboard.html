@@ -4,13 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
-
   <script>
     (function () {
       try {
-        const saved = localStorage.getItem("wizcoach-theme");
+        const saved = localStorage.getItem('wizcoach-theme');
         if (saved) {
-          document.documentElement.setAttribute("data-theme", saved);
+          document.documentElement.setAttribute('data-theme', saved);
         }
       } catch (e) {}
     })();
@@ -70,13 +69,6 @@
       position: sticky; top: 0; z-index: 100;
     }
     .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
-    .nav-logo-icon {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--purple), var(--purple-light));
-      border-radius: 10px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 3px 8px rgba(124,92,252,0.3);
-    }
-    .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
     .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
     .nav-links { display: flex; align-items: center; gap: 0.25rem; }
     .nav-link {
@@ -86,9 +78,7 @@
       text-decoration: none; border: none; background: none; cursor: pointer;
       transition: color 0.15s, background 0.15s;
     }
-
     .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
-
     .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
     .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -105,7 +95,9 @@
 
     .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; align-items: stretch; }
     a.stat-card {
-      background: var(--card-bg); border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
       padding: 1.25rem 1.5rem 1.4rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
       display: flex; flex-direction: column; gap: 0.5rem;
@@ -145,7 +137,11 @@
 
     .toggle-pill {
       display: flex; align-items: center;
-      background: var(--input-bg); border-radius: 10px; padding: 3px; gap: 2px;
+      background: var(--input-bg);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 2px;
+      border: 1px solid var(--border);
     }
     .toggle-pill button {
       padding: 0.32rem 0.85rem; border-radius: 8px; border: none;
@@ -154,7 +150,8 @@
       background: transparent; transition: background 0.15s, color 0.15s;
     }
     .toggle-pill button.active {
-      background: var(--card-bg); color: var(--text);
+      background: var(--card-bg);
+      color: var(--text);
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
@@ -180,7 +177,9 @@
     .charts-row.merged { grid-template-columns: 1fr; }
 
     .log-card {
-      background: var(--card-bg); border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
       padding: 1.2rem 1.3rem 1.1rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
       display: flex; flex-direction: column; height: 290px;
@@ -506,36 +505,105 @@
     .btn-close:hover { background: var(--nav-hover-bg); }
 
     /* ── Merged pick modal ── */
-    .merge-pick-modal {
-      background: white; border-radius: 20px; padding: 1.75rem;
-      width: 300px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-      animation: popIn 0.22s ease both;
-    }
-    .merge-pick-modal h4 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
-    .merge-pick-modal .modal-date-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.2rem; }
-    .merge-pick-btns { display: flex; flex-direction: column; gap: 0.6rem; }
-    .merge-pick-btn {
-      width: 100%; padding: 0.75rem; border-radius: 10px;
-      border: 1.5px solid var(--border);
-      background: var(--input-bg); font-size: 0.88rem; font-weight: 600;
-      color: var(--text); cursor: pointer; font-family: 'DM Sans', sans-serif;
-      transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-      margin-bottom: 0.75rem;
-    }
-    .merge-pick-btn:hover { filter: brightness(0.9); }
-    .merge-pick-btn.btn-ex:hover  { background: rgba(34,197,94,0.1); border-color: var(--green); color: var(--green); }
-    .merge-pick-btn.btn-nut:hover { background: rgba(249,115,22,0.1); border-color: #f97316; color: #ea580c; }
+.merge-pick-modal {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 1.75rem;
+  width: 300px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: popIn 0.22s ease both;
+}
 
-    .merge-pick-cancel {
-      width: 100%; padding: 0.6rem; border-radius: 10px; border: none;
-      background: transparent; color: var(--muted); font-size: 0.8rem; font-weight: 500;
-      cursor: pointer; font-family: inherit; transition: background 0.15s;
-    }
-    .merge-pick-cancel:hover { background: var(--input-bg); }
+.merge-pick-modal h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.15rem;
+}
+
+.merge-pick-modal .modal-date-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1.2rem;
+}
+
+.merge-pick-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Main buttons */
+.merge-pick-btn {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--input-bg);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Hover states */
+.merge-pick-btn:hover {
+  background: var(--nav-hover-bg);
+  border-color: #d1d5db;
+}
+
+.merge-pick-btn.btn-ex:hover {
+  background: rgba(34,197,94,0.1);
+  border-color: var(--green);
+  color: var(--green-dark);
+}
+
+.merge-pick-btn.btn-nut:hover {
+  background: rgba(249,115,22,0.1);
+  border-color: #f97316;
+  color: #ea580c;
+}
+
+/* Cancel button */
+.merge-pick-cancel {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.merge-pick-cancel:hover {
+  background: var(--input-bg);
+}
+
+/* Edit label */
+.merge-pick-edit {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #9ca3af;
+  font-style: italic;
+}
 
     /* ── Goals Card ── */
     .goals-card {
-      background: var(--card-bg); border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
       padding: 1.25rem 1.5rem 1.4rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
       display: flex; flex-direction: column; gap: 0.75rem;
@@ -548,11 +616,24 @@
     }
     .goals-card-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); }
     .goals-add-btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
-      padding: 0.6rem 1rem; border-radius: 10px;
-      border: 1.5px dashed var(--border);
-      background: rgba(34,197,94,0.05); color: var(--green); 
-      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 0.4rem;
+
+padding: 0.6rem 1rem;
+border-radius: 10px;
+border: 1.5px dashed var(--border);
+
+background: rgba(34,197,94,0.05);
+color: var(--green);
+
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
+font-family: 'DM Sans', sans-serif;
+
+transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
     .goals-add-btn:hover { filter: brightness(0.9); }
 
@@ -563,10 +644,20 @@
     }
 
     .goal-item {
-      display: flex; align-items: flex-start; gap: 0.75rem;
-      padding: 0.6rem 0.8rem; border-radius: 12px;
-      border: 1.5px solid var(--border); background: var(--input-bg);
-      transition: transform 0.15s, box-shadow 0.15s; position: relative;
+display: flex;
+align-items: flex-start;
+gap: 0.7rem;
+
+padding: 0.7rem 0.85rem;
+border-radius: 12px;
+
+border: 1.5px solid var(--border);
+background: var(--input-bg);
+
+position: relative;
+animation: popIn 0.18s ease both;
+
+transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
     }
     .goal-item:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
 
@@ -614,20 +705,34 @@
       min-height: 140px; background: var(--input-bg);
     }
 
-    .planner-day-label {
-      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
-      text-align: center; padding: 0.2rem 0; border-radius: 6px; letter-spacing: 0.05em;
-    }
-    .planner-day:nth-child(1) .planner-day-label { background: rgba(192,57,43,0.1); color: #c0392b; }
-    .planner-day:nth-child(2) .planner-day-label { background: rgba(211,84,0,0.1); color: #d35400; }
-    .planner-day:nth-child(3) .planner-day-label { background: rgba(161,98,7,0.1); color: #a16207; }
-    .planner-day:nth-child(4) .planner-day-label { background: rgba(21,128,61,0.1); color: #15803d; }
-    .planner-day:nth-child(5) .planner-day-label { background: rgba(29,78,216,0.1); color: #1d4ed8; }
-    .planner-day:nth-child(6) .planner-day-label { background: rgba(109,40,217,0.1); color: #6d28d9; }
-    .planner-day:nth-child(7) .planner-day-label { background: rgba(157,23,77,0.1); color: #9d174d; }
+/* Planner day labels */
+.planner-day-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 0.2rem 0;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+}
+
+.planner-day:nth-child(1) .planner-day-label { background: rgba(192,57,43,0.1); color: #c0392b; }
+.planner-day:nth-child(2) .planner-day-label { background: rgba(211,84,0,0.1); color: #d35400; }
+.planner-day:nth-child(3) .planner-day-label { background: rgba(161,98,7,0.1); color: #a16207; }
+.planner-day:nth-child(4) .planner-day-label { background: rgba(21,128,61,0.1); color: #15803d; }
+.planner-day:nth-child(5) .planner-day-label { background: rgba(29,78,216,0.1); color: #1d4ed8; }
+.planner-day:nth-child(6) .planner-day-label { background: rgba(109,40,217,0.1); color: #6d28d9; }
+.planner-day:nth-child(7) .planner-day-label { background: rgba(157,23,77,0.1); color: #9d174d; }
+
+/* Goal category color accents */
+.goal-icon-strength { background: #fff7ed; }
+.goal-icon-cardio   { background: #eff6ff; }
+.goal-icon-body     { background: #f0fdf4; }
+.goal-icon-habit    { background: #f5f3ff; }
+.goal-icon-other    { background: var(--input-bg); }
 
     /* ── Weekly Planner ── */
-    .planner-card { background: var(--card-bg); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; flex: 1; }
+    .planner-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; flex: 1; }
     .planner-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
     .planner-day { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
     .planner-day-label {
@@ -649,61 +754,71 @@
     .planner-day:nth-child(6) .planner-day-label { background: rgba(109,40,217,0.1); color: #6d28d9; }
     .planner-day:nth-child(7) .planner-day-label { background: rgba(157,23,77,0.1); color: #9d174d; }
     .split-select {
-      width: 100%;
-      padding: 0.4rem 0.5rem;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.72rem;
-      font-family: 'DM Sans', sans-serif;
-      color: var(--text);
-      background: var(--input-bg);
-      outline: none;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
-      appearance: none;
-      text-align: center;
-    }
-    .split-select:focus {
-      border-color: var(--blue);
-      background: var(--input-bg);
-    }
-    .split-select option {
-      color: var(--text);
-      background: var(--card-bg);
-    }
+width: 100%;
+padding: 0.4rem 0.5rem;
+border: 1.5px solid var(--border);
+border-radius: 8px;
+font-size: 0.72rem;
+font-family: 'DM Sans', sans-serif;
+color: var(--text);
+background: var(--input-bg);
+outline: none;
+cursor: pointer;
+transition: border-color 0.15s, background 0.15s, color 0.15s;
+appearance: none;
+text-align: center;
+}
+.split-select:focus {
+  border-color: var(--blue);
+  background: var(--input-bg);
+}
+.split-select option {
+  color: var(--text);
+  background: var(--card-bg);
+}
 
-    .planner-exercises {
-      width: 100%;
-      padding: 0.4rem 0.5rem;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.72rem;
-      font-family: 'DM Sans', sans-serif;
-      color: var(--text);
-      background: var(--input-bg);
-      outline: none;
-      resize: none;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
-      flex: 1;
-      min-height: 80px;
-    }
-    .planner-exercises:focus {
-      border-color: var(--blue);
-      background: var(--input-bg);
-    }
-    .planner-exercises::placeholder { color: var(--muted); font-size: 0.68rem; }
+.planner-exercises {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  background: var(--input-bg);
+  outline: none;
+  resize: none;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  flex: 1;
+  min-height: 80px;
+}
+.planner-exercises:focus {
+  border-color: var(--blue);
+  background: var(--input-bg);
+}
+.planner-exercises::placeholder {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
 
-    .planner-field-label {
-      font-size: 0.62rem; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px;
-    }
+.planner-field-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
 
-    @media (max-width: 760px) {
-      .planner-grid { grid-template-columns: 1fr; }
-    }
+@media (max-width: 760px) {
+  .planner-grid { grid-template-columns: 1fr; }
+}
 
-    .help-btn {
-      position: fixed; bottom: 1.5rem; right: 1.5rem;
+.help-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 999;
       width: 40px; height: 40px;
       background: var(--nav-bg);
       color: var(--text);
@@ -715,8 +830,7 @@
       transition: background 0.2s, color 0.2s, border-color 0.2s;
       text-decoration: none;
     }
-
-    .help-btn:hover { background: var(--purple); color: white; border-color: transparent; }
+    .help-btn:hover { background: var(--purple); color: #fff; border-color: transparent; }
 
     @media (max-width: 760px) {
       .stats-row { grid-template-columns: 1fr; }
@@ -738,7 +852,8 @@
 <nav>
   <a href="dashboard.html" class="nav-logo">
     <div class="nav-logo-icon">
-      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
+      <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
     </div>
     <span class="nav-logo-name">WizCoach</span>
   </a>
@@ -764,8 +879,12 @@
   <img id="navAvatarImg" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
 </a>
 
-<button class="nav-link" onclick="signOut()">
-  <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+<button class="nav-link" onclick="handleSignOut()">
+  <svg viewBox="0 0 24 24">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <polyline points="16 17 21 12 16 7"/>
+    <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
   Sign Out
 </button>
   </div>
@@ -908,6 +1027,7 @@
   </div>
 </div>
 
+<button type="button" onclick="toggleTheme()" class="theme-btn" title="Toggle dark mode">🌓</button>
 <a href="#" class="help-btn">?</a>
 
 <div class="modal-overlay" id="exAddModal">
@@ -998,7 +1118,15 @@
 
 <script>
   // ── Sign Out ──────────────────────────────────────────────
-
+  async function handleSignOut() {
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    days.forEach(day => {
+      localStorage.removeItem(`planner_split_${day}`);
+      localStorage.removeItem(`planner_exercises_${day}`);
+    });
+    await firebase.auth().signOut();
+    window.location.href = 'login.html';
+  }
 
   document.querySelectorAll('.nav-link').forEach(l =>
           l.classList.toggle('active', l.href === window.location.href)

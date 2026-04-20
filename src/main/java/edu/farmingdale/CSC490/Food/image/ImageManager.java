@@ -27,7 +27,7 @@ public class ImageManager {
      * return the image 64-bit encoded string
      */
     public String encodeImageFromMultipartFile(MultipartFile image)  {
-        log.info("===Encode Image From Multipart File===");
+        log.info("Encode Image From Multipart File");
         try {
             if (image == null || image.isEmpty()) {
                 log.error("Received empty or null image file");
@@ -60,7 +60,7 @@ public class ImageManager {
      */
 
     public String encodeImageFromFile(String imagePath){
-        log.info("===Encode Image From File===");
+        log.info("Encode Image From File");
 
         if (imagePath == null || imagePath.isEmpty()) {
             log.error("Received empty or null image path");

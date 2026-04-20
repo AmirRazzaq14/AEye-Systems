@@ -51,8 +51,16 @@
             max-width: 480px; width: 100%;
         }
         .card-header { text-align: center; margin-bottom: 2rem; }
-        .logo-icon { width: 50px; height: 50px; background: linear-gradient(135deg, var(--purple), var(--purple-light)); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(124,92,252,0.35); margin-bottom: 1rem; }
-        .logo-icon svg { width: 28px; height: 28px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .logo-icon.wizcoach-mark {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        :root[data-theme="dark"] .logo-icon.wizcoach-mark {
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+        }
         .card-title    { font-size: 1.75rem; font-weight: 700; color: var(--text); letter-spacing: -0.03em; margin-bottom: 0.4rem; }
         .card-subtitle { color: var(--muted); font-size: 0.95rem; }
 
@@ -116,8 +124,9 @@
 
 <div class="card">
     <div class="card-header">
-        <div class="logo-icon">
-            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <div class="logo-icon wizcoach-mark">
+            <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="56" height="56" decoding="async"/>
+            <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="56" height="56" decoding="async"/>
         </div>
         <h2 class="card-title">Setup Your Profile</h2>
         <p class="card-subtitle">Let's personalize your coaching experience</p>
@@ -248,6 +257,8 @@
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
-</script>
+    </script>
+
+<button type="button" onclick="toggleTheme()" class="theme-btn" title="Toggle dark mode">🌓</button>
 </body>
 </html>
