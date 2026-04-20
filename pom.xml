@@ -131,4 +131,14 @@
         </plugins>
     </build>
 
+    <profiles>
+        <!-- Used by deploy/CI: -Pproduction skips compiling and running tests (not the same as -DskipTests). -->
+        <profile>
+            <id>production</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+        </profile>
+    </profiles>
+
 </project>
