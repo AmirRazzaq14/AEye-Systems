@@ -79,8 +79,8 @@
             gap: 1.5rem;
 
             flex: 1;
+            height: calc(100dvh - 60px);
             min-height: calc(100dvh - 60px);
-            height: auto;
 
             animation: fadeUp 0.5s ease both;
         }
@@ -95,6 +95,8 @@
             grid-template-columns: 2fr 1fr;
             gap: 1.5rem;
             flex: 1;
+            height: 100%;
+            min-height: 0;
             align-items: stretch;
         }
 
@@ -108,9 +110,10 @@
             flex-direction: column;
             overflow: hidden;
 
-            height: auto;
+            height: 60%;
+            max-height: 60%;
             min-height: 420px;
-            flex: 1;
+            flex: 0 0 auto;
         }
 
         .chat-header {
@@ -346,15 +349,17 @@
             .page {
                 padding: 0 0.75rem;
                 margin: 0.75rem auto;
+                height: calc(100dvh - 60px);
                 min-height: calc(100dvh - 60px);
-                height: auto;
             }
             .top-grid {
                 gap: 0.9rem;
                 align-items: start;
             }
             .chat-card {
-                min-height: 62dvh;
+                height: 60%;
+                max-height: 60%;
+                min-height: 420px;
                 border-radius: 16px;
             }
             .chat-header {
