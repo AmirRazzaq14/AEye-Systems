@@ -161,6 +161,36 @@ a.nav-logo:hover .nav-logo-icon {
     box-shadow: 0 4px 14px rgba(124, 92, 252, 0.22);
 }
 
-:root[data-theme="dark"] a.nav-logo:hover .nav-logo-icon {
+::root[data-theme="dark"] a.nav-logo:hover .nav-logo-icon {
     box-shadow: 0 4px 18px rgba(124, 92, 252, 0.25);
+}
+
+/* Mobile nav: prevent wrapping/overflow, allow horizontal scroll */
+@media (max-width: 720px) {
+    nav {
+        padding: 0 1rem;
+    }
+
+    .nav-logo-name {
+        display: none !important;
+    }
+
+    .nav-links {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.25rem;
+        max-width: 100%;
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-link {
+        white-space: nowrap;
+        padding: 0.45rem 0.7rem;
+        font-size: 0.84rem;
+        flex: 0 0 auto;
+    }
 }
