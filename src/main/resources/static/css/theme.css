@@ -18,9 +18,9 @@
     /* NEW: shared hover backgrounds */
     --nav-hover-bg: #f3f4f6;
 
-    /* WizCoach mascot frame */
-    --wizcoach-mark-bg: #ffffff;
-    --wizcoach-mark-border: rgba(26, 26, 46, 0.1);
+    /* WizCoach mascot frame (purple, matches AI Coach page) */
+    --wizcoach-mark-bg: linear-gradient(135deg, var(--purple), #9b6bfd);
+    --wizcoach-mark-border: rgba(124, 92, 252, 0.28);
 }
 
 /* DARK THEME */
@@ -37,8 +37,8 @@
 
     --nav-hover-bg: rgba(148,163,184,0.12);
 
-    --wizcoach-mark-bg: #000000;
-    --wizcoach-mark-border: rgba(255, 255, 255, 0.14);
+    --wizcoach-mark-bg: linear-gradient(135deg, var(--purple), #9b6bfd);
+    --wizcoach-mark-border: rgba(124, 92, 252, 0.35);
 }
 
 /* global styles that use the variables */
@@ -161,6 +161,36 @@ a.nav-logo:hover .nav-logo-icon {
     box-shadow: 0 4px 14px rgba(124, 92, 252, 0.22);
 }
 
-:root[data-theme="dark"] a.nav-logo:hover .nav-logo-icon {
+::root[data-theme="dark"] a.nav-logo:hover .nav-logo-icon {
     box-shadow: 0 4px 18px rgba(124, 92, 252, 0.25);
+}
+
+/* Mobile nav: prevent wrapping/overflow, allow horizontal scroll */
+@media (max-width: 720px) {
+    nav {
+        padding: 0 1rem;
+    }
+
+    .nav-logo-name {
+        display: none !important;
+    }
+
+    .nav-links {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.25rem;
+        max-width: 100%;
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-link {
+        white-space: nowrap;
+        padding: 0.45rem 0.7rem;
+        font-size: 0.84rem;
+        flex: 0 0 auto;
+    }
 }

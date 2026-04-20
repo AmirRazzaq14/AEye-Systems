@@ -33,8 +33,6 @@ public class NutritionLogController {
     @Autowired
     private FoodAnalyzeService foodAnalyzeService;
 
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private AISuggestionService aiSuggestionService;

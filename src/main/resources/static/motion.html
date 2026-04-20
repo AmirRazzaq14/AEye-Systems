@@ -988,6 +988,23 @@ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
       .wiz-stats-row {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+
+      /* Mobile: keep "Exercise" badge inside the card */
+      .wiz-current-rep-card {
+        overflow: hidden;
+      }
+
+      .wiz-current-rep-meta {
+        min-width: 0;
+        justify-content: flex-start;
+        row-gap: 0.35rem;
+      }
+
+      .wiz-current-rep-badge {
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
     }
 
     .wiz-stat-card {
@@ -996,7 +1013,8 @@ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
       background: radial-gradient(circle at top, #020617 0%, #020617 55%, #000 100%);
       border: 1px solid rgba(148, 163, 184, 0.35);
       color: #e5e7eb;
-      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.9);
+      box-shadow: 0 12px 40px rgba(15,23,42,0.9);
+      min-width: 0; /* prevents grid overflow on small screens */
     }
 
     .wiz-stat-label {
@@ -1492,11 +1510,10 @@ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
               </div>
             </div>
 
-            <div class="wiz-skeleton-panel">
-              <canvas id="wizMiniSkeleton" class="wiz-skeleton-canvas"></canvas>
-              <span class="wiz-skeleton-label">How WizCoach sees your body</span>
-            </div>
-          </div>
+<div class="wiz-skeleton-panel">
+  <canvas id="wizMiniSkeleton" class="wiz-skeleton-canvas"></canvas>
+  <span class="wiz-skeleton-label">How WizCoach sees your body</span>
+</div>
 
 <!-- Current exercise highlight -->
 <div class="wiz-stat-card wiz-current-rep-card" id="wizCurrentRepCard" aria-live="polite" aria-atomic="true">
@@ -1544,7 +1561,7 @@ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 </div>
 
 <div id="wizExerciseIndicator" class="wiz-exercise-indicator hidden">
-  Current: <span id="wizExerciseLabel"></
+  Current: <span id="wizExerciseLabel"></span>
           </div>
         </section>
       </div>

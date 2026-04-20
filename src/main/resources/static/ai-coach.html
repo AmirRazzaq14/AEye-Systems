@@ -42,28 +42,14 @@
         nav {
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 2rem; height: 60px;
-            background: var(--nav-bg);
-            border-bottom: 1px solid var(--border);
+            background: var(--nav-bg); border-bottom: 1px solid var(--border);
             box-shadow: 0 1px 8px rgba(0,0,0,0.05);
             position: sticky; top: 0; z-index: 100;
         }
 
         .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
 
-        .nav-logo-icon {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, var(--purple), var(--purple-light));
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 3px 8px rgba(124,92,252,0.3);
-        }
-
-        .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-        .nav-logo-icon img {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
-        }
+        /* nav logo icon is styled in css/theme.css */
         .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
         .nav-links { display: flex; align-items: center; gap: 0.25rem; }
 
@@ -75,9 +61,7 @@
             transition: color 0.15s, background 0.15s;
         }
 
-        /* theme-safe hover (matches theme.css variable) */
         .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
-
         .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
         .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -91,7 +75,8 @@
             gap: 1.5rem;
 
             flex: 1;
-            height: calc(100vh - 60px);
+            height: calc(100dvh - 60px);
+            min-height: calc(100dvh - 60px);
 
             animation: fadeUp 0.5s ease both;
         }
@@ -105,10 +90,12 @@
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 1.5rem;
-
             flex: 1;
+            height: 100%;
+            min-height: 0;
             align-items: stretch;
         }
+
 
         .chat-card {
             background: var(--card-bg);
@@ -120,6 +107,9 @@
             overflow: hidden;
 
             height: 60%;
+            max-height: 60%;
+            min-height: 420px;
+            flex: 0 0 auto;
         }
 
         .chat-header {
@@ -127,17 +117,15 @@
             padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
         }
 
-        .chat-avatar {
+        .chat-avatar.wizcoach-mark {
             width: 52px; height: 52px;
-            background: linear-gradient(135deg, var(--purple), var(--purple-light));
             border-radius: 12px;
             display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
         }
 
-        .chat-avatar img {
-            width: 70%;
-            height: 70%;
-            object-fit: contain;
+        :root[data-theme="dark"] .chat-avatar.wizcoach-mark {
+            box-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
         }
         .chat-header-text h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); }
         .chat-header-text p  { font-size: 0.8rem; color: var(--muted); }
@@ -158,9 +146,7 @@
             border-radius: 14px; font-size: 0.88rem; line-height: 1.5;
         }
 
-        /* theme-friendly bot bubble bg */
         .msg.bot  { background: var(--input-bg); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
-
         .msg.user { background: linear-gradient(135deg, var(--purple), #9b6bfd); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
 
         .msg-time { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
@@ -174,6 +160,10 @@
         .chat-input-row {
             display: flex; align-items: center; gap: 0.5rem;
             padding: 1rem 1.25rem; border-top: 1px solid var(--border);
+            position: sticky;
+            bottom: 0;
+            background: var(--card-bg);
+            z-index: 2;
         }
 
         .chat-input-row .file-wrap { position: relative; flex-shrink: 0; }
@@ -373,8 +363,69 @@
 
         @media (max-width: 720px) {
             .top-grid { grid-template-columns: 1fr; }
-            nav { padding: 0 1rem; }
+            nav {
+                padding: 0 0.75rem;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .nav-links {
+                gap: 0.15rem;
+                min-width: max-content;
+            }
+            .nav-link {
+                padding: 0.4rem 0.65rem;
+                font-size: 0.8rem;
+                white-space: nowrap;
+            }
             .nav-logo-name { display: none; }
+            .page {
+                padding: 0 0.75rem;
+                margin: 0.75rem auto;
+                height: calc(100dvh - 60px);
+                min-height: calc(100dvh - 60px);
+            }
+            .top-grid {
+                gap: 0.9rem;
+                align-items: start;
+            }
+            .chat-card {
+                height: 60%;
+                max-height: 60%;
+                min-height: 420px;
+                border-radius: 16px;
+            }
+            .chat-header {
+                padding: 0.9rem 1rem;
+            }
+            .chat-messages {
+                padding: 0.9rem 1rem;
+            }
+            .chat-input-row {
+                padding: 0.75rem;
+                gap: 0.4rem;
+                flex-wrap: wrap;
+            }
+            .btn-attach {
+                width: 40px;
+                height: 40px;
+            }
+            .chat-input-row input[type="text"] {
+                min-width: 0;
+                flex: 1 1 160px;
+                font-size: 16px;
+            }
+            .btn-send {
+                padding: 0.7rem 0.95rem;
+                font-size: 0.84rem;
+                flex-shrink: 0;
+            }
+            .msg {
+                max-width: 88%;
+            }
+            .sidebar-card,
+            .pro-tip-card {
+                border-radius: 16px;
+            }
         }
     </style>
 </head>
@@ -383,7 +434,8 @@
 <nav>
     <a href="dashboard.html" class="nav-logo">
         <div class="nav-logo-icon">
-            <img src="wizcoach-logo.png" alt="WizCoach logo"/>
+            <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
+            <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
         </div>
         <span class="nav-logo-name">WizCoach</span>
     </a>
@@ -431,8 +483,9 @@
         <!-- CHAT -->
         <div class="chat-card">
             <div class="chat-header">
-                <div class="chat-avatar">
-                    <img src="wizcoach-logo.png" alt="WizCoach logo"/>
+                <div class="chat-avatar wizcoach-mark">
+                    <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="52" height="52" decoding="async"/>
+                    <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="52" height="52" decoding="async"/>
                 </div>
                 <div class="chat-header-text">
                     <h3>WizCoach Assistant</h3>
@@ -694,10 +747,14 @@ userWrap.innerHTML =
 <script>
   (function loadLocalAvatar() {
       const saved = localStorage.getItem('wizcoach-avatar');
-      if(saved) {
+      if (saved) {
           const img = document.getElementById('navAvatarImg');
           const txt = document.getElementById('navAvatarText');
-          if(img && txt) { img.src = saved; img.style.display = 'block'; txt.style.display = 'none'; }
+          if (img && txt) {
+              img.src = saved;
+              img.style.display = 'block';
+              txt.style.display = 'none';
+          }
       }
   })();
 </script>
