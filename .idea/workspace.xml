@@ -55,7 +55,6 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.AEyeSystemsApplication.executor": "Run",
     "Application.DashboardDemoTest.executor": "Run",
     "Groovy.File per object.executor": "Run",
     "JUnit.PythonCallerIntegrationTest.executor": "Run",
@@ -66,12 +65,13 @@
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.AEyeSystemsApplication.executor": "Run",
-    "git-widget-placeholder": "zuxin-new",
+    "git-widget-placeholder": "Ricky",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -102,14 +102,7 @@
       </method>
     </configuration>
   </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28539.13" />
-        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.28539.13" />
-      </set>
-    </attachedChunks>
-  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="" />
@@ -184,6 +177,7 @@
       <workItem from="1776544308084" duration="567000" />
       <workItem from="1776544878751" duration="1967000" />
       <workItem from="1776546855499" duration="1000" />
+      <workItem from="1776653942050" duration="32000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit To get started">
       <option name="closed" value="true" />
@@ -209,7 +203,23 @@
       <option name="project" value="LOCAL" />
       <updated>1774839355236</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Fixing mobile formatting issues">
+      <option name="closed" value="true" />
+      <created>1776652733779</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1776652733779</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Fixing mobile formatting issues">
+      <option name="closed" value="true" />
+      <created>1776653456339</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1776653456339</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -239,8 +249,10 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="fixing mobile formatting issue" />
     <MESSAGE value="Initial Commit To get started" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial Commit To get started" />
+    <MESSAGE value="Fixing mobile formatting issues" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixing mobile formatting issues" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

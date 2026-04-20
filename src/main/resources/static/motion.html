@@ -590,6 +590,18 @@
       .wiz-stats-row {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+
+      /* Mobile: keep "Current exercise" badge inside the card */
+      .wiz-current-rep-meta {
+        justify-content: flex-start;
+        row-gap: 0.35rem;
+      }
+
+      .wiz-current-rep-badge {
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
     }
 
     .wiz-stat-card {
@@ -599,6 +611,7 @@
       border: 1px solid rgba(148,163,184,0.35);
       color: #e5e7eb;
       box-shadow: 0 12px 40px rgba(15,23,42,0.9);
+      min-width: 0; /* prevents grid overflow on small screens */
     }
 
     .wiz-stat-label {
