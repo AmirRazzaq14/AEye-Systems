@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="Fixing mobile formatting issues">
+    <list default="true" id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="Initial Commit To get started">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Controller/NutritionLogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Controller/NutritionLogController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Entity/Nutrition_log.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Entity/Nutrition_log.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +27,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="zuxin" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -226,7 +230,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="zuxin-new" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
