@@ -1,0 +1,25 @@
+# Committed defaults — secrets come from Railway / environment variables.
+# Local dev: keep firebase-key.json on classpath (gitignored) and optional .env.
+
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: AEye-Systems
+
+# AI coach (GeminiCoachService)
+gemini:
+  api:
+    key: ${GEMINI_API_KEY:}
+
+# Food / image analysis (ApiProperties + ConfigLoader)
+api:
+  server: ${API_SERVER:gemini}
+  gemini:
+    key: ${GEMINI_API_KEY:}
+    url: ${GEMINI_URL:https://generativelanguage.googleapis.com}
+    model: ${GEMINI_MODEL:gemini-3.1-flash-lite-preview}
+  ollama:
+    url: ${OLLAMA_URL:http://127.0.0.1:11434}
+    model: ${OLLAMA_MODEL:llava}
