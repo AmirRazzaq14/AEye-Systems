@@ -113,7 +113,7 @@ public class Nutrition_log {
 
         // Assuming an activity factor of 1.2 (sedentary/light activity), it can be adjusted according to actual needs
         double activityFactor = 1.2;
-        
+
        // targetCals = user.getTargetCals() != null ? user.getTargetCals() : bmr * activityFactor;
         targetCals = bmr * activityFactor;
 

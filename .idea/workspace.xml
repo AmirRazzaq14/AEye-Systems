@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="Initial Commit To get started">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="card order change in mobile screen">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Controller/NutritionLogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Controller/NutritionLogController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Entity/Nutrition_log.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Entity/Nutrition_log.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/edu/farmingdale/CSC490/Food/prompt/food_analyze_prompt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/edu/farmingdale/CSC490/Food/prompt/food_analyze_prompt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/edu/farmingdale/CSC490/Food/prompt/nutrition_suggestion_prompt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/edu/farmingdale/CSC490/Food/prompt/nutrition_suggestion_prompt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -38,12 +38,12 @@
     &quot;assignee&quot;: &quot;AmirRazzaq14&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/AmirRazzaq14/AEye-Systems.git&quot;,
-    &quot;accountId&quot;: &quot;5fb91dcb-f852-4ed5-bcca-d424899b15b9&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/AmirRazzaq14/AEye-Systems.git",
+    "accountId": "9287f5d6-239c-4ad0-9919-f12dfa465a47"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -55,6 +55,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.AEyeSystemsApplication.executor": "Run",
     "Application.DashboardDemoTest.executor": "Run",
     "Groovy.File per object.executor": "Run",
     "JUnit.PythonCallerIntegrationTest.executor": "Run",
@@ -71,7 +72,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.AEyeSystemsApplication.executor": "Run",
-    "git-widget-placeholder": "Ricky",
+    "git-widget-placeholder": "zuxin-new",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
