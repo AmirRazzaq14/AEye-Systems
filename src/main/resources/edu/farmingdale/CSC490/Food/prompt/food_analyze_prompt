@@ -14,6 +14,7 @@ STRICT RULES:
 5. The response must start with { and end with }
 6. Use double quotes for strings
 7. Use integers for numbers
+8. If there is no food in the image, please add the label "(Non-food!!)" after the name.
 
 
 # FIELD RULES
