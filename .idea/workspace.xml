@@ -85,7 +85,7 @@
     "settings.editor.selected.configurable": "reference.projectsettings.compiler.javacompiler",
     "vue.rearranger.settings.migration": "true"
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/resources" />
@@ -179,6 +179,9 @@
       <workItem from="1776544878751" duration="1967000" />
       <workItem from="1776546855499" duration="1000" />
       <workItem from="1776653942050" duration="32000" />
+      <workItem from="1776654014139" duration="106000" />
+      <workItem from="1776654156496" duration="70000" />
+      <workItem from="1776654511391" duration="12000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit To get started">
       <option name="closed" value="true" />
