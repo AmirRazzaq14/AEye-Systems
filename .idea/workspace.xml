@@ -4,262 +4,87 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="card order change in mobile screen">
+    <list default="true" id="dc3755f1-1eef-43ea-b438-dd5ee9ee0426" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Entity/Nutrition_log.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/farmingdale/CSC490/Entity/Nutrition_log.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/edu/farmingdale/CSC490/Food/prompt/food_analyze_prompt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/edu/farmingdale/CSC490/Food/prompt/food_analyze_prompt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/edu/farmingdale/CSC490/Food/prompt/nutrition_suggestion_prompt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/edu/farmingdale/CSC490/Food/prompt/nutrition_suggestion_prompt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/motion.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/motion.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-        <option value="package.json" />
-      </list>
-    </option>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="1214" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="main" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;AmirRazzaq14&quot;
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Jaspreet2004"
   }
-}</component>
+}]]></component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/AmirRazzaq14/AEye-Systems.git",
-    "accountId": "9287f5d6-239c-4ad0-9919-f12dfa465a47"
+    "accountId": "2591a1ac-e360-425f-bfae-37e53a7413ca"
   }
 }]]></component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 3
-}</component>
-  <component name="ProjectId" id="39DS7dWNynkxb3OkBGQ6OYivaEH" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3CjCL9kbJu0Z7T4dVsgL8IqvAU4" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.AEyeSystemsApplication.executor": "Run",
-    "Application.DashboardDemoTest.executor": "Run",
-    "Groovy.File per object.executor": "Run",
-    "JUnit.PythonCallerIntegrationTest.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Notification.DisplayName-DoNotAsk-DatabaseConfigFileWatcher.found": "New/updated database configurations found",
-    "Notification.DoNotAsk-DatabaseConfigFileWatcher.found": "true",
+    "JavaScript Debug.motion.html.executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.AEyeSystemsApplication.executor": "Run",
-    "git-widget-placeholder": "zuxin-new",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "Jaspreet",
+    "git.auto.fetch.suggestion.counter": "1",
+    "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.projectsettings.compiler.javacompiler",
+    "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources" />
-      <recent name="$PROJECT_DIR$/target/classes" />
-      <recent name="$PROJECT_DIR$/.vscode" />
-      <recent name="$PROJECT_DIR$" />
-    </key>
-  </component>
-  <component name="RunManager">
-    <configuration name="AEyeSystemsApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="AEye-Systems" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="edu.farmingdale.CSC490.AEyeSystemsApplication" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-  </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+}]]></component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="62936c5b-1879-47a9-9137-12d935fdcb64" name="Changes" comment="" />
-      <created>1770228981546</created>
+      <changelist id="dc3755f1-1eef-43ea-b438-dd5ee9ee0426" name="Changes" comment="" />
+      <created>1776889535992</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1770228981546</updated>
-      <workItem from="1770228982674" duration="46000" />
-      <workItem from="1770234682988" duration="2000" />
-      <workItem from="1771106848315" duration="40000" />
-      <workItem from="1771107066474" duration="33000" />
-      <workItem from="1771107118714" duration="49000" />
-      <workItem from="1771107169976" duration="848000" />
-      <workItem from="1771108022305" duration="936000" />
-      <workItem from="1771438299938" duration="35000" />
-      <workItem from="1771447703634" duration="8000" />
-      <workItem from="1772560245158" duration="33000" />
-      <workItem from="1772560283561" duration="188000" />
-      <workItem from="1772560516108" duration="35000" />
-      <workItem from="1772567404398" duration="20000" />
-      <workItem from="1772567426612" duration="530000" />
-      <workItem from="1772568672453" duration="143000" />
-      <workItem from="1772568817992" duration="32000" />
-      <workItem from="1772568851447" duration="567000" />
-      <workItem from="1772571749275" duration="2173000" />
-      <workItem from="1772635593586" duration="372000" />
-      <workItem from="1772636264166" duration="36000" />
-      <workItem from="1772636328714" duration="285000" />
-      <workItem from="1772636688698" duration="53000" />
-      <workItem from="1772636798478" duration="88000" />
-      <workItem from="1772636896329" duration="1000" />
-      <workItem from="1772636988222" duration="93000" />
-      <workItem from="1772657807448" duration="1000" />
-      <workItem from="1772658628327" duration="54000" />
-      <workItem from="1772658685286" duration="930000" />
-      <workItem from="1772660203995" duration="67000" />
-      <workItem from="1772660545941" duration="19000" />
-      <workItem from="1772660585125" duration="886000" />
-      <workItem from="1772668433704" duration="248000" />
-      <workItem from="1772668890827" duration="142000" />
-      <workItem from="1772679931399" duration="4215000" />
-      <workItem from="1772693840036" duration="375000" />
-      <workItem from="1772694877335" duration="461000" />
-      <workItem from="1772695380185" duration="1035000" />
-      <workItem from="1772703319183" duration="674000" />
-      <workItem from="1773023831459" duration="741000" />
-      <workItem from="1773024587780" duration="5488000" />
-      <workItem from="1773030447820" duration="1405000" />
-      <workItem from="1773081132236" duration="2851000" />
-      <workItem from="1773159815135" duration="5867000" />
-      <workItem from="1773248470017" duration="35000" />
-      <workItem from="1773248557910" duration="9000" />
-      <workItem from="1773728877587" duration="1000" />
-      <workItem from="1773728905831" duration="610000" />
-      <workItem from="1774791521126" duration="1557000" />
-      <workItem from="1774793085802" duration="464000" />
-      <workItem from="1774793553092" duration="16900000" />
-      <workItem from="1774819742459" duration="1845000" />
-      <workItem from="1774825090486" duration="15000" />
-      <workItem from="1774833818064" duration="3030000" />
-      <workItem from="1774836860034" duration="3151000" />
-      <workItem from="1774877975034" duration="7000" />
-      <workItem from="1774886913592" duration="6412000" />
-      <workItem from="1775226944580" duration="22000" />
-      <workItem from="1775665241965" duration="86000" />
-      <workItem from="1775665407885" duration="164000" />
-      <workItem from="1776270580529" duration="1485000" />
-      <workItem from="1776366441031" duration="325000" />
-      <workItem from="1776376192939" duration="1702000" />
-      <workItem from="1776540566234" duration="11000" />
-      <workItem from="1776540755440" duration="1954000" />
-      <workItem from="1776544308084" duration="567000" />
-      <workItem from="1776544878751" duration="1967000" />
-      <workItem from="1776546855499" duration="1000" />
-      <workItem from="1776653942050" duration="32000" />
-      <workItem from="1776654014139" duration="106000" />
-      <workItem from="1776654156496" duration="70000" />
-      <workItem from="1776654511391" duration="12000" />
+      <updated>1776889535992</updated>
+      <workItem from="1776889538388" duration="2138000" />
     </task>
-    <task id="LOCAL-00001" summary="Initial Commit To get started">
-      <option name="closed" value="true" />
-      <created>1771107594603</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1771107594603</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Initial Commit To get started">
-      <option name="closed" value="true" />
-      <created>1772568826691</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1772568826691</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Initial Commit To get started">
-      <option name="closed" value="true" />
-      <created>1774839355236</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1774839355236</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Fixing mobile formatting issues">
-      <option name="closed" value="true" />
-      <created>1776652733779</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1776652733779</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Fixing mobile formatting issues">
-      <option name="closed" value="true" />
-      <created>1776653456339</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1776653456339</updated>
-    </task>
-    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="zuxin-new" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </State>
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="fixing mobile formatting issue" />
-    <MESSAGE value="Initial Commit To get started" />
-    <MESSAGE value="Fixing mobile formatting issues" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixing mobile formatting issues" />
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
   </component>
 </project>
