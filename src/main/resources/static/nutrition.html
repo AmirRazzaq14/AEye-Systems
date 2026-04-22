@@ -767,7 +767,6 @@ border: 1px solid var(--border);
     padding: 60px 0;
     font-style: italic;
 }
-        }
 
         .log-summary {
             font-size: 13px;
@@ -802,6 +801,7 @@ border: 1px solid var(--border);
             display: flex;
             gap: 8px;
             margin-bottom: 16px;
+            flex-wrap: wrap;
         }
 
 .btn-reset {
@@ -835,7 +835,6 @@ border: 1px solid var(--border);
     animation: slideInRight 0.3s ease;
 }
 
-/* Add this from incoming */
 .chart-tab {
     padding: 8px 16px;
     border-radius: 8px;
@@ -846,6 +845,9 @@ border: 1px solid var(--border);
     font-size: 14px;
     font-weight: 500;
     transition: all 0.2s;
+    flex: 1 1 auto;
+    min-width: 80px;
+    text-align: center;
 }
 
         .chart-tab.active {
@@ -857,6 +859,17 @@ border: 1px solid var(--border);
         .chart-tab:hover {
             background: var(--border);
             color: var(--text);
+        }
+
+        @media (max-width: 480px) {
+            .chart-tabs {
+                gap: 6px;
+            }
+            .chart-tab {
+                padding: 6px 12px;
+                font-size: 13px;
+                min-width: 70px;
+            }
         }
 
         /* AI Suggestions Styles */
@@ -1099,8 +1112,6 @@ border: 1px solid var(--border);
                 </div>
             </div>
 
-
-
             <div class="macro-list" id="macroList">
                 <div class="macro-item">
                     <div class="macro-header">
@@ -1166,23 +1177,25 @@ border: 1px solid var(--border);
             </div>
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
         </div>
+
+        
+        <!-- Daily Journal -->
+        <aside class="journal-section">
+            <div class="card">
+                <div class="card-title">
+                    <span>📝</span>
+                    Daily Journal
+                    <span class="journal-date" id="journalDate" style="margin-left: auto; font-size: 13px; font-weight: 400;">-</span>
+                </div>
+                <textarea id="journalInput" class="journal-input"
+                        placeholder="How was your day? Write your thoughts here..."></textarea>
+                <div class="journal-actions" style="margin-top: 16px;">
+                    <span id="journalStatus" class="journal-status"></span>
+                </div>
+            </div>
+        </aside>
     </aside>
 
-        <!-- Daily Journal -->
-    <aside class="journal-section">
-        <div class="card">
-            <div class="card-title">
-                <span>📝</span>
-                Daily Journal
-                <span class="journal-date" id="journalDate" style="margin-left: auto; font-size: 13px; font-weight: 400;">-</span>
-            </div>
-            <textarea id="journalInput" class="journal-input"
-                    placeholder="How was your day? Write your thoughts here..."></textarea>
-            <div class="journal-actions" style="margin-top: 16px;">
-                <span id="journalStatus" class="journal-status"></span>
-            </div>
-        </div>
-    </aside>
     
 
     <!-- Right Main Area: Food Log  + weekly chart-->
