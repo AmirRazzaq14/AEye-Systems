@@ -616,26 +616,14 @@
     }
     .goals-card-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); }
     .goals-add-btn {
-display: inline-flex;
-align-items: center;
-justify-content: center;
-gap: 0.4rem;
-
-padding: 0.6rem 1rem;
-border-radius: 10px;
-border: 1.5px dashed var(--border);
-
-background: rgba(34,197,94,0.05);
-color: var(--green);
-
-font-size: 0.8rem;
-font-weight: 600;
-cursor: pointer;
-font-family: 'DM Sans', sans-serif;
-
-transition: background 0.15s, border-color 0.15s, color 0.15s;
+      display: flex; align-items: center; gap: 0.3rem;
+      padding: 0.35rem 0.8rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--card-bg); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; color: var(--muted);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
-    .goals-add-btn:hover { filter: brightness(0.9); }
+    .goals-add-btn:hover { background: #f0fdf4; border-color: #86efac; color: var(--green-dark); }
+    .goals-add-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
     /* Goals layout */
     .goals-list {
