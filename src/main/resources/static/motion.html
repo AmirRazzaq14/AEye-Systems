@@ -502,6 +502,17 @@ color: var(--text);
       background: transparent;
     }
 
+    .weight-input select {
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+      background: transparent;
+      cursor: pointer;
+    }
+
     .exercise-item {
       display: flex;
       align-items: center;
@@ -1554,10 +1565,30 @@ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   </div>
 </div>
 
-            <div id="wizExerciseIndicator" class="wiz-exercise-indicator hidden">
-              Current: <span id="wizExerciseLabel"></span>
-            </div>
+<div id="wizExerciseIndicator" class="wiz-exercise-indicator hidden">
+  Current: <span id="wizExerciseLabel"></span>
+</div>
         </section>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Calories estimate (session total) -->
+    <div class="card" id="calorieCard">
+      <h3>Calories burned (est.)</h3>
+      <div class="calorie-row">
+        <div class="calorie-val"><span id="wizCaloriesTotal">0</span> kcal</div>
+        <div class="weight-input" title="Used for calorie estimation only">
+          <label for="wizWeightInput">Weight</label>
+          <input id="wizWeightInput" type="number" min="30" max="250" step="1" value="70" inputmode="numeric" />
+          <select id="wizWeightUnit" aria-label="Weight unit">
+            <option value="kg">kg</option>
+            <option value="lb">lb</option>
+          </select>
+        </div>
+      </div>
+      <div class="calorie-sub" id="wizCaloriesSub">
+        Updates as reps are detected. This is an estimate based on exercise intensity and assumed rep tempo.
       </div>
     </div>
 
@@ -1768,8 +1799,10 @@ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   // We approximate time-per-rep for each exercise.
   // ─────────────────────────────────────────────
   let userWeightKg = 70;
+  /** Display-only preference: 'kg' or 'lb'. Internally we store and persist kg. */
+  let userWeightUnit = 'kg';
   let sessionCalories = 0;
-  let wizCaloriesTotalEl, wizCaloriesSubEl, wizWeightKgInput;
+  let wizCaloriesTotalEl, wizCaloriesSubEl, wizWeightInput, wizWeightUnitSelect;
   const perExerciseCalories = {
     squat: 0,
     pushup: 0,
@@ -1908,6 +1941,51 @@ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     return Math.max(min, Math.min(max, v));
   }
 
+  const KG_PER_LB = 0.45359237;
+  function lbToKg(lb) {
+    return Number(lb) * KG_PER_LB;
+  }
+  function kgToLb(kg) {
+    return Number(kg) / KG_PER_LB;
+  }
+
+  function loadWeightUnit() {
+    const raw = localStorage.getItem('wiz_weight_unit');
+    userWeightUnit = raw === 'lb' ? 'lb' : 'kg';
+  }
+
+  function setWeightUnit(nextUnit) {
+    const unit = nextUnit === 'lb' ? 'lb' : 'kg';
+    userWeightUnit = unit;
+    localStorage.setItem('wiz_weight_unit', unit);
+    if (wizWeightUnitSelect) wizWeightUnitSelect.value = unit;
+    syncWeightInputFromKg();
+    updateCaloriesUI();
+  }
+
+  function syncWeightInputConstraints() {
+    if (!wizWeightInput) return;
+    if (userWeightUnit === 'lb') {
+      wizWeightInput.min = '66';
+      wizWeightInput.max = '550';
+      wizWeightInput.step = '1';
+    } else {
+      wizWeightInput.min = '30';
+      wizWeightInput.max = '250';
+      wizWeightInput.step = '1';
+    }
+  }
+
+  function syncWeightInputFromKg() {
+    if (!wizWeightInput) return;
+    syncWeightInputConstraints();
+    if (userWeightUnit === 'lb') {
+      wizWeightInput.value = String(Math.round(kgToLb(userWeightKg)));
+    } else {
+      wizWeightInput.value = String(Math.round(userWeightKg));
+    }
+  }
+
   function loadWeightKg() {
     const raw = localStorage.getItem('wiz_weight_kg');
     const parsed = raw ? Number(raw) : Number.NaN;
@@ -1923,7 +2001,7 @@ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     if (!Number.isFinite(v)) return;
     userWeightKg = v;
     localStorage.setItem('wiz_weight_kg', String(v));
-    if (wizWeightKgInput) wizWeightKgInput.value = String(v);
+    syncWeightInputFromKg();
     updateCaloriesUI();
   }
 
@@ -1943,8 +2021,14 @@ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   function updateCaloriesUI() {
     if (wizCaloriesTotalEl) wizCaloriesTotalEl.textContent = formatKcal(sessionCalories);
     if (wizCaloriesSubEl) {
-      wizCaloriesSubEl.textContent =
-        `Based on ~${userWeightKg}kg body weight. Estimates change with intensity/tempo.`;
+      if (userWeightUnit === 'lb') {
+        const lb = Math.round(kgToLb(userWeightKg));
+        wizCaloriesSubEl.textContent =
+          `Based on ~${lb}lb body weight. Estimates change with intensity/tempo.`;
+      } else {
+        wizCaloriesSubEl.textContent =
+          `Based on ~${Math.round(userWeightKg)}kg body weight. Estimates change with intensity/tempo.`;
+      }
     }
   }
 
@@ -3631,58 +3715,80 @@ document.addEventListener('DOMContentLoaded', () => {
   wizCanvas = document.getElementById('wizCanvas');
   wizMiniSkeleton = document.getElementById('wizMiniSkeleton');
 
-      wizStartButton = document.getElementById('wizStartButton');
-      wizRetryButton = document.getElementById('wizRetryButton');
+  wizStartButton = document.getElementById('wizStartButton');
+  wizRetryButton = document.getElementById('wizRetryButton');
 
-      wizIdleState = document.getElementById('wizIdleState');
-      wizAskingState = document.getElementById('wizAskingState');
-      wizDeniedState = document.getElementById('wizDeniedState');
-      wizErrorState = document.getElementById('wizErrorState');
-      wizReadyState = document.getElementById('wizReadyState');
+  wizIdleState = document.getElementById('wizIdleState');
+  wizAskingState = document.getElementById('wizAskingState');
+  wizDeniedState = document.getElementById('wizDeniedState');
+  wizErrorState = document.getElementById('wizErrorState');
+  wizReadyState = document.getElementById('wizReadyState');
 
-      wizDeniedError = document.getElementById('wizDeniedError');
-      wizGenericError = document.getElementById('wizGenericError');
-      wizCoachFeedbackEl = document.getElementById('wizCoachFeedback');
+  wizDeniedError = document.getElementById('wizDeniedError');
+  wizGenericError = document.getElementById('wizGenericError');
+  wizCoachFeedbackEl = document.getElementById('wizCoachFeedback');
 
-      wizMotionFill = document.getElementById('wizMotionFill');
-      wizMotionValue = document.getElementById('wizMotionValue');
-      wizSquatCountEl = document.getElementById('wizSquatCount');
-      wizPushupCountEl = document.getElementById('wizPushupCount');
-      wizArmRaiseCountEl = document.getElementById('wizArmRaiseCount');
-      wizWalkCountEl = document.getElementById('wizWalkCount');
-      wizJackCountEl = document.getElementById('wizJackCount');
+  wizMotionFill = document.getElementById('wizMotionFill');
+  wizMotionValue = document.getElementById('wizMotionValue');
 
-      wizExerciseIndicator = document.getElementById('wizExerciseIndicator');
-      wizExerciseLabel = document.getElementById('wizExerciseLabel');
+  wizSquatCountEl = document.getElementById('wizSquatCount');
+  wizPushupCountEl = document.getElementById('wizPushupCount');
+  wizArmRaiseCountEl = document.getElementById('wizArmRaiseCount');
+  wizWalkCountEl = document.getElementById('wizWalkCount');
+  wizJackCountEl = document.getElementById('wizJackCount');
 
-      wizMotionFill = document.getElementById('wizMotionFill');
-      wizMotionValue = document.getElementById('wizMotionValue');
-      wizCurrentRepCard = document.getElementById('wizCurrentRepCard');
-      wizCurrentRepLabelEl = document.getElementById('wizCurrentRepLabel');
-      wizCurrentRepCountEl = document.getElementById('wizCurrentRepCount');
+  wizCurrentRepCard = document.getElementById('wizCurrentRepCard');
+  wizCurrentRepLabelEl = document.getElementById('wizCurrentRepLabel');
+  wizCurrentRepCountEl = document.getElementById('wizCurrentRepCount');
 
-      if (wizStartButton) wizStartButton.addEventListener('click', requestCamera);
-      if (wizRetryButton) wizRetryButton.addEventListener('click', requestCamera);
+  wizExerciseIndicator = document.getElementById('wizExerciseIndicator');
+  wizExerciseLabel = document.getElementById('wizExerciseLabel');
 
-      bindWorkoutPickers();
-      syncWorkoutPickerButtons();
-      exerciseState.type = selectedWorkout;
-      exerciseState.count = countForWorkout(selectedWorkout);
-      renderWorkoutTips();
-      updateWorkoutHero(selectedWorkout);
+  wizCaloriesTotalEl = document.getElementById('wizCaloriesTotal');
+  wizCaloriesSubEl = document.getElementById('wizCaloriesSub');
+  wizWeightInput = document.getElementById('wizWeightInput');
+  wizWeightUnitSelect = document.getElementById('wizWeightUnit');
 
-      wizCaloriesTotalEl = document.getElementById('wizCaloriesTotal');
-      wizCaloriesSubEl = document.getElementById('wizCaloriesSub');
-      wizWeightKgInput = document.getElementById('wizWeightKg');
-      loadWeightKg();
-      if (wizWeightKgInput) {
-        wizWeightKgInput.value = String(userWeightKg);
-        wizWeightKgInput.addEventListener('change', (e) => {
-          const t = e && e.target ? e.target.value : '';
-          setWeightKg(t);
-        });
+  if (wizStartButton) wizStartButton.addEventListener('click', requestCamera);
+  if (wizRetryButton) wizRetryButton.addEventListener('click', requestCamera);
+
+  bindWorkoutPickers();
+  syncWorkoutPickerButtons();
+  exerciseState.type = selectedWorkout;
+  exerciseState.count = countForWorkout(selectedWorkout);
+  renderWorkoutTips();
+  updateWorkoutHero(selectedWorkout);
+
+  loadWeightKg();
+  loadWeightUnit();
+
+  if (wizWeightUnitSelect) {
+    wizWeightUnitSelect.value = userWeightUnit;
+    wizWeightUnitSelect.addEventListener('change', (e) => {
+      const u = e && e.target ? e.target.value : 'kg';
+      setWeightUnit(u);
+    });
+  }
+
+  syncWeightInputFromKg();
+
+  if (wizWeightInput) {
+    wizWeightInput.addEventListener('change', (e) => {
+      const raw = e && e.target ? e.target.value : '';
+      const parsed = Number(raw);
+      if (!Number.isFinite(parsed)) return;
+
+      if (userWeightUnit === 'lb') {
+        const kg = lbToKg(clampNumber(parsed, 66, 550));
+        setWeightKg(kg);
+      } else {
+        setWeightKg(parsed);
       }
-      updateCaloriesUI();
+    });
+  }
+
+  updateCaloriesUI();
+});
 
       if (wizStartButton) wizStartButton.addEventListener('click', requestCamera);
       if (wizRetryButton) wizRetryButton.addEventListener('click', requestCamera);
