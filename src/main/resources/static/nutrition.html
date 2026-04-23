@@ -65,86 +65,66 @@
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background: var(--page-bg);
-            min-height: 100vh;
-            color: var(--text);
-        }
+background: var(--page-bg);
+min-height: 100vh;
+color: var(--text);
+}
 
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-            height: 60px;
-            background: var(--nav-bg);
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    position: sticky; top: 0; z-index: 100;
+}
 
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            text-decoration: none;
-        }
+.nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+.nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--purple), var(--purple-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(124,92,252,0.3); }
+.nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
-        .nav-logo-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text);
-        }
+.nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 0.25rem; }
 
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
+.nav-link {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.45rem 1rem; border-radius: 8px;
+    font-size: 0.88rem; font-weight: 500;
+    color: var(--muted); text-decoration: none;
+    border: none; background: none; cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+}
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.45rem 1rem;
-            border-radius: 8px;
-            font-size: 0.88rem;
-            font-weight: 500;
-            color: var(--muted);
-            text-decoration: none;
-            transition: all 0.15s;
-        }
+.nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
+.nav-link.active { background: var(--blue); color: white; font-weight: 600; }
 
-        .nav-link:hover {
-            color: var(--text);
-            background: var(--nav-hover-bg);
-        }
+.nav-link svg {
+    width: 16px; height: 16px;
+    stroke: currentColor; fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
 
-        .nav-link.active {
-            background: var(--blue);
-            color: white;
-            font-weight: 600;
-        }
+.page {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1.5rem;
+    animation: fadeUp 0.5s ease both;
+    align-items: start;
+}
 
-        .nav-link svg {
-            width: 16px;
-            height: 16px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-        }
-
-        /* Layout */
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 24px;
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 24px;
-            align-items: start;
-        }
+/* OPTIONAL: add this ONLY if your HTML uses .container */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+    align-items: start;
+}
 
         /* Left sidebar */
         .sidebar {
@@ -232,550 +212,561 @@
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 24px;
-            box-shadow: var(--shadow);
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nutrition-metrics {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
-            margin-bottom: 24px;
-        }
-
-        .nutrition-metrics-bottom {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .nutrition-metric {
-            padding: 20px 15px;
-            text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .nutrition-metric--wide {
-            padding: 24px 20px;
-        }
-
-        .nutrition-metric:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(59, 130, 246, 0.12);
-        }
-
-        .nutrition-metric-label {
-            display: block;
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 8px;
-            letter-spacing: 0.02em;
-        }
-
-        .nutrition-metric-value {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1.1;
-        }
-
-        .nutrition-metric-subtext {
-            margin-top: 6px;
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        /* Nutrition card */
-        .calorie-ring {
-            width: 130px;
-            height: 130px;
-            margin: 0 auto 24px;
-            position: relative;
-        }
-
-        .calorie-ring svg {
-            transform: rotate(-90deg);
-        }
-
-        .calorie-ring-bg {
-            fill: none;
-            stroke: var(--border);
-            stroke-width: 8;
-        }
-
-        .calorie-ring-progress {
-            fill: none;
-            stroke: var(--blue);
-            stroke-width: 8;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 0.6s ease;
-        }
-
-        .calorie-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-
-        .calorie-current {
-            font-size: 23px;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1;
-        }
-
-        .calorie-total {
-            font-size: 12px;
-            color: var(--muted);
-            margin-top: 4px;
-        }
-
-        .macro-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .macro-item {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .macro-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-        }
-
-        .macro-name {
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .macro-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .macro-dot.protein {
-            background: #42A5F5;
-        }
-
-        .macro-dot.carb {
-            background:  #FFCA28;
-        }
-
-        .macro-dot.fat {
-            background:  #66BB6A;
-        }
-
-        .macro-value {
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .macro-bar {
-            height: 6px;
-            background: var(--border);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .macro-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.6s ease;
-        }
-
-
-        /* Upload area */
-        .upload-zone {
-            border: 2px dashed var(--border);
-            border-radius: 14px;
-            background: var(--input-bg);
-            padding: 32px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            position: relative;
-            min-height: 180px;
-        }
-
-        .upload-zone:hover {
-            border-color: var(--blue);
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        .upload-zone.drag-over {
-            border-color: var(--blue);
-            background: rgba(59, 130, 246, 0.18);
-            transform: scale(1.01);
-        }
-
-        .upload-zone.processing {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-
-        .upload-zone.has-image {
-            padding: 16px;
-        }
-
-        .upload-icon-wrap {
-            width: 56px;
-            height: 56px;
-            background: rgba(59, 130, 246, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .upload-icon-wrap svg {
-            width: 26px;
-            height: 26px;
-            stroke: var(--blue);
-            fill: none;
-            stroke-width: 1.8;
-        }
-
-        .upload-zone h4 {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .upload-zone p {
-            font-size: 13px;
-            color: var(--muted);
-        }
-
-        .preview-img-container {
-            display: none;
-            width: 100%;
-            text-align: center;
-        }
-
-        .upload-zone.has-image .upload-icon-wrap,
-        .upload-zone.has-image h4,
-        .upload-zone.has-image p {
-            display: none;
-        }
-
-        .upload-zone.has-image .preview-img-container {
-            display: block;
-        }
-
-        .preview-img-container img {
-            width: 100%;
-            max-height: 200px;
-            object-fit: contain;
-            border-radius: 12px;
-        }
-
-        .processing-message {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--card-bg);
-            border-radius: 14px;
-            z-index: 10;
-            backdrop-filter: blur(6px);
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--border);
-            border-top: 4px solid var(--blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Food Log */
-        .food-log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .add-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--blue);
-            color: white;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        .add-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-        }
-
-        .manual-entry {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            background: var(--input-bg);
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .manual-entry-header {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .nutrition-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            width: 100%;
-            gap: 5px;
-        }
-
-        .nutrition-grid > div {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            min-width: 0;
-        }
-
-        .nutrition-grid > div span {
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .nutrition-grid > div input {
-            width: 100%;
-            min-width: 0;
-        }
-
-        .meals-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s;
-            background: var(--input-bg);
-            color: var(--text);
-        }
-
-        #meals-nutrition {
-            width: 7em;
-        }
-
-        .food-info,
-        .food-details,
-        .manual-entry,
-        .nutrition-grid {
-            min-width: 0;
-        }
-
-        .nutrition-field {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nutrition-field label {
-            font-size: 13px;
-            color: var(--muted);
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .nutrition-field input {
-            padding: 12px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s;
-            width: 100%;
-            background: var(--input-bg);
-            color: var(--text);
-        }
-
-        .nutrition-field input:focus {
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--blue), #60a5fa);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.35);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 14px rgba(59, 130, 246, 0.45);
-        }
-
-        .food-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            height: 490px;
-            overflow-y: auto;
-            padding-right: 8px;
-        }
-
-        .food-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            background: var(--input-bg);
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            transition: all 0.2s;
-        }
-
-        .food-item:hover {
-            border-color: var(--blue);
-            background: var(--card-bg);
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
-        }
-
-        .food-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .food-emoji {
-            width: 44px;
-            height: 44px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-        }
-
-        .food-details h4 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--text);
-        }
-
-        .food-macros {
-            width: 100%;
-            font-size: 13px;
-            color: var(--muted);
-            display: flex;
-            gap: 16px;
-        }
-
-        .food-actions {
-            display: flex;
-            gap: 8px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .food-item:hover .food-actions {
-            opacity: 1;
-        }
-
-        .icon-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: none;
-            background: transparent;
-            color: var(--muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            font-size: 16px;
-        }
-
-        .icon-btn:hover {
-            background: var(--border);
-            color: var(--text);
-        }
-
-        .icon-btn.delete:hover {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        .food-log-empty {
-            text-align: center;
-            color: var(--muted);
-            padding: 60px 0;
-            font-style: italic;
-        }
+padding: 1.5rem;
+box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+border: 1px solid var(--border);
+}
+
+.card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nutrition-metrics {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.nutrition-metrics-bottom {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.nutrition-metric {
+    padding: 20px 15px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nutrition-metric--wide {
+    padding: 24px 20px;
+}
+
+.nutrition-metric:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(59, 130, 246, 0.12);
+}
+
+.nutrition-metric-label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+}
+
+.nutrition-metric-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.nutrition-metric-subtext {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* Nutrition card */
+.calorie-ring {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 24px;
+    position: relative;
+}
+
+.calorie-ring svg {
+    transform: rotate(-90deg);
+}
+
+.calorie-ring-bg {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 8;
+}
+
+.calorie-ring-progress {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s ease;
+}
+
+.calorie-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.calorie-current {
+    font-size: 23px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+}
+
+.calorie-total {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+.macro-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.macro-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.macro-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.macro-name {
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.macro-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.macro-dot.protein {
+    background: #42A5F5;
+}
+
+.macro-dot.carb {
+    background: #FFCA28;
+}
+
+.macro-dot.fat {
+    background: #66BB6A;
+}
+
+.macro-value {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.macro-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.macro-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+}
+
+.upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    background: var(--input-bg);
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    text-align: center;
+    position: relative;
+    min-height: 320px;
+}
+
+.upload-zone:hover {
+    border-color: var(--blue);
+    background: var(--card-bg);
+    transform: scale(1.01);
+}
+
+.upload-zone.drag-over {
+    border-color: var(--blue);
+    background: var(--card-bg);
+    transform: scale(1.02);
+}
+
+.upload-zone.processing {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.upload-icon-wrap {
+    width: 56px;
+    height: 56px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-icon-wrap svg {
+    width: 26px;
+    height: 26px;
+    stroke: var(--blue);
+    fill: none;
+    stroke-width: 1.8;
+}
+
+.upload-zone h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.upload-zone p {
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.upload-zone.has-image .upload-icon-wrap,
+.upload-zone.has-image h4,
+.upload-zone.has-image p,
+.upload-zone.has-image .btn-upload {
+    display: none;
+}
+
+.preview-img-container {
+    display: none;
+    width: 100%;
+    max-height: 260px;
+    text-align: center;
+}
+
+.upload-zone.has-image .preview-img-container {
+    display: block;
+}
+
+.preview-img-container img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.processing-message {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(248, 249, 255, 0.95);
+    border-radius: 14px;
+    z-index: 10;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border);
+    border-top: 4px solid var(--blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--blue), #60a5fa);
+    color: white;
+    padding: 0.65rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(59,130,246,0.35);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(59,130,246,0.45);
+}
+
+/* Food Log */
+.food-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.add-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.manual-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: var(--input-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.manual-entry-header {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.manual-entry input {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--card-bg);
+    outline: none;
+    transition: all 0.2s;
+}
+
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    gap: 5px;
+}
+
+.nutrition-grid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.nutrition-grid > div span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nutrition-grid > div input {
+    width: 100%;
+    min-width: 0;
+}
+
+.meals-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    background: var(--input-bg);
+    color: var(--text);
+}
+
+#meals-nutrition {
+    width: 7em;
+}
+
+.food-info,
+.food-details,
+.manual-entry,
+.nutrition-grid {
+    min-width: 0;
+}
+
+.nutrition-field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.nutrition-field label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.nutrition-field input {
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    width: 100%;
+    background: var(--input-bg);
+    color: var(--text);
+}
+
+.nutrition-field input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.food-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 490px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.food-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--input-bg);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+}
+
+.food-item:hover {
+    border-color: var(--blue);
+    background: var(--card-bg);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.food-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.food-emoji {
+    width: 44px;
+    height: 44px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.food-details h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+
+.food-macros {
+    width: 100%;
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    gap: 16px;
+}
+
+.food-actions {
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.food-item:hover .food-actions {
+    opacity: 1;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 16px;
+}
+
+.icon-btn:hover {
+    background: var(--border);
+    color: var(--text);
+}
+
+.icon-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+.food-log-empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 0;
+    font-style: italic;
+}
 
         .log-summary {
             font-size: 13px;
@@ -813,20 +804,51 @@
             flex-wrap: wrap;
         }
 
-        .chart-tab {
-            padding: 8px 16px;
-            border-radius: 8px;
-            background: var(--input-bg);
-            color: var(--muted);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-            flex: 1 1 auto;
-            min-width: 80px;
-            text-align: center;
-        }
+.btn-reset {
+    padding: 0.55rem 1.25rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.error-popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--danger-light);
+    color: var(--danger);
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    border-left: 4px solid var(--danger);
+    animation: slideInRight 0.3s ease;
+}
+
+.chart-tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    flex: 1 1 auto;
+    min-width: 80px;
+    text-align: center;
+}
 
         .chart-tab.active {
             background: var(--blue);
@@ -855,16 +877,32 @@
             margin-top: 24px;
         }
 
-        .ai-suggestions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+.track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+}
 
-        .columns {
-            display: flex;
-            flex-direction: column;
-        }
+.track-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--blue), #60a5fa);
+    width: 0%;
+    transition: width 0.8s ease;
+}
+
+/* Add from incoming */
+.ai-suggestions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.columns {
+    display: flex;
+    flex-direction: column;
+}
 
         .ai-logo.wizcoach-mark {
             width: 80px;
@@ -890,17 +928,80 @@
             color: var(--text);
         }
 
-        .ai-text-bubble::before {
-            content: '';
-            position: absolute;
-            left: -8px;
-            top: 20px;
-            width: 0;
-            height: 0;
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-right: 8px solid var(--border);
-        }
+.help-btn {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 44px;
+    height: 44px;
+    background: var(--nav-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.help-btn:hover {
+    background: var(--purple);
+    color: white;
+    border-color: transparent;
+    transform: scale(1.05);
+}
+
+/* separate theme toggle */
+.theme-btn {
+    position: fixed;
+    bottom: 5rem;
+    right: 1.5rem;
+    width: 40px;
+    height: 40px;
+    background: var(--nav-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.theme-btn:hover {
+    background: var(--purple);
+    color: white;
+    border-color: transparent;
+}
+
+.button-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+/* Add from incoming */
+.ai-text-bubble::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 20px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid var(--border);
+}
 
         .ai-text-bubble::after {
             content: '';
@@ -957,6 +1058,12 @@
             </svg>
             AI Coach
         </a>
+<a href="profile.html" class="nav-avatar"
+  style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 1px solid var(--border);">
+  <span id="navAvatarText">U</span>
+  <img id="navAvatarImg" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+</a>
+
         <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
             <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -964,7 +1071,7 @@
                 <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
             Sign Out
-        </button>
+</button>
     </div>
 </nav>
 
@@ -1901,6 +2008,7 @@
         }
     }
     async function handleSignOut() {
+        localStorage.removeItem('wizcoach-avatar');
         try {
             if (firebase.apps.length) {
                 await firebase.auth().signOut();
@@ -1928,6 +2036,20 @@
 
     document.addEventListener('DOMContentLoaded', init);
 </script>
-</body>
 
+<button onclick="toggleTheme()"
+        class="theme-btn"
+        title="Toggle Dark Mode">🌓</button>
+
+<script>
+  (function loadLocalAvatar() {
+      const saved = localStorage.getItem('wizcoach-avatar');
+      if(saved) {
+          const img = document.getElementById('navAvatarImg');
+          const txt = document.getElementById('navAvatarText');
+          if(img && txt) { img.src = saved; img.style.display = 'block'; txt.style.display = 'none'; }
+      }
+  })();
+</script>
+</body>
 </html>

@@ -72,14 +72,40 @@ public class UserController {
     @PutMapping("/profile")
     public ResponseEntity<Map<String, Object>> updateProfile(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody User updatedUser) {
+            @RequestBody Map<String, Object> updates) {
         try {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
-            userService.updateProfile(uid, updatedUser);
+            userService.updateProfile(uid, updates);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Profile updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(response);
+        }
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<Map<String, Object>> getProfile(
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            String uid = tokenFilter.verifyAndGetUid(authHeader);
+            User user = userService.getUserById(uid);
+            
+            if (user == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "User not found");
+                return ResponseEntity.status(404).body(response);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("profile", user);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();

@@ -1,0 +1,20 @@
+Index: src/main/resources/application.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Application Configuration\r\n\r\n# Server\r\nserver.port=${SERVER_PORT:8080}\r\nspring.application.name=AEye-Systems\r\n\r\n# Python API configuration\r\npython.api.url=${PYTHON_API_URL:http://localhost:8000}\r\npython.api.port=${PYTHON_API_PORT:8000}\r\npython.file.path = ${PYTHON_FILE_PATH:/src/main/resources/AI/AI_ImageAnalyzer.py}\r\npython.model=${PYTHON_MODEL:LOCAL}\r\n\r\n# prompt\r\nprompt.food_analyzer=${PROMPT_FOOD_ANALYZER:food_analyze_prompt}\r\n\r\n# Remote API configuration\r\nremote.api.key=${REMOTE_API_KEY:AIzaSyBODI00PzMQI59AXV1TnTmiNT6lKj_4U0U}\r\nremote.api.base_url=${REMOTE_API_BASE_URL:https://generativelanguage.googleapis.com}\r\nremote.api.model=${REMOTE_API_MODEL:gemini-3.1-flash-lite-preview}\r\n\r\n# Local Ollama API configuration\r\nlocal.api.url=${LOCAL_API_URL:http://localhost:11434}\r\nlocal.api.model=${LOCAL_API_MODEL:llava}\r\n\r\n# Database Configuration (if using H2 in-memory database)\r\nspring.datasource.url=jdbc:h2:mem:testdb\r\nspring.datasource.driverClassName=org.h2.Driver\r\nspring.datasource.username=sa\r\nspring.datasource.password=\r\n\r\n# JPA/Hibernate Configuration\r\nspring.jpa.database-platform=org.hibernate.dialect.H2Dialect\r\n# JPA - set to none since Firebase handles your database\r\nspring.jpa.hibernate.ddl-auto=none\r\nspring.jpa.show-sql=true\r\n\r\n# H2 Console (for development only)\r\nspring.h2.console.enabled=true\r\n\r\n# Logging\r\nlogging.level.edu.farmingdale.CSC490=DEBUG\r\nlogging.level.org.springframework.web=INFO\r\n\r\n\r\n# Firebase\r\nfirebase.config.path=firebase-key.json\r\n\r\n# Disable DataSource auto-config since using Firebase\r\nspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+--- a/src/main/resources/application.properties	(revision a52fcec2abe239770f7d138fc0bbd131b4fdf61e)
++++ b/src/main/resources/application.properties	(date 1773027234289)
+@@ -8,7 +8,8 @@
+ python.api.url=${PYTHON_API_URL:http://localhost:8000}
+ python.api.port=${PYTHON_API_PORT:8000}
+ python.file.path = ${PYTHON_FILE_PATH:/src/main/resources/AI/AI_ImageAnalyzer.py}
+-python.model=${PYTHON_MODEL:LOCAL}
++python.model=${PYTHON_MODEL:REMOTE}
++REMOTE_API_KEY=AIzaSyBNkLU3zieWVA2OL4OD87q8PBHnWWKvxv8
+ 
+ # prompt
+ prompt.food_analyzer=${PROMPT_FOOD_ANALYZER:food_analyze_prompt}
