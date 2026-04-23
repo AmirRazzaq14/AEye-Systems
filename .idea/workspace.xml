@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dc3755f1-1eef-43ea-b438-dd5ee9ee0426" name="Changes" comment="Added signout button logic to profile page">
+    <list default="true" id="dc3755f1-1eef-43ea-b438-dd5ee9ee0426" name="Changes" comment="Fixed issue where the profile picture wasn't showing up on the motion page and added logic to make different accounts have a different profile picture instead of having the same one">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/ai-coach.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/ai-coach.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/motion.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/motion.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/profile.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,7 +124,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776903116538</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Fixed issue where the profile picture wasn't showing up on the motion page and added logic to make different accounts have a different profile picture instead of having the same one">
+      <option name="closed" value="true" />
+      <created>1776904845973</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1776904845973</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -139,6 +143,7 @@
     <MESSAGE value="Fixed misaligned motion page" />
     <MESSAGE value="Made signout button red on all pages" />
     <MESSAGE value="Added signout button logic to profile page" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added signout button logic to profile page" />
+    <MESSAGE value="Fixed issue where the profile picture wasn't showing up on the motion page and added logic to make different accounts have a different profile picture instead of having the same one" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed issue where the profile picture wasn't showing up on the motion page and added logic to make different accounts have a different profile picture instead of having the same one" />
   </component>
 </project>
