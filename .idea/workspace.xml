@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dc3755f1-1eef-43ea-b438-dd5ee9ee0426" name="Changes" comment="Fixed misaligned motion page">
+    <list default="true" id="dc3755f1-1eef-43ea-b438-dd5ee9ee0426" name="Changes" comment="Made signout button red on all pages">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/ai-coach.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/ai-coach.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/motion.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/motion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/profile.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +108,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776896652668</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Made signout button red on all pages">
+      <option name="closed" value="true" />
+      <created>1776902059396</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1776902059396</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -119,6 +125,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Fixed messed up nav bar on motion page and removed dupe nightmode button on dashboard page" />
     <MESSAGE value="Fixed misaligned motion page" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed misaligned motion page" />
+    <MESSAGE value="Made signout button red on all pages" />
+    <option name="LAST_COMMIT_MESSAGE" value="Made signout button red on all pages" />
   </component>
 </project>

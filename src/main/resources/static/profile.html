@@ -207,6 +207,7 @@
                 <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
             Sign Out
+        </button>
     </div>
 </nav>
 
@@ -266,6 +267,18 @@
             console.error(e);
             document.getElementById('loadingOverlay').classList.add('hidden');
         }
+    }
+
+    /* SIGN OUT */
+    async function handleSignOut() {
+        try {
+            if (firebase.apps.length) {
+                await firebase.auth().signOut();
+            }
+        } catch (err) {
+            console.warn('Sign out error:', err);
+        }
+        window.location.href = 'login.html';
     }
 
     async function loadProfile(user) {
