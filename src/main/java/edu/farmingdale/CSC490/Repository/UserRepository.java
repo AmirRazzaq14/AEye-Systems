@@ -50,10 +50,10 @@ public class UserRepository {
     }
 
     // Update or create user profile
-    public void updateProfile(String userId, User user) throws ExecutionException, InterruptedException {
+    public void updateProfile(String userId, java.util.Map<String, Object> updates) throws ExecutionException, InterruptedException {
         firestore.collection("users")
                 .document(userId)
-                .set(user, com.google.cloud.firestore.SetOptions.merge())
+                .set(updates, com.google.cloud.firestore.SetOptions.merge())
                 .get();
     }
 
