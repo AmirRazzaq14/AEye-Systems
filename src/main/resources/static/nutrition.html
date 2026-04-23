@@ -2008,6 +2008,7 @@ border: 1px solid var(--border);
         }
     }
     async function handleSignOut() {
+        localStorage.removeItem('wizcoach-avatar');
         try {
             if (firebase.apps.length) {
                 await firebase.auth().signOut();

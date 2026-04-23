@@ -590,6 +590,7 @@
 
     /* SIGN OUT */
     async function handleSignOut() {
+        localStorage.removeItem('wizcoach-avatar');
         try {
             if (typeof firebase !== 'undefined' && firebase.apps.length) {
                 await firebase.auth().signOut();

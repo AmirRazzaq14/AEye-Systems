@@ -1107,6 +1107,7 @@ text-align: center;
 <script>
   // ── Sign Out ──────────────────────────────────────────────
   async function handleSignOut() {
+    localStorage.removeItem('wizcoach-avatar');
     const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
     days.forEach(day => {
       localStorage.removeItem(`planner_split_${day}`);
@@ -1238,13 +1239,22 @@ text-align: center;
             })
             .then(res => res.json())
             .then(data => {
-              if (data.success && data.profile && data.profile.profilePicture) {
-                localStorage.setItem('wizcoach-avatar', data.profile.profilePicture);
+              if (data.success && data.profile) {
                 const img = document.getElementById('navAvatarImg');
-                if (img) {
-                  img.src = data.profile.profilePicture;
-                  img.style.display = 'block';
-                  document.getElementById('navAvatarText').style.display = 'none';
+                const txt = document.getElementById('navAvatarText');
+                if (data.profile.profilePicture) {
+                  localStorage.setItem('wizcoach-avatar', data.profile.profilePicture);
+                  if (img && txt) {
+                    img.src = data.profile.profilePicture;
+                    img.style.display = 'block';
+                    txt.style.display = 'none';
+                  }
+                } else {
+                  localStorage.removeItem('wizcoach-avatar');
+                  if (img && txt) {
+                    img.style.display = 'none';
+                    txt.style.display = 'flex';
+                  }
                 }
               }
             })

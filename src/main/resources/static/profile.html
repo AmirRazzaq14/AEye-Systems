@@ -271,6 +271,7 @@
 
     /* SIGN OUT */
     async function handleSignOut() {
+        localStorage.removeItem('wizcoach-avatar');
         try {
             if (firebase.apps.length) {
                 await firebase.auth().signOut();
@@ -295,15 +296,19 @@
                 const data = await res.json();
                 if (data.success && data.profile) {
                     const p = data.profile;
+                    const mainImg = document.getElementById('avatarImg');
+                    const mainTxt = document.getElementById('avatarText');
+                    const navImg = document.getElementById('navAvatarImg');
+                    const navTxt = document.getElementById('navAvatarText');
+
                     if(p.profilePicture) {
-                        document.getElementById('avatarImg').src = p.profilePicture;
-                        document.getElementById('avatarImg').style.display = 'block';
-                        document.getElementById('avatarText').style.display = 'none';
-                        
-                        const navImg = document.getElementById('navAvatarImg');
-                        if(navImg) { navImg.src = p.profilePicture; navImg.style.display = 'block'; document.getElementById('navAvatarText').style.display = 'none'; }
-                        
+                        if (mainImg && mainTxt) { mainImg.src = p.profilePicture; mainImg.style.display = 'block'; mainTxt.style.display = 'none'; }
+                        if (navImg && navTxt) { navImg.src = p.profilePicture; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
                         localStorage.setItem('wizcoach-avatar', p.profilePicture);
+                    } else {
+                        if (mainImg && mainTxt) { mainImg.style.display = 'none'; mainTxt.style.display = 'flex'; }
+                        if (navImg && navTxt) { navImg.style.display = 'none'; navTxt.style.display = 'flex'; }
+                        localStorage.removeItem('wizcoach-avatar');
                     }
                     if(p.age) document.getElementById('valAge').textContent = p.age;
                     if(p.gender) document.getElementById('valGender').textContent = p.gender;

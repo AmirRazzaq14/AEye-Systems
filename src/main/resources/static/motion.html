@@ -1227,6 +1227,7 @@
 
   /* SIGN OUT */
   async function handleSignOut() {
+    localStorage.removeItem('wizcoach-avatar');
     stopCamera(); // turns off webcam light before navigating away
     try {
       if (firebase.apps.length) {
@@ -2914,6 +2915,17 @@
   });
 
   document.addEventListener('DOMContentLoaded', () => {
+    const savedAvatar = localStorage.getItem('wizcoach-avatar');
+    if (savedAvatar) {
+        const img = document.getElementById('navAvatarImg');
+        const txt = document.getElementById('navAvatarText');
+        if (img && txt) {
+            img.src = savedAvatar;
+            img.style.display = 'block';
+            txt.style.display = 'none';
+        }
+    }
+
     wizVideo = document.getElementById('wizVideo');
     wizCanvas = document.getElementById('wizCanvas');
     wizMiniSkeleton = document.getElementById('wizMiniSkeleton');
