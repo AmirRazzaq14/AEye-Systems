@@ -162,6 +162,103 @@
             nav { padding: 0 1rem; }
             .nav-logo-name { display: none; }
         }
+        
+        .input-box {
+            background: var(--input-bg); 
+            border-radius: 14px; 
+            padding: 1.2rem;
+            border: 1px solid var(--border);
+        }
+        .input-label {
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            color: var(--muted);
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            margin-bottom: 0.4rem;
+        }
+
+        .input-value {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .edit-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            color: var(--text);
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .edit-input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(124,92,252,0.12);
+        }
+
+        .save-btn {
+            margin-top: 2rem;
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--purple) 0%, #9b6bfd 100%);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            box-shadow: 0 4px 16px rgba(124,92,252,0.4);
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(124,92,252,0.5);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--nav-bg);
+            color: var(--text);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+
     </style>
 </head>
 <body>
@@ -226,28 +323,44 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
             Active Account
         </div>
-        
+
         <div class="info-grid">
             <div class="info-box">
                 <div class="info-label">Age</div>
-                <div class="info-value" id="valAge">--</div>
+                <input type="number" class="edit-input" id="valAge" min="1" max="120" placeholder="Enter age">
             </div>
             <div class="info-box">
                 <div class="info-label">Gender</div>
-                <div class="info-value" id="valGender">--</div>
+                <select class="edit-input" id="valGender" style="cursor: pointer;">
+                    <option value="" disabled>Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
             <div class="info-box">
-                <div class="info-label">Weight</div>
-                <div class="info-value" id="valWeight">-- lbs</div>
+                <div class="info-label">Weight (lbs)</div>
+                <input type="number" class="edit-input" id="valWeight" step="0.1" min="1" placeholder="Enter weight">
             </div>
             <div class="info-box">
                 <div class="info-label">Height</div>
-                <div class="info-value" id="valHeight">--' --"</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <input type="number" class="edit-input" id="valHeightFt" min="1" max="8" placeholder="Ft">
+                    <input type="number" class="edit-input" id="valHeightIn" min="0" max="11" placeholder="In">
+                </div>
             </div>
+
         </div>
+        <div class="input-box" style="margin-top: 1.5rem;">
+            <div class="input-label">Daily Calorie Goal</div>
+            <input class="edit-input" id="valCalories" type="number" min="0" placeholder="Enter your calorie goal">
+        </div>
+
+        <button class="save-btn" id="saveBtn" onclick="handleSaveProfile()">Save Changes</button>
     </div>
 </div>
 
+<div class="toast" id="toast"></div>
 <script>
     async function initApp() {
         document.getElementById('loadingOverlay').classList.remove('hidden');
@@ -282,7 +395,7 @@
         window.location.href = 'login.html';
     }
 
-    async function loadProfile(user) {
+   async function loadProfile(user) {
         try {
             document.getElementById('profileEmail').textContent = user.email;
             document.getElementById('avatarText').textContent = user.email.charAt(0).toUpperCase();
@@ -291,7 +404,7 @@
             const res = await fetch('/api/auth/profile', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+
             if (res.ok) {
                 const data = await res.json();
                 if (data.success && data.profile) {
@@ -310,14 +423,19 @@
                         if (navImg && navTxt) { navImg.style.display = 'none'; navTxt.style.display = 'flex'; }
                         localStorage.removeItem('wizcoach-avatar');
                     }
-                    if(p.age) document.getElementById('valAge').textContent = p.age;
-                    if(p.gender) document.getElementById('valGender').textContent = p.gender;
-                    if(p.weight) document.getElementById('valWeight').textContent = p.weight + ' lbs';
+
+                    // Populate editable fields
+                    if(p.age) document.getElementById('valAge').value = p.age;
+                    if(p.gender) document.getElementById('valGender').value = p.gender;
+                    if(p.weight) document.getElementById('valWeight').value = p.weight;
                     if(p.height) {
                         const ft = Math.floor(p.height / 12);
                         const inc = Math.round(p.height % 12);
-                        document.getElementById('valHeight').textContent = `${ft}' ${inc}"`;
+                        document.getElementById('valHeightFt').value = ft;
+                        document.getElementById('valHeightIn').value = inc;
                     }
+                    if(p.calorieGoal) document.getElementById('valCalories').value = p.calorieGoal;
+                    
                 }
             }
         } catch(err) {
@@ -379,6 +497,80 @@
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);
+    }
+
+     async function handleSaveProfile() {
+        const btn = document.getElementById('saveBtn');
+        const age = document.getElementById('valAge').value;
+        const gender = document.getElementById('valGender').value;
+        const weight = document.getElementById('valWeight').value;
+        const ft = document.getElementById('valHeightFt').value;
+        const inc = document.getElementById('valHeightIn').value;
+        const calories = document.getElementById('valCalories').value;
+
+        // Validation
+        if (!age || !gender || !weight || !ft || inc === '') {
+            showToast('Please fill out all fields correctly.');
+            return;
+        }
+
+        // Calculate total inches
+        const totalInches = (parseInt(ft, 10) * 12) + parseInt(inc, 10);
+
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        try {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const token = await user.getIdToken();
+            const payload = {
+                email: user.email,
+                age: parseInt(age, 10),
+                gender: gender,
+                weight: parseFloat(weight),
+                height: parseFloat(totalInches),
+                calorieGoal: parseFloat(calories)
+            };
+
+            const response = await fetch('/api/auth/profile', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to save profile");
+            }
+
+            showToast('Profile updated successfully!');
+
+            // Reload profile to show updated data
+            setTimeout(() => {
+                loadProfile(user);
+            }, 500);
+
+        } catch (err) {
+            console.error(err);
+            showToast('Error saving profile. Try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Save Changes";
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     initApp();
