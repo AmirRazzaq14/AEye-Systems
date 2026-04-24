@@ -114,8 +114,8 @@ public class Nutrition_log {
         // Assuming an activity factor of 1.2 (sedentary/light activity), it can be adjusted according to actual needs
         double activityFactor = 1.2;
 
-       // targetCals = user.getTargetCals() != null ? user.getTargetCals() : bmr * activityFactor;
-        targetCals = bmr * activityFactor;
+        // Total daily energy expenditure (TDEE)
+        targetCals = user.getCalorieGoal()!= null ? user.getCalorieGoal() : bmr * activityFactor;
 
         // Distribute macronutrients based on total caloric targets
         // Protein: about 30% calories (1g protein = 4 kcal)
