@@ -4,6 +4,7 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import edu.farmingdale.CSC490.Entity.User;
+import edu.farmingdale.CSC490.Food.NutritionCalculationService;
 import edu.farmingdale.CSC490.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,9 @@ public class NutritionRepository {
     
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NutritionCalculationService nutritionCalculationService;
 
     private Firestore getDb() {
         return FirestoreClient.getFirestore();
@@ -86,7 +90,7 @@ public class NutritionRepository {
         Nutrition_log existingLog = getByDate(uid, dateKey);
         if (existingLog != null) {
             existingLog.getMeals().add(meal);
-            existingLog.updateTotalNutrition();
+            nutritionCalculationService.calculateTotalNutrition(existingLog);
             existingLog.setUpdatedAt(Instant.now().toString());
             docRef(uid, existingLog.getId()).set(existingLog).get();
             log.info("Meal saved successfully for log {}", dateKey);
@@ -105,7 +109,7 @@ public class NutritionRepository {
             );
             
             if (mealRemoved) {
-                existingLog.updateTotalNutrition();
+                nutritionCalculationService.calculateTotalNutrition(existingLog);
                 existingLog.setUpdatedAt(Instant.now().toString());
                 docRef(uid, existingLog.getId()).set(existingLog).get();
                 log.info("Meal {} deleted successfully from log {}", mealId, date);
@@ -121,7 +125,7 @@ public class NutritionRepository {
         Nutrition_log existingLog = getByDate(uid, dateKey);
         if (existingLog != null) {
             existingLog.setNotes(note);
-            existingLog.updateTotalNutrition();
+            nutritionCalculationService.calculateTotalNutrition(existingLog);
             existingLog.setUpdatedAt(Instant.now().toString());
             docRef(uid, existingLog.getId()).set(existingLog).get();
             log.info("Notes saved successfully for log {}", dateKey);
@@ -152,6 +156,20 @@ public class NutritionRepository {
         return list;
     }
 
+    public void updateCalorieGoal(String uid, String dateKey, String targetCalorie) throws Exception {
+        Nutrition_log existingLog = getByDate(uid, dateKey);
+        if (existingLog != null) {
+            nutritionCalculationService.calculateTargetNutritionByGoal(existingLog, Double.parseDouble(targetCalorie));
+            existingLog.setUpdatedAt(Instant.now().toString());
+            docRef(uid, existingLog.getId()).set(existingLog).get();
+            log.info("Target Calorie updated successfully for log {}", dateKey);
+        }else {
+            log.error("Nutrition log not exist, can't update target Calorie");
+        }
+    }
+
+
+    // which is used in getWeekLog for the weekday of the specified date
     @NotNull
     private static List<LocalDate> getLocalDates(String Date, DateTimeFormatter formatter) {
         LocalDate inputDate = LocalDate.parse(Date, formatter);
@@ -170,60 +188,16 @@ public class NutritionRepository {
 
     //  default log setting for not null value in log
     private void applyDefaultValues(String uid, Nutrition_log log) throws Exception {
-        boolean needsUpdate = false;
 
-        if(log.getUserId() == null){
             log.setUserId(uid);
-            needsUpdate = true;
-        }
-
-        if(log.getId() == null){
             log.setId(LocalDate.now().toString());
-            needsUpdate = true;
-        }
-
-        if (log.getDate() == null){
             log.setDate(LocalDate.now().toString());
-            needsUpdate = true;
-        }
-
-        if (log.getMeals() == null) {
             log.setMeals(new ArrayList<>());
-            needsUpdate = true;
-        } else {
-            for (Nutrition_log.Meal meal : log.getMeals()) {
-                if(meal.getMealId() == null){
-                    meal.setMealId("meals_" + System.currentTimeMillis());
-                    needsUpdate = true;
-                }
-            }
-
-        }
-
-        if (log.getTotalNutrition() == null){
             log.setTotalNutrition(new Nutrition_log.Nutrition("0","0","0","0"));
-            needsUpdate = true;
-        }
-
-        if (log.getTargetNutrition() == null){
             User user = userService.getUserById(uid);
-            log.updateTargetNutrition(user);
-            needsUpdate = true;
-        }
-
-        if(log.getNotes() == null){
+            nutritionCalculationService.calculateTargetNutritionByGoal(log, user.getCalorieGoal());
             log.setNotes("");
-            needsUpdate = true;
-        }
-
-        if(log.getUpdatedAt() == null){
-            log.setUpdatedAt(Instant.now().toString());
-            needsUpdate = true;
-        }
-
-        if(needsUpdate){
             save(uid, log);
-        }
 
     }
 
