@@ -1,11 +1,13 @@
 package edu.farmingdale.CSC490.Controller;
 
 import edu.farmingdale.CSC490.Entity.User;
+import edu.farmingdale.CSC490.Service.NutritionLogService;
 import edu.farmingdale.CSC490.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +18,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NutritionLogService nutritionLogService;
 
     @Autowired
     private edu.farmingdale.CSC490.Config.FirebaseTokenFilter tokenFilter;
@@ -73,9 +78,12 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> updateProfile(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody Map<String, Object> updates) {
+
+
         try {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
             userService.updateProfile(uid, updates);
+            nutritionLogService.updateCalorieGoal(uid, LocalDate.now().toString(), updates.get("calorieGoal").toString());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

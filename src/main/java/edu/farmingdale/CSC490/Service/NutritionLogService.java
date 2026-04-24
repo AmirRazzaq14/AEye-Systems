@@ -46,7 +46,9 @@ public class NutritionLogService {
     }
 
 
-
+    public void updateCalorieGoal(String uid, String dateKey, String targetCalorie) throws Exception {
+        repo.updateCalorieGoal(uid, dateKey, targetCalorie);
+    }
 
 }
 
