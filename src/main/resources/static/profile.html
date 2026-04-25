@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("wizcoach-theme");
+                if (saved) {
+                    document.documentElement.setAttribute("data-theme", saved);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
+    <title>WizCoach – Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --purple: #7c5cfc;
+            --purple-light: #a78bfa;
+            --blue: #3b82f6;
+            --green: #22c55e;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--page-bg);
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem; height: 60px;
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+        .nav-logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--purple), var(--purple-light));
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 3px 8px rgba(124,92,252,0.3);
+        }
+        .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+        .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+        .nav-link {
+            display: flex; align-items: center; gap: 0.4rem;
+            padding: 0.45rem 1rem; border-radius: 8px;
+            font-size: 0.88rem; font-weight: 500; color: var(--muted);
+            text-decoration: none; border: none; background: none; cursor: pointer;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
+        .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
+        .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        .page {
+            max-width: 800px; margin: 2rem auto; padding: 0 2rem 2rem;
+            display: flex; flex-direction: column; gap: 1.5rem;
+            flex: 1; width: 100%;
+            animation: fadeUp 0.5s ease both;
+        }
+        
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-card {
+            background: var(--card-bg); border-radius: 20px; padding: 2.5rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06); border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--purple-light));
+            margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 16px rgba(124,92,252,0.3);
+            color: white; font-size: 2.5rem; font-weight: 700;
+            position: relative; overflow: hidden; cursor: pointer;
+        }
+        
+        .avatar-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .profile-avatar:hover .avatar-overlay { opacity: 1; }
+        .avatar-overlay svg { width: 28px; height: 28px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        .profile-email { font-size: 1.5rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; margin-bottom: 0.2rem; }
+        .profile-status { color: var(--green); font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem; margin-bottom: 2rem; background: var(--green-light); padding: 0.3rem 0.8rem; border-radius: 12px;}
+        .profile-status svg { width: 14px; height: 14px; }
+
+        .info-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+            text-align: left;
+        }
+
+        .info-box {
+            background: var(--input-bg); border-radius: 14px; padding: 1.2rem;
+            border: 1px solid var(--border);
+        }
+
+        .info-label {
+            font-size: 0.75rem; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;
+        }
+
+        .info-value {
+            font-size: 1.3rem; font-weight: 700; color: var(--text);
+        }
+
+        .loading-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.25);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 999; font-size: 0.9rem; font-weight: 600; color: white; gap: 0.75rem;
+        }
+        .loading-overlay.hidden { display: none; }
+        .spinner {
+            width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .theme-btn {
+            position: fixed; bottom: 5rem; right: 1.5rem;
+            width: 40px; height: 40px;
+            background: var(--nav-bg); color: var(--text);
+            border: 1px solid var(--border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            z-index: 100;
+        }
+
+        .theme-btn:hover { background: var(--purple); color: white; border-color: transparent; }
+
+        @media (max-width: 600px) {
+            .info-grid { grid-template-columns: 1fr; }
+            nav { padding: 0 1rem; }
+            .nav-logo-name { display: none; }
+        }
+        
+        .input-box {
+            background: var(--input-bg); 
+            border-radius: 14px; 
+            padding: 1.2rem;
+            border: 1px solid var(--border);
+        }
+        .input-label {
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            color: var(--muted);
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            margin-bottom: 0.4rem;
+        }
+
+        .input-value {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .edit-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            color: var(--text);
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .edit-input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(124,92,252,0.12);
+        }
+
+        .save-btn {
+            margin-top: 2rem;
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--purple) 0%, #9b6bfd 100%);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            box-shadow: 0 4px 16px rgba(124,92,252,0.4);
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(124,92,252,0.5);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--nav-bg);
+            color: var(--text);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    Loading profile...
+</div>
+
+<nav>
+    <a href="dashboard.html" class="nav-logo">
+        <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <span class="nav-logo-name">WizCoach</span>
+    </a>
+    <div class="nav-links">
+        <a href="dashboard.html" class="nav-link">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+        </a>
+        <a href="motion.html" class="nav-link">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Motion
+        </a>
+        <a href="nutrition.html" class="nav-link">
+            <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg>
+            Nutrition
+        </a>
+        <a href="ai-coach.html" class="nav-link">
+            <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+            AI Coach
+        </a>
+        <a href="profile.html" class="nav-avatar" style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--purple);">
+            <span id="navAvatarText" style="display:none;">U</span>
+            <img id="navAvatarImg" src="default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
+        </a>
+
+        <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign Out
+        </button>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="profile-card">
+        <div class="profile-avatar" id="avatarWrap" onclick="document.getElementById('avatarUpload').click()">
+            <span id="avatarText" style="display:none;">U</span>
+            <img id="avatarImg" src="default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
+            <div class="avatar-overlay">
+                <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            </div>
+        </div>
+        <input type="file" id="avatarUpload" accept="image/jpeg, image/png, image/webp" style="display: none;" onchange="handleAvatarUpload(event)">
+        <h1 class="profile-email" id="profileEmail">Loading...</h1>
+        <div class="profile-status">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            Active Account
+        </div>
+
+        <div class="info-grid">
+            <div class="info-box">
+                <div class="info-label">Age</div>
+                <input type="number" class="edit-input" id="valAge" min="1" max="120" placeholder="Enter age">
+            </div>
+            <div class="info-box">
+                <div class="info-label">Gender</div>
+                <select class="edit-input" id="valGender" style="cursor: pointer;">
+                    <option value="" disabled>Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Weight (lbs)</div>
+                <input type="number" class="edit-input" id="valWeight" step="0.1" min="1" placeholder="Enter weight">
+            </div>
+            <div class="info-box">
+                <div class="info-label">Height</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <input type="number" class="edit-input" id="valHeightFt" min="1" max="8" placeholder="Ft">
+                    <input type="number" class="edit-input" id="valHeightIn" min="0" max="11" placeholder="In">
+                </div>
+            </div>
+
+        </div>
+        <div class="input-box" style="margin-top: 1.5rem;">
+            <div class="input-label">Daily Calorie Goal</div>
+            <input class="edit-input" id="valCalories" type="number" min="0" placeholder="Enter your calorie goal">
+        </div>
+
+        <button class="save-btn" id="saveBtn" onclick="handleSaveProfile()">Save Changes</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+    async function initApp() {
+        document.getElementById('loadingOverlay').classList.remove('hidden');
+        try {
+            const res = await fetch('/api/config');
+            const config = await res.json();
+            firebase.initializeApp(config);
+
+            firebase.auth().onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = 'login.html';
+                } else {
+                    await loadProfile(user);
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+    }
+
+    /* SIGN OUT */
+    async function handleSignOut() {
+        localStorage.removeItem('wizcoach-avatar');
+        try {
+            if (firebase.apps.length) {
+                await firebase.auth().signOut();
+            }
+        } catch (err) {
+            console.warn('Sign out error:', err);
+        }
+        window.location.href = 'login.html';
+    }
+
+   async function loadProfile(user) {
+        try {
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('avatarText').textContent = user.email.charAt(0).toUpperCase();
+
+            const token = await user.getIdToken();
+            const res = await fetch('/api/auth/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && data.profile) {
+                    const p = data.profile;
+                    const mainImg = document.getElementById('avatarImg');
+                    const mainTxt = document.getElementById('avatarText');
+                    const navImg = document.getElementById('navAvatarImg');
+                    const navTxt = document.getElementById('navAvatarText');
+
+                    if(p.profilePicture) {
+                        if (mainImg && mainTxt) { mainImg.src = p.profilePicture; mainImg.style.display = 'block'; mainTxt.style.display = 'none'; }
+                        if (navImg && navTxt) { navImg.src = p.profilePicture; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
+                        localStorage.setItem('wizcoach-avatar', p.profilePicture);
+                    } else {
+                        if (mainImg && mainTxt) { mainImg.src = 'default-profile-picture.png'; mainImg.style.display = 'block'; mainTxt.style.display = 'none'; }
+                        if (navImg && navTxt) { navImg.src = 'default-profile-picture.png'; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
+                        localStorage.removeItem('wizcoach-avatar');
+                    }
+
+                    // Populate editable fields
+                    if(p.age) document.getElementById('valAge').value = p.age;
+                    if(p.gender) document.getElementById('valGender').value = p.gender;
+                    if(p.weight) document.getElementById('valWeight').value = p.weight;
+                    if(p.height) {
+                        const ft = Math.floor(p.height / 12);
+                        const inc = Math.round(p.height % 12);
+                        document.getElementById('valHeightFt').value = ft;
+                        document.getElementById('valHeightIn').value = inc;
+                    }
+                    if(p.calorieGoal) document.getElementById('valCalories').value = p.calorieGoal;
+                    
+                }
+            }
+        } catch(err) {
+            console.error(err);
+        } finally {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+    }
+
+    async function handleAvatarUpload(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+
+        // Show loading state gracefully
+        const overlay = document.querySelector('.loading-overlay');
+        overlay.classList.remove('hidden');
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = async function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 150; canvas.height = 150;
+                
+                const minDim = Math.min(img.width, img.height);
+                const sx = (img.width - minDim) / 2;
+                const sy = (img.height - minDim) / 2;
+                ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, 150, 150);
+
+                const base64Str = canvas.toDataURL('image/jpeg', 0.7);
+
+                document.getElementById('avatarImg').src = base64Str;
+                document.getElementById('avatarImg').style.display = 'block';
+                document.getElementById('avatarText').style.display = 'none';
+                
+                const navImg = document.getElementById('navAvatarImg');
+                if(navImg) { navImg.src = base64Str; navImg.style.display = 'block'; document.getElementById('navAvatarText').style.display = 'none'; }
+                
+                localStorage.setItem('wizcoach-avatar', base64Str);
+
+                try {
+                    const user = firebase.auth().currentUser;
+                    const token = await user.getIdToken();
+                    await fetch('/api/auth/profile', {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: user.email, profilePicture: base64Str })
+                    });
+                } catch(err) {
+                    console.error("Upload failed", err);
+                } finally {
+                    overlay.classList.add('hidden');
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+     async function handleSaveProfile() {
+        const btn = document.getElementById('saveBtn');
+        const age = document.getElementById('valAge').value;
+        const gender = document.getElementById('valGender').value;
+        const weight = document.getElementById('valWeight').value;
+        const ft = document.getElementById('valHeightFt').value;
+        const inc = document.getElementById('valHeightIn').value;
+        const calories = document.getElementById('valCalories').value;
+
+        // Validation
+        if (!age || !gender || !weight || !ft || inc === '') {
+            showToast('Please fill out all fields correctly.');
+            return;
+        }
+
+        // Calculate total inches
+        const totalInches = (parseInt(ft, 10) * 12) + parseInt(inc, 10);
+
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        try {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const token = await user.getIdToken();
+            const payload = {
+                email: user.email,
+                age: parseInt(age, 10),
+                gender: gender,
+                weight: parseFloat(weight),
+                height: parseFloat(totalInches),
+                calorieGoal: parseFloat(calories)
+            };
+
+            const response = await fetch('/api/auth/profile', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to save profile");
+            }
+
+            showToast('Profile updated successfully!');
+
+            // Reload profile to show updated data
+            setTimeout(() => {
+                loadProfile(user);
+            }, 500);
+
+        } catch (err) {
+            console.error(err);
+            showToast('Error saving profile. Try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Save Changes";
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    initApp();
+</script>
+
+<button onclick="toggleTheme()" class="theme-btn" title="Toggle Dark Mode">🌓</button>
+
+<script>
+  (function loadLocalAvatar() {
+      const saved = localStorage.getItem('wizcoach-avatar');
+      if(saved) {
+          const img = document.getElementById('navAvatarImg');
+          const txt = document.getElementById('navAvatarText');
+          if(img && txt) { img.src = saved; img.style.display = 'block'; txt.style.display = 'none'; }
+      }
+  })();
+</script>
+</body>
+</html>
+

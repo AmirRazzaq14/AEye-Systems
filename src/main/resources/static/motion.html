@@ -52,30 +52,97 @@
 
     /* NAV */
     nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem; height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
       background: var(--nav-bg);
       border-bottom: 1px solid var(--border);
-      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
-      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+    }
 
-    .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
-    .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+    .nav-logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-light));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 8px rgba(124, 92, 252, 0.3);
+    }
+
+    .nav-logo-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-logo-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
 
     .nav-link {
-      display: flex; align-items: center; gap: 0.4rem;
-      padding: 0.45rem 1rem; border-radius: 8px;
-      font-size: 0.88rem; font-weight: 500; color: var(--muted);
-      text-decoration: none; border: none; background: none; cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      border: none;
+      background: none;
+      cursor: pointer;
       transition: color 0.15s, background 0.15s;
     }
 
-    .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
-    .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
-    .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    /* FIXED: hover uses theme.css variable */
+    .nav-link:hover {
+      color: var(--text);
+      background: var(--nav-hover-bg);
+    }
+
+    .nav-link.active {
+      background: var(--blue);
+      color: white;
+      font-weight: 600;
+    }
+
+    .nav-link svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
     /* PAGE */
     .page {
@@ -261,6 +328,17 @@
       font-weight: 700;
       color: var(--text);
       background: transparent;
+    }
+
+    .weight-input select {
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+      background: transparent;
+      cursor: pointer;
     }
 
     .exercise-item {
@@ -887,34 +965,94 @@
 <nav>
   <a href="dashboard.html" class="nav-logo">
     <div class="nav-logo-icon">
-      <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
-      <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
+      <img
+              class="wizcoach-mascot-light"
+              src="wizcoach-mascot-whitebackground.png"
+              alt=""
+              width="36"
+              height="36"
+              decoding="async"
+      />
+      <img
+              class="wizcoach-mascot-dark"
+              src="wizcoach-mascot.png"
+              alt=""
+              aria-hidden="true"
+              width="36"
+              height="36"
+              decoding="async"
+      />
     </div>
     <span class="nav-logo-name">WizCoach</span>
   </a>
+
   <div class="nav-links">
     <a href="dashboard.html" class="nav-link">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
       Dashboard
     </a>
+
     <a href="motion.html" class="nav-link">
-      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <svg viewBox="0 0 24 24">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </svg>
       Motion
     </a>
+
     <a href="nutrition.html" class="nav-link">
-      <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+      </svg>
       Nutrition
     </a>
-      <!--
+
+    <!--
     <a href="body.html" class="nav-link">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
       Body
     </a>
-      -->
+    -->
+
     <a href="ai-coach.html" class="nav-link">
-      <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="8" width="18" height="12" rx="3" />
+        <path d="M12 8V4" />
+        <circle cx="8" cy="14" r="1.5" fill="currentColor" />
+        <circle cx="16" cy="14" r="1.5" fill="currentColor" />
+      </svg>
       AI Coach
     </a>
+
+    <a
+            href="profile.html"
+            class="nav-avatar"
+            style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 1px solid var(--border);"
+    >
+      <span id="navAvatarText" style="display:none;">U</span>
+      <img
+              id="navAvatarImg"
+              src="default-profile-picture.png"
+              style="display:block; width:100%; height:100%; object-fit:cover;"
+              alt="Profile avatar"
+      />
+    </a>
+
+    <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign Out
+    </button>
   </div>
 </nav>
 
@@ -1040,9 +1178,12 @@
       <div class="calorie-row">
         <div class="calorie-val"><span id="wizCaloriesTotal">0</span> kcal</div>
         <div class="weight-input" title="Used for calorie estimation only">
-          <label for="wizWeightKg">Weight</label>
-          <input id="wizWeightKg" type="number" min="30" max="250" step="1" value="70" inputmode="numeric" />
-          <span style="font-size:0.78rem;color:var(--muted);font-weight:700;">kg</span>
+          <label for="wizWeightInput">Weight</label>
+          <input id="wizWeightInput" type="number" min="30" max="250" step="1" value="70" inputmode="numeric" />
+          <select id="wizWeightUnit" aria-label="Weight unit">
+            <option value="kg">kg</option>
+            <option value="lb">lb</option>
+          </select>
         </div>
       </div>
       <div class="calorie-sub" id="wizCaloriesSub">
@@ -1083,6 +1224,20 @@
   document.querySelectorAll('.nav-link').forEach(link => {
     link.classList.toggle('active', link.href === window.location.href);
   });
+
+  /* SIGN OUT */
+  async function handleSignOut() {
+    localStorage.removeItem('wizcoach-avatar');
+    stopCamera(); // turns off webcam light before navigating away
+    try {
+      if (firebase.apps.length) {
+        await firebase.auth().signOut();
+      }
+    } catch (err) {
+      console.warn('Sign out error:', err);
+    }
+    window.location.href = 'login.html';
+  }
 
   // ── Firebase Auth helpers (same pattern as dashboard) ───────
   async function getAuthToken() {
@@ -1200,8 +1355,10 @@
   // We approximate time-per-rep for each exercise.
   // ─────────────────────────────────────────────
   let userWeightKg = 70;
+  /** Display-only preference: 'kg' or 'lb'. Internally we store and persist kg. */
+  let userWeightUnit = 'kg';
   let sessionCalories = 0;
-  let wizCaloriesTotalEl, wizCaloriesSubEl, wizWeightKgInput;
+  let wizCaloriesTotalEl, wizCaloriesSubEl, wizWeightInput, wizWeightUnitSelect;
   const perExerciseCalories = {
     squat: 0,
     pushup: 0,
@@ -1340,6 +1497,51 @@
     return Math.max(min, Math.min(max, v));
   }
 
+  const KG_PER_LB = 0.45359237;
+  function lbToKg(lb) {
+    return Number(lb) * KG_PER_LB;
+  }
+  function kgToLb(kg) {
+    return Number(kg) / KG_PER_LB;
+  }
+
+  function loadWeightUnit() {
+    const raw = localStorage.getItem('wiz_weight_unit');
+    userWeightUnit = raw === 'lb' ? 'lb' : 'kg';
+  }
+
+  function setWeightUnit(nextUnit) {
+    const unit = nextUnit === 'lb' ? 'lb' : 'kg';
+    userWeightUnit = unit;
+    localStorage.setItem('wiz_weight_unit', unit);
+    if (wizWeightUnitSelect) wizWeightUnitSelect.value = unit;
+    syncWeightInputFromKg();
+    updateCaloriesUI();
+  }
+
+  function syncWeightInputConstraints() {
+    if (!wizWeightInput) return;
+    if (userWeightUnit === 'lb') {
+      wizWeightInput.min = '66';
+      wizWeightInput.max = '550';
+      wizWeightInput.step = '1';
+    } else {
+      wizWeightInput.min = '30';
+      wizWeightInput.max = '250';
+      wizWeightInput.step = '1';
+    }
+  }
+
+  function syncWeightInputFromKg() {
+    if (!wizWeightInput) return;
+    syncWeightInputConstraints();
+    if (userWeightUnit === 'lb') {
+      wizWeightInput.value = String(Math.round(kgToLb(userWeightKg)));
+    } else {
+      wizWeightInput.value = String(Math.round(userWeightKg));
+    }
+  }
+
   function loadWeightKg() {
     const raw = localStorage.getItem('wiz_weight_kg');
     const parsed = raw ? Number(raw) : Number.NaN;
@@ -1355,7 +1557,7 @@
     if (!Number.isFinite(v)) return;
     userWeightKg = v;
     localStorage.setItem('wiz_weight_kg', String(v));
-    if (wizWeightKgInput) wizWeightKgInput.value = String(v);
+    syncWeightInputFromKg();
     updateCaloriesUI();
   }
 
@@ -1375,8 +1577,14 @@
   function updateCaloriesUI() {
     if (wizCaloriesTotalEl) wizCaloriesTotalEl.textContent = formatKcal(sessionCalories);
     if (wizCaloriesSubEl) {
-      wizCaloriesSubEl.textContent =
-        `Based on ~${userWeightKg}kg body weight. Estimates change with intensity/tempo.`;
+      if (userWeightUnit === 'lb') {
+        const lb = Math.round(kgToLb(userWeightKg));
+        wizCaloriesSubEl.textContent =
+          `Based on ~${lb}lb body weight. Estimates change with intensity/tempo.`;
+      } else {
+        wizCaloriesSubEl.textContent =
+          `Based on ~${Math.round(userWeightKg)}kg body weight. Estimates change with intensity/tempo.`;
+      }
     }
   }
 
@@ -2707,6 +2915,17 @@
   });
 
   document.addEventListener('DOMContentLoaded', () => {
+    const savedAvatar = localStorage.getItem('wizcoach-avatar');
+    if (savedAvatar) {
+        const img = document.getElementById('navAvatarImg');
+        const txt = document.getElementById('navAvatarText');
+        if (img && txt) {
+            img.src = savedAvatar;
+            img.style.display = 'block';
+            txt.style.display = 'none';
+        }
+    }
+
     wizVideo = document.getElementById('wizVideo');
     wizCanvas = document.getElementById('wizCanvas');
     wizMiniSkeleton = document.getElementById('wizMiniSkeleton');
@@ -2735,13 +2954,29 @@
 
     wizCaloriesTotalEl = document.getElementById('wizCaloriesTotal');
     wizCaloriesSubEl = document.getElementById('wizCaloriesSub');
-    wizWeightKgInput = document.getElementById('wizWeightKg');
+    wizWeightInput = document.getElementById('wizWeightInput');
+    wizWeightUnitSelect = document.getElementById('wizWeightUnit');
     loadWeightKg();
-    if (wizWeightKgInput) {
-      wizWeightKgInput.value = String(userWeightKg);
-      wizWeightKgInput.addEventListener('change', (e) => {
-        const t = e && e.target ? e.target.value : '';
-        setWeightKg(t);
+    loadWeightUnit();
+    if (wizWeightUnitSelect) {
+      wizWeightUnitSelect.value = userWeightUnit;
+      wizWeightUnitSelect.addEventListener('change', (e) => {
+        const u = e && e.target ? e.target.value : 'kg';
+        setWeightUnit(u);
+      });
+    }
+    syncWeightInputFromKg();
+    if (wizWeightInput) {
+      wizWeightInput.addEventListener('change', (e) => {
+        const raw = e && e.target ? e.target.value : '';
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed)) return;
+        if (userWeightUnit === 'lb') {
+          const kg = lbToKg(clampNumber(parsed, 66, 550));
+          setWeightKg(kg);
+        } else {
+          setWeightKg(parsed);
+        }
       });
     }
     updateCaloriesUI();

@@ -18,9 +18,9 @@
     /* NEW: shared hover backgrounds */
     --nav-hover-bg: #f3f4f6;
 
-    /* WizCoach mascot frame */
-    --wizcoach-mark-bg: #ffffff;
-    --wizcoach-mark-border: rgba(26, 26, 46, 0.1);
+    /* WizCoach mascot frame (purple, matches AI Coach page) */
+    --wizcoach-mark-bg: linear-gradient(135deg, var(--purple), #9b6bfd);
+    --wizcoach-mark-border: rgba(124, 92, 252, 0.28);
 }
 
 /* DARK THEME */
@@ -37,8 +37,8 @@
 
     --nav-hover-bg: rgba(148,163,184,0.12);
 
-    --wizcoach-mark-bg: #000000;
-    --wizcoach-mark-border: rgba(255, 255, 255, 0.14);
+    --wizcoach-mark-bg: linear-gradient(135deg, var(--purple), #9b6bfd);
+    --wizcoach-mark-border: rgba(124, 92, 252, 0.35);
 }
 
 /* global styles that use the variables */
