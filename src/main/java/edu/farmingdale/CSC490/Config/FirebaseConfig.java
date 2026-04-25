@@ -5,6 +5,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -31,7 +32,7 @@ public class FirebaseConfig {
      * </ol>
      */
     @Bean
-    public Firestore firestore() throws IOException {
+    public FirebaseApp firebaseApp() throws IOException {
         GoogleCredentials credentials = loadCredentials();
 
         FirebaseOptions options = FirebaseOptions.builder()
@@ -39,9 +40,20 @@ public class FirebaseConfig {
                 .build();
 
         if (FirebaseApp.getApps().isEmpty()) {
-            FirebaseApp.initializeApp(options);
+            return FirebaseApp.initializeApp(options);
         }
 
+        return FirebaseApp.getInstance();
+    }
+
+    /**
+     * Firestore needs an initialized FirebaseApp.
+     * Having FirebaseApp as a bean ensures token verification works even if it happens
+     * before any Firestore repository is touched.
+     */
+    @Bean
+    @DependsOn("firebaseApp")
+    public Firestore firestore() {
         return FirestoreClient.getFirestore();
     }
 
