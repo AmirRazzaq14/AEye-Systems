@@ -293,8 +293,8 @@
             AI Coach
         </a>
         <a href="profile.html" class="nav-avatar" style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--purple);">
-            <span id="navAvatarText">U</span>
-            <img id="navAvatarImg" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+            <span id="navAvatarText" style="display:none;">U</span>
+            <img id="navAvatarImg" src="default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
         </a>
 
         <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
@@ -311,8 +311,8 @@
 <div class="page">
     <div class="profile-card">
         <div class="profile-avatar" id="avatarWrap" onclick="document.getElementById('avatarUpload').click()">
-            <span id="avatarText">U</span>
-            <img id="avatarImg" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+            <span id="avatarText" style="display:none;">U</span>
+            <img id="avatarImg" src="default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
             <div class="avatar-overlay">
                 <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
             </div>
@@ -419,8 +419,8 @@
                         if (navImg && navTxt) { navImg.src = p.profilePicture; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
                         localStorage.setItem('wizcoach-avatar', p.profilePicture);
                     } else {
-                        if (mainImg && mainTxt) { mainImg.style.display = 'none'; mainTxt.style.display = 'flex'; }
-                        if (navImg && navTxt) { navImg.style.display = 'none'; navTxt.style.display = 'flex'; }
+                        if (mainImg && mainTxt) { mainImg.src = 'default-profile-picture.png'; mainImg.style.display = 'block'; mainTxt.style.display = 'none'; }
+                        if (navImg && navTxt) { navImg.src = 'default-profile-picture.png'; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
                         localStorage.removeItem('wizcoach-avatar');
                     }
 
