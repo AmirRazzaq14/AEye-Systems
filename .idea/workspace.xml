@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dc3755f1-1eef-43ea-b438-dd5ee9ee0426" name="Changes" comment="Recipe Recommendations Based on Remaining Calorie Budget">
-      <change afterPath="$PROJECT_DIR$/src/main/resources/static/default-profile-picture.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/ai-coach.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/ai-coach.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/body.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/body.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/motion.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/motion.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/nutrition.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/profile-setup.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/profile-setup.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/profile.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -26,7 +21,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="zuxin-new" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -53,6 +48,7 @@
   &quot;fromUser&quot;: false
 }</component>
   <component name="ProjectId" id="3CjCL9kbJu0Z7T4dVsgL8IqvAU4" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -77,7 +73,7 @@
     "Spring Boot.AEyeSystemsApplication.executor": "Run",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "Jaspreet",
+    "git-widget-placeholder": "main",
     "git.auto.fetch.suggestion.counter": "3",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",

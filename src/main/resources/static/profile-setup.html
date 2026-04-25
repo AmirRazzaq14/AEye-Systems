@@ -96,6 +96,8 @@
 
         select option { background: var(--card-bg); color: var(--text); }
 
+        
+
         .btn-submit {
             width: 100%; padding: 0.875rem; border: none; border-radius: 12px;
             background: linear-gradient(135deg, var(--purple) 0%, #9b6bfd 100%);
@@ -164,6 +166,13 @@
                 </div>
             </div>
         </div>
+
+        <div style="margin-bottom:0.5rem;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label for="valCalories">Calorie Goal(kcal)</label>
+                <input type="number" id="valCalories" placeholder="e.g. 2000" min="0" required>
+            </div>
+        </div>
         
         <p class="error-msg" id="form-error">Please fill out all fields correctly.</p>
 
@@ -200,8 +209,9 @@
         const weight = document.getElementById('weight').value;
         const ft = document.getElementById('heightFt').value;
         const inc = document.getElementById('heightIn').value;
+        const valCalories = document.getElementById('valCalories').value;
 
-        if (!age || !gender || !weight || !ft || inc === '') {
+        if (!age || !gender || !weight || !ft || inc === '' || !valCalories) {
             document.getElementById('form-error').classList.add('show');
             return;
         }
@@ -226,7 +236,8 @@
                 age: parseInt(age, 10),
                 gender: gender,
                 weight: parseFloat(weight),
-                height: parseFloat(totalInches)
+                height: parseFloat(totalInches),
+                calorieGoal: parseInt(valCalories, 10)
             };
 
             const response = await fetch('/api/auth/profile', {
