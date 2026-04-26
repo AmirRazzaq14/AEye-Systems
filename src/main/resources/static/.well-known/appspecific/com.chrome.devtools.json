@@ -1,0 +1,24 @@
+{
+  "workspace": {
+    "path": "E:\\Code\\AEye-Systems",
+    "files": {
+      "nutrition.html": {
+        "path": "src\\main\\resources\\static\\nutrition.html",
+        "description": "Nutrition page HTML file",
+        "default": true
+      }
+    },
+    "settings": {
+      "auto-reload": true,
+      "debug": false
+    }
+  },
+  "chrome-devtools": {
+    "workspace": {
+      "path": "E:\\Code\\AEye-Systems\\src\\main\\resources\\static",
+      "settings": {
+        "reloadOnSave": true
+      }
+    }
+  }
+}
