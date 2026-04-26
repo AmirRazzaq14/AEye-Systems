@@ -14,8 +14,8 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="../css/theme.css">
-  <script src="../js/theme.js" defer></script>
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="js/theme.js" defer></script>
   <title>WizCoach – Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -830,8 +830,8 @@ text-align: center;
 <nav>
   <a href="dashboard.html" class="nav-logo">
     <div class="nav-logo-icon">
-      <img class="wizcoach-mascot-light" src="../images/wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
-      <img class="wizcoach-mascot-dark" src="../images/wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
+      <img class="wizcoach-mascot-light" src="images/wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
+      <img class="wizcoach-mascot-dark" src="images/wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
     </div>
     <span class="nav-logo-name">WizCoach</span>
   </a>
@@ -852,10 +852,10 @@ text-align: center;
       <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
       AI Coach
     </a>
-<a href="profile.html" class="nav-avatar" style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 1px solid var(--border);">
-  <span id="navAvatarText" style="display:none;">U</span>
-  <img id="navAvatarImg" src="../images/default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
-</a>
+    <a href="profile.html" class="nav-avatar" style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 1px solid var(--border);">
+      <span id="navAvatarText" style="display:none;">U</span>
+      <img id="navAvatarImg" src="images/default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
+    </a>
 
     <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
       <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
@@ -1242,7 +1242,7 @@ text-align: center;
                 } else {
                   localStorage.removeItem('wizcoach-avatar');
                   if (img && txt) {
-                    img.src = 'default-profile-picture.png';
+                    img.src = 'images/default-profile-picture.png';
                     img.style.display = 'block';
                     txt.style.display = 'none';
                   }

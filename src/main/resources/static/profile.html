@@ -15,8 +15,8 @@
             } catch (e) {}
         })();
     </script>
-    <link rel="stylesheet" href="../css/theme.css">
-    <script src="../js/theme.js" defer></script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
     <title>WizCoach – Profile</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -292,9 +292,9 @@
             <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
             AI Coach
         </a>
-        <a href="profile.html" class="nav-avatar" style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--purple);">
+        <a href="profile.html" class="nav-avatar" style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 1px solid var(--border);">
             <span id="navAvatarText" style="display:none;">U</span>
-            <img id="navAvatarImg" src="../images/default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
+            <img id="navAvatarImg" src="images/default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
         </a>
 
         <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
@@ -312,7 +312,7 @@
     <div class="profile-card">
         <div class="profile-avatar" id="avatarWrap" onclick="document.getElementById('avatarUpload').click()">
             <span id="avatarText" style="display:none;">U</span>
-            <img id="avatarImg" src="../images/default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
+            <img id="avatarImg" src="images/default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;" alt="Profile Picture">
             <div class="avatar-overlay">
                 <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
             </div>
@@ -419,8 +419,8 @@
                         if (navImg && navTxt) { navImg.src = p.profilePicture; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
                         localStorage.setItem('wizcoach-avatar', p.profilePicture);
                     } else {
-                        if (mainImg && mainTxt) { mainImg.src = 'default-profile-picture.png'; mainImg.style.display = 'block'; mainTxt.style.display = 'none'; }
-                        if (navImg && navTxt) { navImg.src = 'default-profile-picture.png'; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
+                        if (mainImg && mainTxt) { mainImg.src = 'images/default-profile-picture.png'; mainImg.style.display = 'block'; mainTxt.style.display = 'none'; }
+                        if (navImg && navTxt) { navImg.src = 'images/default-profile-picture.png'; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
                         localStorage.removeItem('wizcoach-avatar');
                     }
 
