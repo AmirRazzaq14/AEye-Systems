@@ -83,7 +83,10 @@ public class UserController {
         try {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
             userService.updateProfile(uid, updates);
-            nutritionLogService.updateCalorieGoal(uid, LocalDate.now().toString(), updates.get("calorieGoal").toString());
+            Object calorieGoal = updates.get("calorieGoal");
+            if (calorieGoal != null) {
+                nutritionLogService.updateCalorieGoal(uid, LocalDate.now().toString(), calorieGoal.toString());
+            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

@@ -70,7 +70,7 @@ public class NutritionCalculationService {
         return value != null ? value : 0.0;
     }
 
-    private double round(double value) {
-        return Math.round(value);
+    private int round(double value) {
+        return (int) Math.round(value);
     }
 }

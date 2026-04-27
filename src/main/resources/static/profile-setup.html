@@ -96,6 +96,8 @@
 
         select option { background: var(--card-bg); color: var(--text); }
 
+        
+
         .btn-submit {
             width: 100%; padding: 0.875rem; border: none; border-radius: 12px;
             background: linear-gradient(135deg, var(--purple) 0%, #9b6bfd 100%);
@@ -125,8 +127,8 @@
 <div class="card">
     <div class="card-header">
         <div class="logo-icon wizcoach-mark">
-            <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="56" height="56" decoding="async"/>
-            <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="56" height="56" decoding="async"/>
+            <img class="wizcoach-mascot-light" src="images/wizcoach-mascot-whitebackground.png" alt="" width="56" height="56" decoding="async"/>
+            <img class="wizcoach-mascot-dark" src="images/wizcoach-mascot.png" alt="" aria-hidden="true" width="56" height="56" decoding="async"/>
         </div>
         <h2 class="card-title">Setup Your Profile</h2>
         <p class="card-subtitle">Let's personalize your coaching experience</p>
@@ -162,6 +164,13 @@
                     <input type="number" id="heightFt" placeholder="Ft" min="1" max="8" required>
                     <input type="number" id="heightIn" placeholder="In" min="0" max="11" required>
                 </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:0.5rem;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label for="valCalories">Calorie Goal(kcal)</label>
+                <input type="number" id="valCalories" placeholder="e.g. 2000" min="0" required>
             </div>
         </div>
         
@@ -200,8 +209,9 @@
         const weight = document.getElementById('weight').value;
         const ft = document.getElementById('heightFt').value;
         const inc = document.getElementById('heightIn').value;
+        const valCalories = document.getElementById('valCalories').value;
 
-        if (!age || !gender || !weight || !ft || inc === '') {
+        if (!age || !gender || !weight || !ft || inc === '' || !valCalories) {
             document.getElementById('form-error').classList.add('show');
             return;
         }
@@ -226,7 +236,8 @@
                 age: parseInt(age, 10),
                 gender: gender,
                 weight: parseFloat(weight),
-                height: parseFloat(totalInches)
+                height: parseFloat(totalInches),
+                calorieGoal: parseInt(valCalories, 10)
             };
 
             const response = await fetch('/api/auth/profile', {
@@ -239,13 +250,24 @@
             });
 
             if (!response.ok) {
-                throw new Error("Failed to save profile");
+                let details = "";
+                try {
+                    const data = await response.json();
+                    if (data && (data.message || data.error)) {
+                        details = data.message || data.error;
+                    }
+                } catch (e) {
+                    try {
+                        details = await response.text();
+                    } catch (e2) {}
+                }
+                throw new Error(details || `Failed to save profile (${response.status})`);
             }
 
             window.location.href = 'dashboard.html';
 
         } catch (err) {
-            showToast("Error saving profile. Try again.");
+            showToast(err?.message ? `Error saving profile: ${err.message}` : "Error saving profile. Try again.");
             btn.disabled = false;
             btn.textContent = "Complete Setup";
         }
