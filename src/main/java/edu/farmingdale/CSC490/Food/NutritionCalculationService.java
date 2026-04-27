@@ -2,9 +2,11 @@ package edu.farmingdale.CSC490.Food;
 
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
 import edu.farmingdale.CSC490.Entity.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class NutritionCalculationService {
 
     public void calculateTotalNutrition(Nutrition_log log) {
@@ -16,16 +18,29 @@ public class NutritionCalculationService {
         double totalCals = 0, totalProtein = 0, totalCarb = 0, totalFat = 0;
 
         for (Nutrition_log.Meal meal : log.getMeals()) {
-            totalCals += getValue(Double.valueOf(meal.getCals()));
-            totalProtein += getValue(Double.valueOf(meal.getProtein()));
-            totalCarb += getValue(Double.valueOf(meal.getCarb()));
-            totalFat += getValue(Double.valueOf(meal.getFat()));
+            // Safely parse meal nutrition values with null checks
+            totalCals += parseMealValue(meal.getCals());
+            totalProtein += parseMealValue(meal.getProtein());
+            totalCarb += parseMealValue(meal.getCarb());
+            totalFat += parseMealValue(meal.getFat());
         }
 
         log.setTotalNutrition(new Nutrition_log.Nutrition(
                 String.valueOf(round(totalCals)), String.valueOf(round(totalProtein)),
                 String.valueOf(round(totalCarb)), String.valueOf(round(totalFat))
         ));
+    }
+
+    private double parseMealValue(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return 0.0;
+        }
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            log.warn("Invalid nutrition value: '{}', using 0", value);
+            return 0.0;
+        }
     }
 
     public void calculateTargetNutrition(Nutrition_log log, User user) {

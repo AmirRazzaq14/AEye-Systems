@@ -49,14 +49,19 @@ const NutritionUI = {
         document.getElementById('intakeValue').textContent = `${Math.round(intake)}`;
         document.getElementById('burnedValue').textContent = `${Math.round(burned)}`;
         
-        const targetCals = targetNutrition?.cals || 2000;
+        // Ensure targetNutrition has valid values with defaults
+        const targetCals = parseFloat(targetNutrition?.cals) || 2000;
+        const targetProtein = parseFloat(targetNutrition?.protein) || 150;
+        const targetCarb = parseFloat(targetNutrition?.carb) || 250;
+        const targetFat = parseFloat(targetNutrition?.fat) || 67;
+
         const netCals = intake - burned;
 
         // Update calorie ring
         const circumference = 2 * Math.PI * 62;
         const current = parseFloat(netCals);
-        const target = parseFloat(targetNutrition?.cals);
-        const percent = Math.min(current / target, 1);
+        const target = targetCals;
+        const percent = target > 0 ? Math.min(current / target, 1) : 0;
         const offset = circumference - (percent * circumference);
         document.getElementById('calorieRing').style.strokeDashoffset = offset;
         document.getElementById('calorieCurrent').textContent = Math.round(current);
@@ -66,21 +71,21 @@ const NutritionUI = {
         let ringColor = getComputedStyle(document.documentElement).getPropertyValue('--calorie-ring').trim();
         document.getElementById('calorieRing').style.stroke = ringColor;
 
-        // Update macros
+        // Update macros with safe target values
         const macros = [{
                 key: 'protein',
                 label: 'Protein',
-                target: targetNutrition?.protein
+                target: targetProtein
             },
             {
                 key: 'carb',
                 label: 'Carbs',
-                target: targetNutrition?.carb
+                target: targetCarb
             },
             {
                 key: 'fat',
                 label: 'Fat',
-                target: targetNutrition?.fat
+                target: targetFat
             }
         ];
 
@@ -89,8 +94,8 @@ const NutritionUI = {
             target
         }) => {
             const current = parseFloat(totalNutrition?.[key] || 0);
-            const percent = Math.min((current / target) * 100, 100);
-            document.getElementById(`${key}Text`).textContent = `${Math.round(current)} / ${target} g`;
+            const percent = target > 0 ? Math.min((current / target) * 100, 100) : 0;
+            document.getElementById(`${key}Text`).textContent = `${Math.round(current)} / ${Math.round(target)} g`;
             document.getElementById(`${key}Bar`).style.width = `${percent}%`;
 
             // Color change for macro bars based on progress
@@ -114,17 +119,25 @@ const NutritionUI = {
                 div.textContent = str;
                 return div.innerHTML;
             }
-            list.innerHTML = meals.map(m => `
+            list.innerHTML = meals.map(m => {
+                // Ensure all fields have default values to prevent undefined display
+                const name = m.name || 'Unknown Meal';
+                const cals = m.cals != null ? String(m.cals) : '0';
+                const protein = m.protein != null ? String(m.protein) : '0';
+                const carb = m.carb != null ? String(m.carb) : '0';
+                const fat = m.fat != null ? String(m.fat) : '0';
+
+                return `
                 <div class="food-item" data-id="${m.mealId}">
                     <div class="food-info">
                         <div class="food-emoji">🍽️</div>
                         <div class="food-details">
-                            <h4>${escape(m.name)}</h4>
+                            <h4>${escape(name)}</h4>
                             <div class="food-macros">
-                                <span>🔥 ${m.cals}kcal</span>
-                                <span>💪 ${m.protein}g</span>
-                                <span>🍞 ${m.carb}g</span>
-                                <span>🥑 ${m.fat}g</span>
+                                <span>🔥 ${cals}kcal</span>
+                                <span>💪 ${protein}g</span>
+                                <span>🍞 ${carb}g</span>
+                                <span>🥑 ${fat}g</span>
                             </div>
                         </div>
                     </div>
@@ -132,7 +145,7 @@ const NutritionUI = {
                         <button class="icon-btn delete" data-action="delete" title="Delete">🗑️</button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             document.getElementById('logSummary').style.display = 'flex';
             document.getElementById('logCountSpan').textContent = `Today ${meals.length} item${meals.length > 1 ? 's' : ''} - ${Math.round(totalNutrition?.cals || 0)} kcal`;
         }

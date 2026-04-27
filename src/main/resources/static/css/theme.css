@@ -194,3 +194,14 @@ a.nav-logo:hover .nav-logo-icon {
         flex: 0 0 auto;
     }
 }
+
+.btn-google {
+    width: 100%; padding: 0.875rem; border: 1.5px solid var(--border);
+    border-radius: 12px; background: var(--card-bg);
+    font-family: inherit; font-size: 0.95rem; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 0.75rem;
+    margin-bottom: 1rem; transition: background 0.2s, box-shadow 0.2s;
+    color: var(--text);
+}
+.btn-google:hover { background: var(--nav-hover-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }

@@ -233,12 +233,29 @@ nav {
     }
 
     .ai-suggestions {
+        display: flex;
+        align-items: center;
+        margin-top: 15px;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    .columns {
+        display: flex;
         flex-direction: column;
-        align-items: stretch;
     }
 
     .ai-logo.wizcoach-mark {
         align-self: center;
+        width: 60px;
+        height: 60px;
+    }
+
+    .ai-text-bubble {
+        min-height: auto;
+    }
+
+    #getSuggestionBtn {
+        width: 100%;
     }
 }
 
@@ -298,6 +315,20 @@ nav {
         width: 36px;
         height: 36px;
         font-size: 1rem;
+    }
+
+    .ai-suggestions {
+        gap: 10px;
+    }
+
+    .ai-logo.wizcoach-mark {
+        width: 50px;
+        height: 50px;
+    }
+
+    .ai-text-bubble {
+        padding: 12px 16px;
+        font-size: 13px;
     }
 }
 
@@ -722,6 +753,66 @@ nav {
     min-width: 0;
 }
 
+/* Manual Entry Form - Isolated styles to prevent nesting issues */
+.manual-entry .meals-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    background: var(--card-bg);
+    color: var(--text);
+    box-sizing: border-box;
+}
+
+.manual-entry .meals-input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.manual-entry .nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.manual-entry .nutrition-grid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.manual-entry .nutrition-grid > div span {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.manual-entry .nutrition-grid input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    background: var(--card-bg);
+    color: var(--text);
+    box-sizing: border-box;
+}
+
+.manual-entry .nutrition-grid input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.manual-entry #saveManualBtn {
+    margin-top: 8px;
+    align-self: flex;
+}
 
 .food-list {
     display: flex;
@@ -908,6 +999,7 @@ nav {
     align-items: center;
     margin-top: 15px;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .columns {
@@ -939,8 +1031,8 @@ nav {
     color: var(--text);
     word-wrap: break-word;
     overflow-wrap: break-word;
+    min-width: 200px;
 }
-
 
 /* separate theme toggle */
 .theme-btn {
