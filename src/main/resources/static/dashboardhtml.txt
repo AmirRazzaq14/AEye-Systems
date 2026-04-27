@@ -3,19 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light dark">
-  <script>
-    (function () {
-      try {
-        const saved = localStorage.getItem('wizcoach-theme');
-        if (saved) {
-          document.documentElement.setAttribute('data-theme', saved);
-        }
-      } catch (e) {}
-    })();
-  </script>
-  <link rel="stylesheet" href="css/theme.css">
-  <script src="js/theme.js" defer></script>
   <title>WizCoach – Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -45,6 +32,10 @@
       --purple: #7c5cfc;
       --purple-light: #a78bfa;
       --blue: #3b82f6;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --card-bg: #ffffff;
       --green: #22c55e;
       --green-light: #dcfce7;
       --green-dark: #15803d;
@@ -55,20 +46,25 @@
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background: var(--page-bg);
-      min-height: 100vh;
-      color: var(--text);
+      background: linear-gradient(135deg, #e8ecf5 0%, #f0eeff 50%, #e8f0ff 100%);
+      min-height: 100vh; color: var(--text);
     }
 
     nav {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem; height: 60px;
-      background: var(--nav-bg);
+      padding: 0 2rem; height: 60px; background: white;
       border-bottom: 1px solid var(--border);
       box-shadow: 0 1px 8px rgba(0,0,0,0.05);
       position: sticky; top: 0; z-index: 100;
     }
     .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-light));
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 8px rgba(124,92,252,0.3);
+    }
+    .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
     .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
     .nav-links { display: flex; align-items: center; gap: 0.25rem; }
     .nav-link {
@@ -78,7 +74,7 @@
       text-decoration: none; border: none; background: none; cursor: pointer;
       transition: color 0.15s, background 0.15s;
     }
-    .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
+    .nav-link:hover { color: var(--text); background: #f3f4f6; }
     .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
     .nav-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -95,9 +91,7 @@
 
     .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; align-items: stretch; }
     a.stat-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 18px;
+      background: var(--card-bg); border-radius: 18px;
       padding: 1.25rem 1.5rem 1.4rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
       display: flex; flex-direction: column; gap: 0.5rem;
@@ -127,11 +121,7 @@
 
     .toggle-pill {
       display: flex; align-items: center;
-      background: var(--input-bg);
-      border-radius: 10px;
-      padding: 3px;
-      gap: 2px;
-      border: 1px solid var(--border);
+      background: #f3f4f6; border-radius: 10px; padding: 3px; gap: 2px;
     }
     .toggle-pill button {
       padding: 0.32rem 0.85rem; border-radius: 8px; border: none;
@@ -140,8 +130,7 @@
       background: transparent; transition: background 0.15s, color 0.15s;
     }
     .toggle-pill button.active {
-      background: var(--card-bg);
-      color: var(--text);
+      background: white; color: var(--text);
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
@@ -159,7 +148,7 @@
     .legend-missed       { background: var(--red-light);   border: 1.5px solid #fca5a5; }
     .legend-today        { background: var(--blue);        border: 1.5px solid var(--blue); }
     .legend-both         { background: var(--green-light); border: 1.5px solid #86efac; }
-    .legend-one          { background: var(--card-bg);      border: 1.5px solid var(--border); }
+    .legend-one          { background: #ffffff;            border: 1.5px solid #d1d5db; }
     .legend-missed-merge { background: var(--red-light);   border: 1.5px solid #fca5a5; }
 
     /* ── Two-calendar layout ── */
@@ -167,9 +156,7 @@
     .charts-row.merged { grid-template-columns: 1fr; }
 
     .log-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 18px;
+      background: var(--card-bg); border-radius: 18px;
       padding: 1.2rem 1.3rem 1.1rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
       display: flex; flex-direction: column; height: 290px;
@@ -185,8 +172,7 @@
     .cal-month-label { font-size: 0.8rem; font-weight: 700; color: var(--text); }
     .cal-nav-btn {
       width: 22px; height: 22px; border-radius: 6px; border: none;
-      background: var(--nav-hover-bg);
-      cursor: pointer;
+      background: #f3f4f6; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       color: var(--muted); transition: background 0.15s, color 0.15s;
     }
@@ -235,8 +221,8 @@
     .cal-day-today.cal-day-both { background: var(--green); color: white; }
 
     /* one logged (either ex or nut) = white/light with subtle border */
-    .cal-day-one { background: var(--card-bg); color: var(--text); font-weight: 600; border: 1.5px solid var(--border); }
-    .cal-day-one:hover { background: var(--input-bg); transform: scale(1.05); }
+    .cal-day-one { background: #ffffff; color: var(--text); font-weight: 600; border: 1.5px solid #e5e7eb; }
+    .cal-day-one:hover { background: #f9fafb; transform: scale(1.05); }
     .cal-day-today.cal-day-one { background: var(--blue); color: white; border-color: var(--blue); }
 
     /* ── Loading / modals (unchanged) ── */
@@ -265,7 +251,7 @@
     }
 
     .modal {
-      background: var(--card-bg); border-radius: 20px; padding: 1.75rem;
+      background: white; border-radius: 20px; padding: 1.75rem;
       width: 340px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       animation: popIn 0.22s ease both;
     }
@@ -281,18 +267,18 @@
     .modal-field input, .modal-field textarea {
       width: 100%; padding: 0.55rem 0.8rem; border: 1.5px solid var(--border);
       border-radius: 10px; font-size: 0.87rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: var(--input-bg); outline: none; transition: border-color 0.15s;
+      color: var(--text); background: #f9fafb; outline: none; transition: border-color 0.15s;
       resize: none;
     }
-    .modal-field input:focus, .modal-field textarea:focus { border-color: var(--blue); background: var(--card-bg); }
+    .modal-field input:focus, .modal-field textarea:focus { border-color: var(--blue); background: white; }
     .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
     .modal-actions { display: flex; gap: 0.7rem; margin-top: 1.2rem; }
     .btn-cancel {
       flex: 1; padding: 0.62rem; border-radius: 10px; border: 1.5px solid var(--border);
-      background: var(--card-bg); font-size: 0.87rem; font-weight: 600; cursor: pointer;
+      background: white; font-size: 0.87rem; font-weight: 600; cursor: pointer;
       font-family: 'DM Sans', sans-serif; color: var(--muted); transition: background 0.15s;
     }
-    .btn-cancel:hover { background: var(--nav-hover-bg); }
+    .btn-cancel:hover { background: #f3f4f6; }
     .btn-save {
       flex: 1; padding: 0.62rem; border-radius: 10px; border: none;
       font-size: 0.87rem; font-weight: 700; cursor: pointer;
@@ -303,7 +289,7 @@
     .btn-save-orange { background: #f97316; }
 
     .nut-modal {
-      background: var(--card-bg); border-radius: 20px; padding: 1.75rem;
+      background: white; border-radius: 20px; padding: 1.75rem;
       width: 460px; max-width: 95vw;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       animation: popIn 0.22s ease both;
@@ -315,7 +301,7 @@
     .meal-entries { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.8rem; }
     .meal-entry {
       border: 1.5px solid var(--border); border-radius: 12px;
-      padding: 0.75rem 0.85rem; background: var(--input-bg);
+      padding: 0.75rem 0.85rem; background: #fafafa;
       position: relative; animation: popIn 0.18s ease both;
     }
     .meal-entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.55rem; }
@@ -330,7 +316,7 @@
     .meal-entry input {
       width: 100%; padding: 0.48rem 0.7rem; border: 1.5px solid var(--border);
       border-radius: 8px; font-size: 0.84rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: var(--card-bg); outline: none; transition: border-color 0.15s;
+      color: var(--text); background: white; outline: none; transition: border-color 0.15s;
       margin-bottom: 0.45rem;
     }
     .meal-entry input:last-child { margin-bottom: 0; }
@@ -353,10 +339,10 @@
     .nut-notes-field textarea {
       width: 100%; padding: 0.5rem 0.75rem; border: 1.5px solid var(--border);
       border-radius: 10px; font-size: 0.84rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: var(--input-bg); outline: none; resize: none;
+      color: var(--text); background: #f9fafb; outline: none; resize: none;
       transition: border-color 0.15s;
     }
-    .nut-notes-field textarea:focus { border-color: #f97316; background: var(--card-bg); }
+    .nut-notes-field textarea:focus { border-color: #f97316; background: white; }
 
     .view-popup {
       display: none; position: fixed; inset: 0;
@@ -365,7 +351,7 @@
     }
     .view-popup.open { display: flex; }
     .view-popup-inner {
-      background: var(--card-bg); border-radius: 20px; padding: 1.5rem;
+      background: white; border-radius: 20px; padding: 1.5rem;
       width: 360px; max-width: 95vw;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       animation: popIn 0.22s ease both;
@@ -383,7 +369,7 @@
     .view-no-details { font-size: 0.83rem; color: var(--muted); font-style: italic; padding: 0.3rem 0; }
     .view-meal-card {
       border: 1.5px solid var(--border); border-radius: 10px;
-      padding: 0.65rem 0.8rem; margin-bottom: 0.5rem; background: var(--input-bg);
+      padding: 0.65rem 0.8rem; margin-bottom: 0.5rem; background: #fafafa;
     }
     .view-meal-card:last-child { margin-bottom: 0; }
     .view-meal-name { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
@@ -406,14 +392,14 @@
     .btn-add-more:hover { background: #ffedd5; }
     .btn-close {
       flex: 1; padding: 0.58rem; border-radius: 10px; border: 1.5px solid var(--border);
-      background: var(--card-bg); font-size: 0.84rem; font-weight: 600; cursor: pointer;
+      background: white; font-size: 0.84rem; font-weight: 600; cursor: pointer;
       font-family: 'DM Sans', sans-serif; color: var(--muted); transition: background 0.15s;
     }
-    .btn-close:hover { background: var(--nav-hover-bg); }
+    .btn-close:hover { background: #f3f4f6; }
 
     /* ── Merged pick modal ── */
     .merge-pick-modal {
-      background: var(--card-bg); border-radius: 20px; padding: 1.75rem;
+      background: white; border-radius: 20px; padding: 1.75rem;
       width: 300px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       animation: popIn 0.22s ease both;
     }
@@ -422,21 +408,21 @@
     .merge-pick-btns { display: flex; flex-direction: column; gap: 0.6rem; }
     .merge-pick-btn {
       padding: 0.65rem 1rem; border-radius: 12px; border: 1.5px solid var(--border);
-      background: var(--input-bg); font-size: 0.88rem; font-weight: 600;
+      background: #f9fafb; font-size: 0.88rem; font-weight: 600;
       cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text);
       transition: background 0.15s, border-color 0.15s; text-align: left;
       display: flex; align-items: center; gap: 0.5rem;
     }
-    .merge-pick-btn:hover { background: var(--nav-hover-bg); border-color: #d1d5db; }
+    .merge-pick-btn:hover { background: #f3f4f6; border-color: #d1d5db; }
     .merge-pick-btn.btn-ex:hover  { background: #f0fdf4; border-color: #86efac; color: var(--green-dark); }
     .merge-pick-btn.btn-nut:hover { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
     .merge-pick-cancel {
       margin-top: 0.5rem; width: 100%; padding: 0.55rem;
       border-radius: 10px; border: 1.5px solid var(--border);
-      background: var(--card-bg); font-size: 0.84rem; font-weight: 600; cursor: pointer;
+      background: white; font-size: 0.84rem; font-weight: 600; cursor: pointer;
       font-family: 'DM Sans', sans-serif; color: var(--muted); transition: background 0.15s;
     }
-    .merge-pick-cancel:hover { background: var(--nav-hover-bg); }
+    .merge-pick-cancel:hover { background: #f3f4f6; }
     .merge-pick-edit {
       margin-left: auto; font-size: 0.72rem; font-weight: 500;
       color: #9ca3af; font-style: italic;
@@ -448,9 +434,7 @@
 
     /* ── Goals Card ── */
     .goals-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 18px;
+      background: var(--card-bg); border-radius: 18px;
       padding: 1.25rem 1.5rem 1.4rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
       display: flex; flex-direction: column; gap: 0.75rem;
@@ -465,7 +449,7 @@
     .goals-add-btn {
       display: flex; align-items: center; gap: 0.3rem;
       padding: 0.35rem 0.8rem; border-radius: 8px; border: 1.5px solid var(--border);
-      background: var(--card-bg); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      background: white; font-size: 0.78rem; font-weight: 600; cursor: pointer;
       font-family: 'DM Sans', sans-serif; color: var(--muted);
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
@@ -478,7 +462,7 @@
     .goal-item {
       display: flex; align-items: flex-start; gap: 0.65rem;
       padding: 0.75rem 0.9rem; border-radius: 12px;
-      border: 1.5px solid var(--border); background: var(--input-bg);
+      border: 1.5px solid var(--border); background: #fafafa;
       position: relative; animation: popIn 0.18s ease both;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
@@ -523,10 +507,10 @@
     .goal-icon-cardio   { background: #eff6ff; }
     .goal-icon-body     { background: #f0fdf4; }
     .goal-icon-habit    { background: #f5f3ff; }
-    .goal-icon-other    { background: var(--input-bg); }
+    .goal-icon-other    { background: #f9fafb; }
 
     /* ── Weekly Planner ── */
-    .planner-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; flex: 1; }
+    .planner-card { background: var(--card-bg); border-radius: 18px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; flex-direction: column; flex: 1; }
     .planner-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; }
     .planner-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; flex: 1; }
     .planner-day { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
@@ -547,36 +531,29 @@
     .split-select {
       width: 100%; padding: 0.4rem 0.5rem; border: 1.5px solid var(--border);
       border-radius: 8px; font-size: 0.72rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: var(--input-bg); outline: none;
+      color: var(--text); background: #f9fafb; outline: none;
       cursor: pointer; transition: border-color 0.15s;
       appearance: none; text-align: center;
     }
-    .split-select:focus { border-color: var(--blue); background: var(--card-bg); }
+    .split-select:focus { border-color: var(--blue); background: white; }
     .planner-exercises {
       width: 100%; padding: 0.4rem 0.5rem; border: 1.5px solid var(--border);
       border-radius: 8px; font-size: 0.72rem; font-family: 'DM Sans', sans-serif;
-      color: var(--text); background: var(--input-bg); outline: none; resize: none;
+      color: var(--text); background: #f9fafb; outline: none; resize: none;
       transition: border-color 0.15s; flex: 1; min-height: 80px;
     }
-    .planner-exercises:focus { border-color: var(--blue); background: var(--card-bg); }
+    .planner-exercises:focus { border-color: var(--blue); background: white; }
     .planner-exercises::placeholder { color: #9ca3af; font-size: 0.68rem; }
     .planner-field-label { font-size: 0.62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
 
     .help-btn {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
-      z-index: 999;
-      width: 40px; height: 40px;
-      background: var(--nav-bg);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 50%;
+      width: 40px; height: 40px; background: #1a1a2e; color: white; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 1rem; font-weight: 700; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: background 0.2s; text-decoration: none;
     }
-    .help-btn:hover { background: var(--purple); color: #fff; border-color: transparent; }
+    .help-btn:hover { background: var(--purple); }
 
     @media (max-width: 760px) {
       .stats-row { grid-template-columns: 1fr; }
@@ -598,8 +575,7 @@
 <nav>
   <a href="dashboard.html" class="nav-logo">
     <div class="nav-logo-icon">
-      <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
-      <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
     </div>
     <span class="nav-logo-name">WizCoach</span>
   </a>
@@ -616,33 +592,12 @@
       <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/></svg>
       Nutrition
     </a>
-
-
     <a href="ai-coach.html" class="nav-link">
       <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4"/><circle cx="8" cy="14" r="1.5" fill="currentColor"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
       AI Coach
     </a>
-
-    <a
-            href="profile.html"
-            class="nav-avatar"
-            style="margin-left: 0.5rem; width: 34px; height: 34px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; overflow: hidden; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; border: 1px solid var(--border);"
-    >
-      <span id="navAvatarText" style="display:none;">U</span>
-      <img
-              id="navAvatarImg"
-              src="images/default-profile-picture.png"
-              style="display:block; width:100%; height:100%; object-fit:cover;"
-              alt="Profile avatar"
-      />
-    </a>
-
-    <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
-      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
+    <button class="nav-link" onclick="signOut()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Sign Out
     </button>
   </div>
@@ -653,19 +608,17 @@
   <!-- STAT CARDS + GOALS -->
   <div class="stats-row">
     <a href="motion.html" class="stat-card">
-      <div class="stat-card" style="cursor:default;">
-        <div class="stat-top">
-          <div class="stat-icon icon-blue">
-            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </div>
-          <div style="display:flex;gap:3px;align-items:flex-end;height:28px;" id="miniChart"></div>
+      <div class="stat-top">
+        <div class="stat-icon icon-blue">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <div style="font-size:0.82rem;font-weight:600;color:var(--text);line-height:1.35;margin-top:0.25rem;" id="streakMsg">Loading…</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.25rem;">
-          <div class="stat-label">Activity trend</div>
-          <div id="streakBadge" style="font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:6px;"></div>
+        <div class="stat-delta">
+          <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          +12%
         </div>
       </div>
+      <div class="stat-value" id="statWorkouts">0</div>
+      <div class="stat-label">Workouts this week</div>
     </a>
     <a href="nutrition.html" class="stat-card">
       <div class="stat-top">
@@ -678,11 +631,7 @@
         </div>
       </div>
       <div class="stat-value" id="statCalories">0</div>
-      <div class="stat-label">Calories today</div>
-      <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:0.5rem;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        <span style="font-size:0.78rem;color:var(--muted);"><span id="statWorkouts" style="font-weight:700;color:var(--text);">0</span> workouts this week</span>
-      </div>
+      <div class="stat-label">Calories logged today</div>
     </a>
 
     <!-- GOALS inside stat row -->
@@ -792,7 +741,6 @@
   </div>
 </div>
 
-<button type="button" onclick="toggleTheme()" class="theme-btn" title="Toggle dark mode">🌓</button>
 <a href="#" class="help-btn">?</a>
 
 <!-- EXERCISE ADD MODAL -->
@@ -886,7 +834,7 @@
 
 <script>
   // ── Sign Out ──────────────────────────────────────────────
-  async function handleSignOut() {
+  async function signOut() {
     const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
     days.forEach(day => {
       localStorage.removeItem(`planner_split_${day}`);
@@ -1563,74 +1511,12 @@
       if (logs.ex[fmtKey(d)]) weekCount++;
     }
     document.getElementById('statWorkouts').textContent = weekCount;
-
     const todayNut = logs.nut[todayKey];
+    // Prefer server-calculated totalNutrition, fall back to manual sum for old logs
     const todayCals = todayNut?.totalNutrition?.cals
             ? parseInt(todayNut.totalNutrition.cals)
             : (todayNut?.meals || []).reduce((sum, m) => sum + (parseInt(m.cals) || 0), 0);
     document.getElementById('statCalories').textContent = todayCals.toLocaleString();
-
-    // ── Trend tracker ─────────────────────────────────
-    const DAYS_SHORT = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-    const last7 = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now); d.setDate(now.getDate() - i);
-      last7.push({ key: fmtKey(d), label: DAYS_SHORT[d.getDay()], isToday: i === 0 });
-    }
-
-    // mini bar chart
-    const chart = document.getElementById('miniChart');
-    if (chart) {
-      chart.innerHTML = '';
-      last7.forEach(day => {
-        const logged = !!logs.ex[day.key];
-        const past   = day.key < todayKey;
-        const bar = document.createElement('div');
-        bar.style.cssText = `width:8px;border-radius:3px;align-self:flex-end;`;
-        if (logged)      { bar.style.background = '#22c55e'; bar.style.height = '22px'; }
-        else if (past)   { bar.style.background = '#fca5a5'; bar.style.height = '8px';  }
-        else             { bar.style.background = 'var(--border)'; bar.style.height = '4px'; }
-        chart.appendChild(bar);
-      });
-    }
-
-    // streak calculation
-    let streak = 0, missedStreak = 0;
-    for (let i = last7.length - 1; i >= 0; i--) {
-      const day = last7[i];
-      if (day.key > todayKey) continue;
-      if (logs.ex[day.key]) { if (missedStreak === 0) streak++; else break; }
-      else                  { if (streak === 0) missedStreak++; else break; }
-    }
-
-    const msgEl  = document.getElementById('streakMsg');
-    const badge  = document.getElementById('streakBadge');
-    if (!msgEl || !badge) return;
-
-    if (streak >= 5) {
-      msgEl.textContent = `You're on fire — ${streak} days in a row! Keep it up!`;
-      badge.textContent = `${streak}-day streak`;
-      badge.style.background = 'var(--green-light)'; badge.style.color = 'var(--green-dark)';
-    } else if (streak >= 2) {
-      msgEl.textContent = `Good work — you've been consistently active for ${streak} days.`;
-      badge.textContent = `${streak}-day streak`;
-      badge.style.background = '#eff6ff'; badge.style.color = '#1d4ed8';
-    } else if (streak === 1) {
-      msgEl.textContent = `Great start! Keep the momentum going.`;
-      badge.textContent = `Active today`;
-      badge.style.background = '#eff6ff'; badge.style.color = '#1d4ed8';
-    } else if (missedStreak >= 5) {
-      msgEl.textContent = `You've missed ${missedStreak} days. Let's get back on track today.`;
-      badge.textContent = `${missedStreak}-day gap`;
-      badge.style.background = 'var(--red-light)'; badge.style.color = 'var(--red-dark)';
-    } else if (missedStreak >= 2) {
-      msgEl.textContent = `Stay focused — ${missedStreak} days since your last workout.`;
-      badge.textContent = `${missedStreak} days missed`;
-      badge.style.background = '#fff7ed'; badge.style.color = '#c2410c';
-    } else {
-      msgEl.textContent = `Log your first workout to start tracking your streak.`;
-      badge.textContent = '';
-    }
   }
 
   // ── Goals ─────────────────────────────────────────────────
@@ -1642,7 +1528,10 @@
     { key: 'other',    label: 'Other',     icon: '🎯', cls: 'goal-icon-other'    },
   ];
 
-  const DEFAULT_GOALS = [];
+  const DEFAULT_GOALS = [
+    { id: 'g1', text: '200 lb bench press', category: 'strength' },
+    { id: 'g2', text: '7 minute mile',       category: 'cardio'   },
+  ];
 
   function loadGoals() {
     const saved = localStorage.getItem('wizcoach_goals');
