@@ -631,7 +631,7 @@
       <span id="navAvatarText" style="display:none;">U</span>
       <img
               id="navAvatarImg"
-              src="images/default-profile-picture.png"
+              src="default-profile-picture.png"
               style="display:block; width:100%; height:100%; object-fit:cover;"
               alt="Profile avatar"
       />
@@ -1413,7 +1413,7 @@
   }
 
   // ── Save nutrition ────────────────────────────────────────
-  async function saveNutLog() {
+   async function saveNutLog() {
     const key     = pendingKey.nut;
     const entries = document.querySelectorAll('.meal-entry');
     const meals   = [];
@@ -1424,25 +1424,48 @@
       const protein = document.getElementById(`mealProtein_${id}`)?.value.trim() || '';
       const carb    = document.getElementById(`mealCarb_${id}`)?.value.trim()    || '';
       const fat     = document.getElementById(`mealFat_${id}`)?.value.trim()     || '';
-      if (name || cals || protein || carb || fat) meals.push({ name, cals, protein, carb, fat });
+      if (name || cals || protein || carb || fat) {
+        meals.push({
+          mealId: `meal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          name,
+          cals,
+          protein,
+          carb,
+          fat
+        });
+      }
     });
     const notes = document.getElementById('nutDayNotes').value.trim();
     if (meals.length === 0 && !notes) { closeAddModal('nut'); return; }
-    const logData = { date: key, meals, notes };
+
     try {
+      // First, create or get the nutrition log for this date
+      const logData = {
+        date: key,
+        meals: meals,
+        notes: notes || ''
+      };
+
+      // Save the complete nutrition log
       await apiFetch('/api/nutrition-logs', 'POST', logData);
+
+      // Update local cache
       if (logs.nut[key]) {
         logs.nut[key].meals = [...(logs.nut[key].meals || []), ...meals];
         if (notes) logs.nut[key].notes = notes;
       } else {
         logs.nut[key] = logData;
       }
+
       closeAddModal('nut');
       renderAll();
       updateStats();
       // If in merged view, reopen pick modal so user can also log exercise
       if (calView === 'merged') openMergePickModal(key);
-    } catch (err) { console.error(err); alert('Failed to save. Please try again.'); }
+    } catch (err) {
+      console.error('Failed to save nutrition log:', err);
+      alert('Failed to save. Please try again.');
+    }
   }
 
   function addMoreMeals() {

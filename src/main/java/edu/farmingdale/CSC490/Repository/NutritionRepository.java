@@ -47,6 +47,17 @@ public class NutritionRepository {
     }
 
     public void save(String uid, Nutrition_log nutrition_log) throws Exception {
+        // Calculate total nutrition from meals before saving
+        if (nutrition_log.getMeals() != null && !nutrition_log.getMeals().isEmpty()) {
+            nutritionCalculationService.calculateTotalNutrition(nutrition_log);
+            log.info("Calculated total nutrition for date: {}", nutrition_log.getDate());
+        } else {
+            // Ensure totalNutrition exists even if no meals
+            if (nutrition_log.getTotalNutrition() == null) {
+                nutrition_log.setTotalNutrition(new Nutrition_log.Nutrition("0", "0", "0", "0"));
+            }
+        }
+
         nutrition_log.setUpdatedAt(Instant.now().toString()); // ← ISO-8601 format
         docRef(uid, nutrition_log.getDate()).set(nutrition_log).get();
         log.info("Nutrition log saved successfully for date {}", nutrition_log.getDate());
@@ -57,6 +68,44 @@ public class NutritionRepository {
         if (snap.exists()) {
             Nutrition_log nutrition_log = snap.toObject(Nutrition_log.class);
             assert nutrition_log != null;
+
+            // Ensure meals list is not null
+            if (nutrition_log.getMeals() == null) {
+                nutrition_log.setMeals(new ArrayList<>());
+            }
+
+            // Ensure totalNutrition is calculated if missing or invalid
+            if (nutrition_log.getTotalNutrition() == null) {
+                if (!nutrition_log.getMeals().isEmpty()) {
+                    nutritionCalculationService.calculateTotalNutrition(nutrition_log);
+                    // Update the stored data with calculated totals
+                    nutrition_log.setUpdatedAt(Instant.now().toString());
+                    docRef(uid, dateKey).set(nutrition_log).get();
+                    log.info("Recalculated total nutrition for existing log: {}", dateKey);
+                } else {
+                    nutrition_log.setTotalNutrition(new Nutrition_log.Nutrition("0", "0", "0", "0"));
+                }
+            }
+
+            // Ensure targetNutrition exists
+            if (nutrition_log.getTargetNutrition() == null) {
+                try {
+                    User user = userService.getUserById(uid);
+                    if (user != null && user.getCalorieGoal() != null && user.getCalorieGoal() > 0) {
+                        nutritionCalculationService.calculateTargetNutritionByGoal(nutrition_log, user.getCalorieGoal());
+                    } else {
+                        nutrition_log.setTargetNutrition(new Nutrition_log.Nutrition("2000", "150", "250", "67"));
+                    }
+                    // Update stored data
+                    nutrition_log.setUpdatedAt(Instant.now().toString());
+                    docRef(uid, dateKey).set(nutrition_log).get();
+                    log.info("Set target nutrition for existing log: {}", dateKey);
+                } catch (Exception e) {
+                    log.warn("Failed to set target nutrition, using defaults", e);
+                    nutrition_log.setTargetNutrition(new Nutrition_log.Nutrition("2000", "150", "250", "67"));
+                }
+            }
+
             log.info("Nutrition log exist on :{}", nutrition_log.getDate());
             return nutrition_log;
         }else {
@@ -64,7 +113,6 @@ public class NutritionRepository {
             Nutrition_log nutrition_log = new Nutrition_log();
             applyDefaultValues(uid,nutrition_log);
             return nutrition_log;
-
         }
     }
 
@@ -74,6 +122,32 @@ public class NutritionRepository {
         for (DocumentSnapshot d : colRef(uid).get().get().getDocuments()) {
             Nutrition_log log = d.toObject(Nutrition_log.class);
             if (log != null) {
+                // Ensure meals list is not null
+                if (log.getMeals() == null) {
+                    log.setMeals(new ArrayList<>());
+                }
+
+                // Ensure totalNutrition exists
+                if (log.getTotalNutrition() == null && !log.getMeals().isEmpty()) {
+                    nutritionCalculationService.calculateTotalNutrition(log);
+                } else if (log.getTotalNutrition() == null) {
+                    log.setTotalNutrition(new Nutrition_log.Nutrition("0", "0", "0", "0"));
+                }
+
+                // Ensure targetNutrition exists
+                if (log.getTargetNutrition() == null) {
+                    try {
+                        User user = userService.getUserById(uid);
+                        if (user != null && user.getCalorieGoal() != null && user.getCalorieGoal() > 0) {
+                            nutritionCalculationService.calculateTargetNutritionByGoal(log, user.getCalorieGoal());
+                        } else {
+                            log.setTargetNutrition(new Nutrition_log.Nutrition("2000", "150", "250", "67"));
+                        }
+                    } catch (Exception e) {
+                        log.setTargetNutrition(new Nutrition_log.Nutrition("2000", "150", "250", "67"));
+                    }
+                }
+
                 list.add(log);
             }
         }
@@ -89,13 +163,38 @@ public class NutritionRepository {
     public void saveMeal(String uid,  String dateKey, Nutrition_log.Meal meal) throws Exception {
         Nutrition_log existingLog = getByDate(uid, dateKey);
         if (existingLog != null) {
+            // Ensure meals list exists
+            if (existingLog.getMeals() == null) {
+                existingLog.setMeals(new ArrayList<>());
+            }
+            
+            // Ensure meal has valid ID
+            if (meal.getMealId() == null || meal.getMealId().isEmpty()) {
+                meal.setMealId("meal_" + System.currentTimeMillis() + "_" + Math.random());
+            }
+            
+            // Ensure meal nutrition fields have default values
+            if (meal.getCals() == null || meal.getCals().isEmpty()) meal.setCals("0");
+            if (meal.getProtein() == null || meal.getProtein().isEmpty()) meal.setProtein("0");
+            if (meal.getCarb() == null || meal.getCarb().isEmpty()) meal.setCarb("0");
+            if (meal.getFat() == null || meal.getFat().isEmpty()) meal.setFat("0");
+            if (meal.getName() == null || meal.getName().isEmpty()) meal.setName("Unknown Meal");
+            
+            // Ensure the log has a valid ID - use dateKey as fallback
+            if (existingLog.getId() == null || existingLog.getId().isEmpty()) {
+                existingLog.setId(dateKey);
+            }
+            
             existingLog.getMeals().add(meal);
             nutritionCalculationService.calculateTotalNutrition(existingLog);
             existingLog.setUpdatedAt(Instant.now().toString());
-            docRef(uid, existingLog.getId()).set(existingLog).get();
+            
+            // Use dateKey as document reference to ensure consistency
+            docRef(uid, dateKey).set(existingLog).get();
             log.info("Meal saved successfully for log {}", dateKey);
         }else {
-            log.error("Nutrition log not exist");
+            log.error("Nutrition log not exist for date: {}", dateKey);
+            throw new Exception("Nutrition log not found for date: " + dateKey);
         }
     }
 
@@ -194,8 +293,14 @@ public class NutritionRepository {
             log.setDate(LocalDate.now().toString());
             log.setMeals(new ArrayList<>());
             log.setTotalNutrition(new Nutrition_log.Nutrition("0","0","0","0"));
+            // Ensure targetNutrition is always set
             User user = userService.getUserById(uid);
-            nutritionCalculationService.calculateTargetNutritionByGoal(log, user.getCalorieGoal());
+            if (user != null && user.getCalorieGoal() != null && user.getCalorieGoal() > 0) {
+                nutritionCalculationService.calculateTargetNutritionByGoal(log, user.getCalorieGoal());
+            } else {
+                // Set default target nutrition if user has no calorie goal
+                log.setTargetNutrition(new Nutrition_log.Nutrition("2000", "150", "250", "67"));
+            }
             log.setNotes("");
             save(uid, log);
 

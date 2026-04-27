@@ -60,9 +60,26 @@ public class NutritionLogController {
 
         try {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
-
+            
+            // Ensure each meal has an ID and valid values
+            if (nutrition_log.getMeals() != null) {
+                nutrition_log.getMeals().forEach(meal -> {
+                    if (meal.getMealId() == null || meal.getMealId().isEmpty()) {
+                        meal.setMealId("meal_" + System.currentTimeMillis() + "_" + Math.random());
+                    }
+                    // Ensure nutritional values are strings and have defaults
+                    if (meal.getCals() == null || meal.getCals().isEmpty()) meal.setCals("0");
+                    if (meal.getProtein() == null || meal.getProtein().isEmpty()) meal.setProtein("0");
+                    if (meal.getCarb() == null || meal.getCarb().isEmpty()) meal.setCarb("0");
+                    if (meal.getFat() == null || meal.getFat().isEmpty()) meal.setFat("0");
+                });
+            }
+            
+            // Set the userId
+            nutrition_log.setUserId(uid);
+            
             service.saveLog(uid, nutrition_log);
-            log.info("Save nutrition log successfully");
+            log.info("Save nutrition log successfully for date: {}", nutrition_log.getDate());
             return ResponseEntity.ok("{\"message\":\"Saved\"}");
         } catch (Exception e) {
             log.error("Error save nutrition log: {}", e.getMessage());
@@ -156,18 +173,20 @@ public class NutritionLogController {
             return ResponseEntity.badRequest().body("{\"message\":\"Meal data is required\"}");
         }
 
-        if (meal.getMealId() == null) {
-            meal.setMealId("meals_" + System.currentTimeMillis());
-        }
-
         try {
             String uid = tokenFilter.verifyAndGetUid(authHeader);
+            
+            // Generate meal ID if not provided
+            if (meal.getMealId() == null || meal.getMealId().isEmpty()) {
+                meal.setMealId("meal_" + System.currentTimeMillis() + "_" + Math.random());
+            }
+            
             service.saveMeal(uid, date, meal);
             log.info("Successfully save Meal on {} with meal id {}", date, meal.getMealId());
             return ResponseEntity.ok().body("{\"message\":\"Saved\"}");
         } catch (Exception e) {
-            log.error("Error to save Meal on log {} : {}", date, e.getMessage());
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            log.error("Error to save Meal on log {} : {}", date, e.getMessage(), e);
+            return ResponseEntity.internalServerError().body("{\"message\":\"Failed to save meal: " + e.getMessage() + "\"}");
         }
     }
 
