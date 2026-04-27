@@ -37,8 +37,8 @@
 <nav>
     <a href="dashboard.html" class="nav-logo">
         <div class="nav-logo-icon">
-            <img class="wizcoach-mascot-light" src="images/wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
-            <img class="wizcoach-mascot-dark" src="images/wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
+            <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
+            <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
         </div>
         <span class="nav-logo-name">WizCoach</span>
     </a>
@@ -75,7 +75,7 @@
         </a>
             <a href="profile.html" class="nav-avatar">
             <span id="navAvatarText" style="display:none;">U</span>
-            <img id="navAvatarImg" src="images/default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
+            <img id="navAvatarImg" src="default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
         </a>
 
         <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
@@ -228,30 +228,23 @@
 
             <!-- Manual Add Form -->
             <div id="manualEntryForm" class="manual-entry hidden">
-                <div class="food-item">
-                    <div class="food-info">
-                        <div class="food-emoji">🍽️</div>
-                        <div class="food-details">
-                            <h4><input class="meals-input" type="text" id="foodName" placeholder="Food name"></h4>
-                            <div class="nutrition-grid">
-                                <div>
-                                    <span>🔥Cals(kcal)</span>
-                                    <input type="number" id="foodCals" placeholder="0" min="0">
-                                </div>
-                                <div>
-                                    <span>💪Protein(g)</span>
-                                    <input type="number" id="foodProtein" placeholder="0" min="0">
-                                </div>
-                                <div>
-                                    <span>🍞Carbs(g)</span>
-                                    <input type="number" id="foodCarb" placeholder="0" min="0">
-                                </div>
-                                <div>
-                                    <span>🥑Fat(g)</span>
-                                    <input type="number" id="foodFat" placeholder="0" min="0">
-                                </div>
-                            </div>
-                        </div>
+                <input class="meals-input" type="text" id="foodName" placeholder="Food name">
+                <div class="nutrition-grid">
+                    <div>
+                        <span>🔥Cals(kcal)</span>
+                        <input type="number" id="foodCals" placeholder="0" min="0">
+                    </div>
+                    <div>
+                        <span>💪Protein(g)</span>
+                        <input type="number" id="foodProtein" placeholder="0" min="0">
+                    </div>
+                    <div>
+                        <span>🍞Carbs(g)</span>
+                        <input type="number" id="foodCarb" placeholder="0" min="0">
+                    </div>
+                    <div>
+                        <span>🥑Fat(g)</span>
+                        <input type="number" id="foodFat" placeholder="0" min="0">
                     </div>
                 </div>
                 <button class="btn-primary" id="saveManualBtn">Add to Log</button>
@@ -265,8 +258,8 @@
             <div class="ai-suggestions">
                 <div class = "ai-suggestions columns">
                     <div class="ai-logo wizcoach-mark">
-                        <img class="wizcoach-mascot-light" src="images/wizcoach-mascot-whitebackground.png" alt="WizCoach mascot">
-                        <img class="wizcoach-mascot-dark" src="images/wizcoach-mascot.png" alt="" aria-hidden="true">
+                        <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="WizCoach mascot">
+                        <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true">
                     </div>
                     <button class="btn-primary" id="getSuggestionBtn" style="width: 90%; padding: 10px; gap: 10px;">Ask</button>
                 </div>
