@@ -271,7 +271,8 @@
 <nav>
     <a href="dashboard.html" class="nav-logo">
         <div class="nav-logo-icon">
-            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
+            <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
         </div>
         <span class="nav-logo-name">WizCoach</span>
     </a>
@@ -373,6 +374,7 @@
                 if (!user) {
                     window.location.href = 'login.html';
                 } else {
+                    if (typeof window.loadAvatar === 'function') window.loadAvatar(user);
                     await loadProfile(user);
                 }
             });
@@ -384,7 +386,7 @@
 
     /* SIGN OUT */
     async function handleSignOut() {
-        localStorage.removeItem('wizcoach-avatar');
+        // Avatar is user-scoped, no need to clear here
         try {
             if (firebase.apps.length) {
                 await firebase.auth().signOut();
@@ -417,11 +419,11 @@
                     if(p.profilePicture) {
                         if (mainImg && mainTxt) { mainImg.src = p.profilePicture; mainImg.style.display = 'block'; mainTxt.style.display = 'none'; }
                         if (navImg && navTxt) { navImg.src = p.profilePicture; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
-                        localStorage.setItem('wizcoach-avatar', p.profilePicture);
+                        localStorage.setItem('wizcoach-avatar-' + user.uid, p.profilePicture);
                     } else {
                         if (mainImg && mainTxt) { mainImg.src = 'default-profile-picture.png'; mainImg.style.display = 'block'; mainTxt.style.display = 'none'; }
                         if (navImg && navTxt) { navImg.src = 'default-profile-picture.png'; navImg.style.display = 'block'; navTxt.style.display = 'none'; }
-                        localStorage.removeItem('wizcoach-avatar');
+                        localStorage.removeItem('wizcoach-avatar-' + user.uid);
                     }
 
                     // Populate editable fields
@@ -475,10 +477,9 @@
                 const navImg = document.getElementById('navAvatarImg');
                 if(navImg) { navImg.src = base64Str; navImg.style.display = 'block'; document.getElementById('navAvatarText').style.display = 'none'; }
                 
-                localStorage.setItem('wizcoach-avatar', base64Str);
-
                 try {
                     const user = firebase.auth().currentUser;
+                    localStorage.setItem('wizcoach-avatar-' + user.uid, base64Str);
                     const token = await user.getIdToken();
                     await fetch('/api/auth/profile', {
                         method: 'PUT',
@@ -579,14 +580,7 @@
 <button onclick="toggleTheme()" class="theme-btn" title="Toggle Dark Mode">🌓</button>
 
 <script>
-  (function loadLocalAvatar() {
-      const saved = localStorage.getItem('wizcoach-avatar');
-      if(saved) {
-          const img = document.getElementById('navAvatarImg');
-          const txt = document.getElementById('navAvatarText');
-          if(img && txt) { img.src = saved; img.style.display = 'block'; txt.style.display = 'none'; }
-      }
-  })();
+  // Avatar is now loaded by loadAvatar in onAuthStateChanged
 </script>
 </body>
 </html>

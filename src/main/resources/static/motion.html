@@ -1227,7 +1227,7 @@
 
   /* SIGN OUT */
   async function handleSignOut() {
-    localStorage.removeItem('wizcoach-avatar');
+    // localStorage.removeItem('wizcoach-avatar'); // Handled by theme.js
     stopCamera(); // turns off webcam light before navigating away
     try {
       if (firebase.apps.length) {
@@ -2915,16 +2915,7 @@
   });
 
   document.addEventListener('DOMContentLoaded', () => {
-    const savedAvatar = localStorage.getItem('wizcoach-avatar');
-    if (savedAvatar) {
-        const img = document.getElementById('navAvatarImg');
-        const txt = document.getElementById('navAvatarText');
-        if (img && txt) {
-            img.src = savedAvatar;
-            img.style.display = 'block';
-            txt.style.display = 'none';
-        }
-    }
+    // Avatar is loaded in onAuthStateChanged
 
     wizVideo = document.getElementById('wizVideo');
     wizCanvas = document.getElementById('wizCanvas');
@@ -3009,6 +3000,7 @@
         window.location.href = 'login.html';
         return;
       }
+      if (typeof window.loadAvatar === 'function') window.loadAvatar(user);
       tryHydrateMotionLogAfterDom();
     });
   });
