@@ -678,18 +678,7 @@
 </script>
 
 <script>
-  (function loadLocalAvatar() {
-      const saved = localStorage.getItem('wizcoach-avatar');
-      if (saved) {
-          const img = document.getElementById('navAvatarImg');
-          const txt = document.getElementById('navAvatarText');
-          if (img && txt) {
-              img.src = saved;
-              img.style.display = 'block';
-              txt.style.display = 'none';
-          }
-      }
-  })();
+  // Avatar is loaded by theme.js using wizcoach-current-uid
 </script>
 
 <button type="button" onclick="toggleTheme()" class="theme-btn" title="Toggle dark mode">🌓</button>
