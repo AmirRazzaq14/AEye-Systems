@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem("wizcoach-theme");
+        if (saved) document.documentElement.setAttribute("data-theme", saved);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="stylesheet" href="css/theme.css" />
+  <script src="js/theme.js" defer></script>
+  <title>WizCoach – Help</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    .page { max-width: 900px; margin: 2rem auto; padding: 0 1.25rem; }
+    .card { border-radius: 20px; padding: 1.25rem; }
+    h1 { font-size: 1.75rem; letter-spacing: -0.03em; margin-bottom: 0.25rem; }
+    .sub { color: var(--muted); margin-bottom: 1.25rem; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    details {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--text);
+      list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .answer { color: var(--text); margin-top: 0.6rem; line-height: 1.55; }
+    .answer ul { margin: 0.5rem 0 0.25rem 1.1rem; }
+    .pill-row { display:flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+    .pill {
+      display:inline-flex; align-items:center; gap: 0.4rem;
+      padding: 0.45rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .pill:hover { background: var(--nav-hover-bg); }
+    code { background: rgba(148,163,184,0.18); padding: 0.1rem 0.3rem; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="dashboard.html" class="nav-logo">
+      <div class="nav-logo-icon">
+        <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
+        <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
+      </div>
+      <span class="nav-logo-name">WizCoach</span>
+    </a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="motion.html" class="nav-link">Motion</a>
+      <a href="nutrition.html" class="nav-link">Nutrition</a>
+      <a href="ai-coach.html" class="nav-link">AI Coach</a>
+      <a href="profile.html" class="nav-link">Profile</a>
+    </div>
+  </nav>
+
+  <main class="page">
+    <h1>Help</h1>
+    <div class="sub">FAQ, troubleshooting, and known issues.</div>
+
+    <div class="card">
+      <div class="pill-row">
+        <a class="pill" href="dashboard.html">Go to Dashboard</a>
+        <a class="pill" href="motion.html">Go to Motion</a>
+        <a class="pill" href="nutrition.html">Go to Nutrition</a>
+        <a class="pill" href="ai-coach.html">Go to AI Coach</a>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top: 1rem;">
+      <details open>
+        <summary>How do I get started?</summary>
+        <div class="answer">
+          <ul>
+            <li>Create an account on <code>login.html</code></li>
+            <li>Complete <code>profile-setup.html</code> (age/gender/height/weight)</li>
+            <li>Use <code>motion.html</code> to track reps + calories burned</li>
+            <li>Use <code>nutrition.html</code> to log meals and view daily totals</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>Motion: camera permission is denied or not working</summary>
+        <div class="answer">
+          <ul>
+            <li>Make sure you clicked “Allow” for camera access in the browser prompt.</li>
+            <li>Check your browser’s site settings for this domain and enable Camera.</li>
+            <li>Close other apps/tabs using the camera, then retry.</li>
+            <li>For best tracking: stand back, good lighting, full body in frame.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>Nutrition: why do I see meals I didn’t log?</summary>
+        <div class="answer">
+          If the Nutrition API can’t load your real log (auth/API error), the UI may show demo data.
+          Check you’re logged in, and that today’s log exists (adding a meal will create it).
+        </div>
+      </details>
+
+      <details>
+        <summary>AI Coach: the coach won’t respond</summary>
+        <div class="answer">
+          The AI features require an API key. In deployment, set <code>GEMINI_API_KEY</code>.
+          If the key is missing or rate-limited, you’ll see an error.
+        </div>
+      </details>
+
+      <details>
+        <summary>Known issues</summary>
+        <div class="answer">
+          <ul>
+            <li>Some features depend on backend configuration (Firebase credentials / AI keys).</li>
+            <li>Camera tracking quality varies based on lighting and device performance.</li>
+            <li>On first run, some pages may need a refresh after login depending on browser caching.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </main>
+
+  <button type="button" onclick="toggleTheme()" class="theme-btn" title="Toggle dark mode">🌓</button>
+
+</body>
+</html>
+

@@ -205,3 +205,34 @@ a.nav-logo:hover .nav-logo-icon {
     color: var(--text);
 }
 .btn-google:hover { background: var(--nav-hover-bg); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+/* Help button (bottom-right) */
+.help-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--nav-bg);
+    color: var(--text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: transform 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.help-btn:hover {
+    transform: scale(1.08);
+    background: var(--purple);
+    color: #fff;
+    border-color: transparent;
+}
