@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <script>
+        (function () {
+            try {
+                const saved = localStorage.getItem("wizcoach-theme");
+                if (saved) {
+                    document.documentElement.setAttribute("data-theme", saved);
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/theme.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>WizCoach – Nutrition</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- Nutrition modules -->
+    <script src="js/nutrition/api.js" defer></script>
+    <script src="js/nutrition/chart.js" defer></script>
+    <script src="js/nutrition/ui.js" defer></script>
+    <script src="js/nutrition/image-analysis.js" defer></script>
+    <script src="js/nutrition/barcode.js" defer></script>
+    <script src="js/nutrition/events.js" defer></script>
+    <script src="js/nutrition.js" defer></script>
+
+    <style>
+        *::before,
+        *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        }
+
+        :root {
+            --purple: #7c5cfc;
+            --blue: #3b82f6;
+            /* --text, --muted, --border, --card-bg, --page-bg, --nav-bg, --input-bg come from css/theme.css */
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+
+            /* Nutrition Progress Bar Colors */
+            --protein-low: #3B82F6;
+            --protein-mid: #42A5F5;
+            --protein-high: #1E40AF;
+            --carb-low: #ffedb8;
+            --carb-mid: #FFCA28;
+            --carb-high: #bd8e03;
+            --fat-low: #10B981;
+            --fat-mid: #66BB6A;
+            --fat-high: #059669;
+            --calorie-ring: #FF7043;
+
+            /* Weekly Chart Colors */
+            --chart-cals: #FF7043;
+            --chart-protein: #42A5F5;
+            --chart-carb: #FFCA28;
+            --chart-fat: #66BB6A;
+            --chart-cals-bg: #efd5cd;
+            --chart-protein-bg: #cde4f7;
+            --chart-carb-bg: #fbf0d0;
+            --chart-fat-bg: #d6fdd8;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--page-bg);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 2rem; height: 60px;
+        background: var(--nav-bg);
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+        position: sticky; top: 0; z-index: 100;
+        }
+
+        .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+        .nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--purple), var(--purple-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(124,92,252,0.3); }
+        .nav-logo-icon svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+        .nav-logo-name { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+        .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+
+        .nav-link {
+        display: flex; align-items: center; gap: 0.4rem;
+        padding: 0.45rem 1rem; border-radius: 8px;
+        font-size: 0.88rem; font-weight: 500;
+        color: var(--muted); text-decoration: none;
+        border: none; background: none; cursor: pointer;
+        transition: color 0.15s, background 0.15s;
+        }
+
+        .nav-link:hover { color: var(--text); background: var(--nav-hover-bg); }
+        .nav-link.active { background: var(--blue); color: white; font-weight: 600; }
+
+        .nav-link svg {
+        width: 16px; height: 16px;
+        stroke: currentColor; fill: none;
+        stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+        }
+
+        .nav-avatar {
+        margin-left: 0.5rem;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--purple);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        overflow: hidden;
+        text-decoration: none;
+        transition: transform 0.15s, box-shadow 0.15s;
+        border: 1px solid var(--border);
+        }
+
+        .nav-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(124, 92, 252, 0.3);
+        }
+
+
+        /* OPTIONAL: add this ONLY if your HTML uses .container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            align-items: start;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Left sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            min-width: 0;
+            width: 100%;
+        }
+
+        /* Main area on the right */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+            min-width: 0;
+            width: 100%;
+        }
+
+
+        /* Bottom Diary  */
+
+        .journal-date {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 400;
+        }
+
+        .journal-input {
+        width: 100%;
+        min-height: 120px;
+        padding: 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        resize: vertical;
+        outline: none;
+        transition: all 0.2s;
+        background: var(--input-bg);
+        color: var(--text);
+        box-sizing: border-box;
+        }
+
+        .journal-input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .journal-actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 12px;
+        }
+
+        .journal-status {
+        margin-left: auto;
+        font-size: 13px;
+        color: var(--muted);
+        }
+
+        @media (max-width: 1024px) {
+        .container {
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .main-content {
+            grid-template-columns: 1fr;
+        }
+
+        .card {
+            padding: 1.25rem;
+        }
+
+        .food-list {
+            height: 400px;
+        }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 16px;
+                gap: 16px;
+            }
+
+            nav {
+                padding: 0 1rem;
+            }
+
+            .nav-logo-name {
+                display: none;
+            }
+
+            .nutrition-metrics-bottom {
+                grid-template-columns: 1fr;
+            }
+
+            .nutrition-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .food-list {
+                height: 350px;
+            }
+
+            .ai-suggestions {
+                display: flex;
+                align-items: center;
+                margin-top: 15px;
+                gap: 15px;
+                flex-wrap: wrap;
+            }
+            .columns {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .ai-logo.wizcoach-mark {
+                align-self: center;
+                width: 60px;
+                height: 60px;
+            }
+
+            .ai-text-bubble {
+                min-height: auto;
+            }
+
+            #getSuggestionBtn {
+                width: 100%;
+            }
+        }
+
+
+        @media (max-width: 480px) {
+        .container {
+            padding: 12px;
+            gap: 12px;
+        }
+
+        .card {
+            padding: 1rem;
+            border-radius: 16px;
+        }
+
+        .card-title {
+            font-size: 15px;
+        }
+
+        .calorie-ring {
+            width: 110px;
+            height: 110px;
+        }
+
+        .calorie-current {
+            font-size: 20px;
+        }
+
+        .nutrition-metric-value {
+            font-size: 18px;
+        }
+
+        .nutrition-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .food-list {
+            height: 300px;
+        }
+
+        .chart-tabs {
+            gap: 6px;
+        }
+
+        .chart-tab {
+            padding: 6px 10px;
+            font-size: 13px;
+            min-width: 60px;
+        }
+
+        #weeklyChart {
+            max-height: 250px;
+        }
+
+        .theme-btn {
+            bottom: 4rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
+        }
+
+        .ai-suggestions {
+            gap: 10px;
+        }
+
+        .ai-logo.wizcoach-mark {
+            width: 50px;
+            height: 50px;
+        }
+
+        .ai-text-bubble {
+            padding: 12px 16px;
+            font-size: 13px;
+        }
+        }
+
+        /* Card base style */
+        .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        border: 1px solid var(--border);
+
+        }
+
+        .card h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 1.25rem;
+        }
+
+        .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        }
+
+
+        .nutrition-metrics {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-bottom: 24px;
+        }
+
+        .nutrition-metrics-bottom {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        }
+
+        .nutrition-metric {
+        padding: 20px 15px;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+
+        .nutrition-metric:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(59, 130, 246, 0.12);
+        }
+
+        .nutrition-metric-label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 8px;
+        letter-spacing: 0.02em;
+        }
+
+        .nutrition-metric-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.1;
+        }
+
+
+        /* Nutrition card */
+        .calorie-ring {
+        width: 130px;
+        height: 130px;
+        margin: 0 auto 24px;
+        position: relative;
+        }
+
+        .calorie-ring svg {
+        transform: rotate(-90deg);
+        }
+
+        .calorie-ring-bg {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 8;
+        }
+
+        .calorie-ring-progress {
+        fill: none;
+        stroke: var(--blue);
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.6s ease;
+        }
+
+        .calorie-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        }
+
+        .calorie-current {
+        font-size: 23px;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1;
+        }
+
+        .calorie-total {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+        }
+
+        .macro-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        }
+
+        .macro-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        }
+
+        .macro-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        }
+
+        .macro-name {
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        }
+
+        .macro-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        }
+
+        .macro-dot.protein {
+        background: #42A5F5;
+        }
+
+        .macro-dot.carb {
+        background: #FFCA28;
+        }
+
+        .macro-dot.fat {
+        background: #66BB6A;
+        }
+
+        .macro-value {
+        font-weight: 600;
+        color: var(--text);
+        }
+
+        .macro-bar {
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        overflow: hidden;
+        }
+
+        .macro-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.6s ease;
+        }
+
+        /* Food Detection */
+        .upload-zone {
+        border: 2px dashed var(--border);
+        border-radius: 14px;
+        background: var(--input-bg);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 0.2s, transform 0.15s;
+        text-align: center;
+        position: relative;
+        flex: 1;
+        min-height: 200px;
+        max-height: 300px;
+        width: 100%;
+        box-sizing: border-box;
+        }
+
+        .upload-zone:hover {
+        border-color: var(--blue);
+        background: var(--card-bg);
+        transform: scale(1.01);
+        }
+
+        .upload-zone.drag-over {
+        border-color: var(--blue);
+        background: var(--card-bg);
+        transform: scale(1.02);
+        }
+
+        .upload-zone.processingMessage {
+        pointer-events: none;
+        opacity: 0.7;
+        }
+
+        .upload-icon-wrap {
+        width: 56px;
+        height: 56px;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        }
+
+        .upload-icon-wrap svg {
+        width: 26px;
+        height: 26px;
+        stroke: var(--blue);
+        fill: none;
+        stroke-width: 1.8;
+        }
+
+        .upload-zone h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text);
+        }
+
+        .upload-zone p {
+        font-size: 0.82rem;
+        color: var(--muted);
+        }
+
+        .upload-zone.has-image .upload-icon-wrap,
+        .upload-zone.has-image h4,
+        .upload-zone.has-image p,
+        .upload-zone.has-image .btn-upload {
+        display: none;
+        }
+
+        .preview-img-container {
+        display: none;
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+        text-align: center;
+        }
+
+        .upload-zone.has-image .preview-img-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        }
+
+        .preview-img-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 12px;
+        }
+
+        .processing-message {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(248, 249, 255, 0.95);
+        border-radius: 14px;
+        z-index: 10;
+        }
+
+
+        .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--border);
+        border-top: 4px solid var(--blue);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+        }
+
+        .btn-primary {
+        background: linear-gradient(135deg, var(--blue), #60a5fa);
+        color: white;
+        padding: 0.65rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 3px 10px rgba(59,130,246,0.35);
+        }
+
+        .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 14px rgba(59,130,246,0.45);
+        }
+
+        /* Food Log */
+        .food-log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        }
+
+        .add-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--blue);
+        color: white;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .add-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .manual-entry {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        background: var(--input-bg);
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        }
+
+
+        .manual-entry input {
+        padding: 0.75rem 1rem;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text);
+        background: var(--card-bg);
+        outline: none;
+        transition: all 0.2s;
+        }
+
+        .nutrition-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        width: 100%;
+        gap: 5px;
+        }
+
+        .nutrition-grid > div {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+        }
+
+        .nutrition-grid > div span {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        }
+
+        .nutrition-grid > div input {
+        width: 100%;
+        min-width: 0;
+        }
+
+        .meals-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s;
+        background: var(--input-bg);
+        color: var(--text);
+        }
+
+
+        .food-info,
+        .food-details,
+        .manual-entry,
+        .nutrition-grid {
+        min-width: 0;
+        }
+
+        /* Manual Entry Form - Isolated styles to prevent nesting issues */
+        .manual-entry .meals-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s;
+        background: var(--card-bg);
+        color: var(--text);
+        box-sizing: border-box;
+        }
+
+        .manual-entry .meals-input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .manual-entry .nutrition-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 8px;
+        }
+
+        .manual-entry .nutrition-grid > div {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        }
+
+        .manual-entry .nutrition-grid > div span {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 500;
+        }
+
+        .manual-entry .nutrition-grid input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s;
+        background: var(--card-bg);
+        color: var(--text);
+        box-sizing: border-box;
+        }
+
+        .manual-entry .nutrition-grid input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .manual-entry #saveManualBtn {
+        margin-top: 8px;
+        align-self: flex;
+        }
+
+        .food-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 360px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .food-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: var(--input-bg);
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+        }
+
+        .food-item:hover {
+        border-color: var(--blue);
+        background: var(--card-bg);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+        }
+
+        .food-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        }
+
+        .food-emoji {
+        width: 44px;
+        height: 44px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .food-details h4 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--text);
+        }
+
+        .food-macros {
+        width: 100%;
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        gap: 16px;
+        }
+
+        .food-actions {
+        display: flex;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        }
+
+        .food-item:hover .food-actions {
+        opacity: 1;
+        }
+
+        .icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        font-size: 16px;
+        }
+
+        .icon-btn:hover {
+        background: var(--border);
+        color: var(--text);
+        }
+
+        .icon-btn.delete:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        }
+
+        .food-log-empty {
+            text-align: center;
+            color: var(--muted);
+            padding: 60px 0;
+            font-style: italic;
+        }
+
+        .log-summary {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 6px;
+        }
+
+        .log-summary .log-count {
+        font-weight: 600;
+        color: var(--text);
+        }
+
+        .log-count {
+        font-weight: 600;
+        color: var(--text);
+        }
+
+        .hidden {
+        display: none !important;
+        }
+
+        /* Chart Styles */
+        #weeklyChart {
+        width: 100%;
+        max-height: 300px;
+        border-radius: 12px;
+        padding: 5px;
+        height: auto;
+        }
+
+        /* Chart View Tabs */
+        .chart-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        }
+
+
+        .chart-tab {
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+        flex: 1 1 auto;
+        min-width: 80px;
+        text-align: center;
+        }
+
+        .chart-tab.active {
+        background: var(--blue);
+        color: white;
+        border-color: var(--blue);
+        }
+
+        .chart-tab:hover {
+        background: var(--border);
+        color: var(--text);
+        }
+
+        @media (max-width: 480px) {
+        .chart-tabs {
+            gap: 6px;
+        }
+        .chart-tab {
+            padding: 6px 12px;
+            font-size: 13px;
+            min-width: 70px;
+        }
+        }
+
+        /* AI Suggestions Styles */
+        .ai-suggestions {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .columns {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-logo.wizcoach-mark {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        :root[data-theme="dark"] .ai-logo.wizcoach-mark {
+
+        }
+
+        .ai-text-bubble {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 20px;
+            position: relative;
+            min-height: 130px;
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            min-width: 200px;
+        }
+
+        /* separate theme toggle */
+        .theme-btn {
+            position: fixed;
+            bottom: 5rem;
+            right: 1.5rem;
+            width: 40px;
+            height: 40px;
+            background: var(--nav-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .theme-btn:hover {
+        background: var(--purple);
+        color: white;
+        border-color: transparent;
+        }
+
+
+        /* Add from incoming */
+        .ai-text-bubble::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid var(--border);
+        }
+
+        /* Barcode Scanner Styles */
+        .barcode-scanner-section {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--input-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-scan {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-scan:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-scan:active {
+        transform: translateY(0);
+        }
+
+        .barcode-input-group {
+        display: flex;
+        gap: 8px;
+        }
+
+        .barcode-input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color 0.2s;
+        background: var(--card-bg);
+        color: var(--text);
+        }
+
+        .barcode-input:focus {
+        outline: none;
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-enter {
+        padding: 10px 20px;
+        background: var(--success);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-enter:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-enter:active {
+            transform: translateY(0);
+        }
+
+        .scanner-container {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 2px solid var(--blue);
+            position: relative;
+        }
+
+        .scanner-container.hidden {
+            display: none;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Scanner overlay with scanning frame */
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .scan-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 3px solid var(--blue);
+            border-radius: 12px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--blue), transparent);
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                top: 0;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+
+        .scanner-status {
+            text-align: center;
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--blue);
+            font-weight: 500;
+        }
+
+        .scanner-status.scanning {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--blue);
+        }
+
+        .scanner-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .scanner-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-camera-option {
+            transition: all 0.2s;
+        }
+
+        .btn-camera-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-camera-option.active {
+            background: var(--blue) !important;
+            color: white !important;
+            border-color: var(--blue) !important;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-close-scanner {
+            width: 100%;
+            margin-top: 12px;
+            padding: 8px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-close-scanner:hover {
+        background: #dc2626;
+        }
+
+        /* Scan/Image Result Display */
+        .scan-result-container {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--input-bg);
+            border-radius: 12px;
+            border: 2px solid var(--blue);
+            display: none;
+        }
+
+        .scan-result-container.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scan-result-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .scan-result-content {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .scan-result-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .scan-result-nutrition {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .scan-result-nutrition-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .scan-result-nutrition-label {
+            color: var(--muted);
+        }
+
+        .scan-result-nutrition-value {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .scan-result-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-add-result {
+            flex: 1;
+            padding: 10px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add-result:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel-result {
+            flex: 1;
+            padding: 10px;
+            background: var(--border);
+            color: var(--text);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel-result:hover {
+            background: var(--muted);
+        }
+
+        @media (max-width: 768px) {
+        .barcode-input-group {
+            flex-direction: column;
+        }
+
+        .btn-enter {
+            width: 100%;
+        }
+        }
+
+                /* Floating Action Buttons */
+        .floating-buttons {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .floating-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: var(--blue);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+            position: relative;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 24px rgba(59, 130, 246, 0.6);
+        }
+
+        .floating-btn.active {
+            background: var(--purple);
+            box-shadow: 0 6px 24px rgba(124, 92, 252, 0.6);
+        }
+
+        .floating-btn .tooltip {
+            position: absolute;
+            right: 70px;
+            background: var(--card-bg);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+        }
+
+        .floating-btn:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            right: 65px;
+        }
+
+        /* Floating Window Overlay */
+        .floating-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .floating-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Floating Window */
+        .floating-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 700px;
+            overflow-y: auto;
+            z-index: 1001;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .floating-window.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .floating-window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .floating-window-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-window {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--input-bg);
+            color: var(--muted);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-window:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Notification Toast Styles */
+        .notification-container {
+            position: fixed;
+            left: 20px;
+            top: 80px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 350px;
+            pointer-events: none;
+        }
+
+        .notification-toast {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 14px 18px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid var(--blue);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInLeft 0.3s ease;
+            pointer-events: auto;
+            min-width: 280px;
+        }
+
+        .notification-toast.success {
+            border-left-color: var(--success);
+        }
+
+        .notification-toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .notification-toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutLeft {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+        }
+
+        .notification-toast.hiding {
+            animation: slideOutLeft 0.3s ease forwards;
+        }
+
+        .notification-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .notification-message {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .notification-close:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <a href="dashboard.html" class="nav-logo">
+        <div class="nav-logo-icon">
+            <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="" width="36" height="36" decoding="async"/>
+            <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true" width="36" height="36" decoding="async"/>
+        </div>
+        <span class="nav-logo-name">WizCoach</span>
+    </a>
+    <div class="nav-links">
+        <a href="dashboard.html" class="nav-link">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            Dashboard
+        </a>
+        <a href="motion.html" class="nav-link">
+            <svg viewBox="0 0 24 24">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            Motion
+        </a>
+        <a href="nutrition.html" class="nav-link active">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+            </svg>
+            Nutrition
+        </a>
+        <a href="ai-coach.html" class="nav-link">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="8" width="18" height="12" rx="3" />
+                <path d="M12 8V4" />
+                <circle cx="8" cy="14" r="1.5" fill="currentColor" />
+                <circle cx="16" cy="14" r="1.5" fill="currentColor" />
+            </svg>
+            AI Coach
+        </a>
+        <a href="profile.html" class="nav-avatar">
+            <span id="navAvatarText" style="display:none;">U</span>
+            <img id="navAvatarImg" src="default-profile-picture.png" style="display:block; width:100%; height:100%; object-fit:cover;">
+        </a>
+
+        <button class="nav-link" onclick="handleSignOut()" style="color:#ef4444; border:none; background:none; cursor:pointer;">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign Out
+        </button>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+
+    <main class="main-content">
+
+        <!-- Today's Nutrition -->
+        <div class="card">
+            <div class="card-title">
+                <span>📊</span>
+                Today's Nutrition
+            </div>
+
+            <!-- Calorie budget module -->
+            <div class="nutrition-metrics">
+                <div class="calorie-ring">
+                    <svg viewBox="0 0 140 140">
+                        <circle class="calorie-ring-bg" cx="70" cy="70" r="62" />
+                        <circle class="calorie-ring-progress" cx="70" cy="70" r="62" stroke-dasharray="389.56"
+                                stroke-dashoffset="389.56" id="calorieRing" />
+                    </svg>
+                    <div class="calorie-text">
+                        <div class="calorie-current" id="calorieCurrent">0</div>
+                        <div class="calorie-total" id="calorieTotal">/ 2000 kcal</div>
+                    </div>
+                </div>
+                <div class="nutrition-metrics-bottom">
+                    <div class="nutrition-metric">
+                        <span class="nutrition-metric-label">Food Intake</span>
+                        <span class="nutrition-metric-value" id="intakeValue">0</span>
+                    </div>
+                    <div class="nutrition-metric">
+                        <span class="nutrition-metric-label">Burned Calories</span>
+                        <span class="nutrition-metric-value" id="burnedValue">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="macro-list" id="macroList">
+                <div class="macro-item">
+                    <div class="macro-header">
+                            <span class="macro-name">
+                                <span class="macro-dot protein"></span>
+                                Protein
+                            </span>
+                        <span class="macro-value" id="proteinText">0 / 150 g</span>
+                    </div>
+                    <div class="macro-bar">
+                        <div class="macro-fill" id="proteinBar" ></div>
+                    </div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-header">
+                            <span class="macro-name">
+                                <span class="macro-dot carb"></span>
+                                Carbs
+                            </span>
+                        <span class="macro-value" id="carbText">0 / 250 g</span>
+                    </div>
+                    <div class="macro-bar">
+                        <div class="macro-fill" id="carbBar" ></div>
+                    </div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-header">
+                            <span class="macro-name">
+                                <span class="macro-dot fat"></span>
+                                Fat
+                            </span>
+                        <span class="macro-value" id="fatText">0 / 70 g</span>
+                    </div>
+                    <div class="macro-bar">
+                        <div class="macro-fill" id="fatBar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Food Log-->
+        <div class="card">
+            <div class="food-log-header">
+                <div>
+                    <div class="card-title">
+                        <span>🍽️</span>
+                        Food Log
+                    </div>
+                    <div class="log-summary" id="logSummary">
+                        <span id = "logCountSpan"> Toady 0 items - 0 kcal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Food List -->
+            <div class="food-list" id="foodList">
+                <p class="food-log-empty">Loading...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Weekly Nutrition Chart -->
+    <div class="card">
+        <div class="card-title">
+            <span>📈</span>
+            Weekly Nutrition Trend
+        </div>
+        <div class="chart-tabs">
+            <button class="chart-tab active" data-view="cals">Calories</button>
+            <button class="chart-tab" data-view="protein">Protein</button>
+            <button class="chart-tab" data-view="carb">Carbs</button>
+            <button class="chart-tab" data-view="fat">Fat</button>
+        </div>
+        <canvas id="weeklyChart"></canvas>
+    </div>
+
+</div>
+
+
+
+<!-- Floating Action Buttons -->
+<div class="floating-buttons">
+    <button class="floating-btn" data-window="manual" title="Manual Add">
+        <span>➕</span>
+        <span class="tooltip">Manual Add</span>
+    </button>
+    <button class="floating-btn" data-window="detection" title="Food Detection">
+        <span>📷</span>
+        <span class="tooltip">Food Detection</span>
+    </button>
+    <button class="floating-btn" data-window="barcode" title="Scan Barcode">
+        <span>📱</span>
+        <span class="tooltip">Scan Barcode</span>
+    </button>
+    <button class="floating-btn" data-window="ai" title="AI Suggestions">
+        <span>🤖</span>
+        <span class="tooltip">AI Suggestions</span>
+    </button>
+    <button class="floating-btn" data-window="journal" title="Daily Journal">
+        <span>📝</span>
+        <span class="tooltip">Daily Journal</span>
+    </button>
+</div>
+
+<!-- Floating Overlay -->
+<div class="floating-overlay" id="floatingOverlay" style="left: 0px; top: -1px;"></div>
+
+<!-- Floating Windows -->
+
+<!-- Manual Add Window -->
+<div class="floating-window" id="window-manual">
+    <div class="floating-window-header">
+        <div class="floating-window-title">
+            <span>➕</span>
+            Manual Add Food
+        </div>
+        <button class="close-window" onclick="closeWindow()">×</button>
+    </div>
+    <div class="manual-entry">
+        <input class="meals-input" type="text" id="foodName" placeholder="Food name">
+        <div class="nutrition-grid">
+            <div>
+                <span>🔥 Calories (kcal)</span>
+                <input type="number" id="foodCals" placeholder="0" min="0">
+            </div>
+            <div>
+                <span>💪 Protein (g)</span>
+                <input type="number" id="foodProtein" placeholder="0" min="0">
+            </div>
+            <div>
+                <span>🍞 Carbs (g)</span>
+                <input type="number" id="foodCarb" placeholder="0" min="0">
+            </div>
+            <div>
+                <span>🥑 Fat (g)</span>
+                <input type="number" id="foodFat" placeholder="0" min="0">
+            </div>
+        </div>
+        <button class="btn-primary" id="saveManualBtn">Add to Log</button>
+    </div>
+</div>
+
+<!-- Food Detection Window -->
+<div class="floating-window" id="window-detection">
+    <div class="floating-window-header">
+        <div class="floating-window-title">
+            <span>📷</span>
+            Food Detection
+        </div>
+        <button class="close-window" onclick="closeWindow()">×</button>
+    </div>
+    <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon-wrap">
+            <svg viewBox="0 0 24 24">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+        </div>
+        <h4>Drag & Drop Image</h4>
+        <p>Drop a food photo here to analyze</p>
+        <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--muted);">Supports: JPEG, PNG, WebP (Max 5MB)</p>
+        <div class="preview-img-container">
+            <img id="previewImg" src="" alt="Preview">
+        </div>
+        <div class="processing-message" id="processingMessage">
+            <div class="spinner"></div>
+            <p>Analyzing your food...</p>
+        </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+
+    <!-- Image Analysis Result -->
+    <div class="scan-result-container" id="imageResultContainer">
+        <div class="scan-result-header">
+            <span>✨</span>
+            Analysis Result
+        </div>
+        <div class="scan-result-content">
+            <div class="scan-result-name" id="imageResultName">-</div>
+            <div class="scan-result-nutrition">
+                <div class="scan-result-nutrition-item">
+                    <span class="scan-result-nutrition-label">🔥 Calories:</span>
+                    <span class="scan-result-nutrition-value" id="imageResultCals">0 kcal</span>
+                </div>
+                <div class="scan-result-nutrition-item">
+                    <span class="scan-result-nutrition-label">💪 Protein:</span>
+                    <span class="scan-result-nutrition-value" id="imageResultProtein">0 g</span>
+                </div>
+                <div class="scan-result-nutrition-item">
+                    <span class="scan-result-nutrition-label">🍞 Carbs:</span>
+                    <span class="scan-result-nutrition-value" id="imageResultCarb">0 g</span>
+                </div>
+                <div class="scan-result-nutrition-item">
+                    <span class="scan-result-nutrition-label">🥑 Fat:</span>
+                    <span class="scan-result-nutrition-value" id="imageResultFat">0 g</span>
+                </div>
+            </div>
+        </div>
+        <div class="scan-result-actions">
+            <button class="btn-add-result" id="addImageResultBtn">✓ Add to Log</button>
+            <button class="btn-cancel-result" id="cancelImageResultBtn">✕ Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Barcode Scanner Window -->
+<div class="floating-window" id="window-barcode">
+    <div class="floating-window-header">
+        <div class="floating-window-title">
+            <span>📱</span>
+            Scan Barcode
+        </div>
+        <button class="close-window" onclick="closeWindow()">×</button>
+    </div>
+    <div class="barcode-scanner-section">
+
+        <button class="btn-scan" id="scanBarcodeBtn">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+                <path d="M3 5v4h2V5h4V3H5a2 2 0 0 0-2 2zm2 10H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 4h-4v2h4a2 2 0 0 0 2-2v-4h-2v4zm0-16h-4v2h4v4h2V5a2 2 0 0 0-2-2z"/>
+            </svg>
+            <span id="scanButtonText">Start Camera Scanner</span>
+        </button>
+        <div class="barcode-input-group">
+            <input type="text" id="barcodeInput" placeholder="Or enter barcode manually" class="barcode-input">
+            <button class="btn-enter" id="enterBarcodeBtn">Lookup</button>
+        </div>
+        <div id="scanner-container" class="scanner-container" style="display: none; margin-top: 12px; padding: 12px; background: var(--card-bg); border-radius: 8px; border: 2px solid var(--blue);">
+            <!-- Local Camera View -->
+            <div id="localCameraView">
+                <div id="reader"></div>
+                <div class="scanner-overlay">
+                    <div class="scan-frame">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scanner-status" id="scannerStatus">Ready to scan</div>
+            <button class="btn-close-scanner" id="closeScannerBtn" style="width: 100%; margin-top: 12px; padding: 8px; background: var(--danger); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">✕ Close Scanner</button>
+        </div>
+
+        <!-- Barcode Result -->
+        <div class="scan-result-container" id="barcodeResultContainer">
+            <div class="scan-result-header">
+                <span>📦</span>
+                Product Found
+            </div>
+            <div class="scan-result-content">
+                <div class="scan-result-name" id="barcodeResultName">-</div>
+                <div class="scan-result-nutrition">
+                    <div class="scan-result-nutrition-item">
+                        <span class="scan-result-nutrition-label">🔥 Calories:</span>
+                        <span class="scan-result-nutrition-value" id="barcodeResultCals">0 kcal</span>
+                    </div>
+                    <div class="scan-result-nutrition-item">
+                        <span class="scan-result-nutrition-label">💪 Protein:</span>
+                        <span class="scan-result-nutrition-value" id="barcodeResultProtein">0 g</span>
+                    </div>
+                    <div class="scan-result-nutrition-item">
+                        <span class="scan-result-nutrition-label">🍞 Carbs:</span>
+                        <span class="scan-result-nutrition-value" id="barcodeResultCarb">0 g</span>
+                    </div>
+                    <div class="scan-result-nutrition-item">
+                        <span class="scan-result-nutrition-label">🥑 Fat:</span>
+                        <span class="scan-result-nutrition-value" id="barcodeResultFat">0 g</span>
+                    </div>
+                </div>
+            </div>
+            <div class="scan-result-actions">
+                <button class="btn-add-result" id="addBarcodeResultBtn">✓ Add to Log</button>
+                <button class="btn-cancel-result" id="cancelBarcodeResultBtn">✕ Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Suggestions Window -->
+<div class="floating-window" id="window-ai">
+    <div class="floating-window-header">
+        <div class="floating-window-title">
+            <div class="ai-logo wizcoach-mark">
+                <img class="wizcoach-mascot-light" src="wizcoach-mascot-whitebackground.png" alt="WizCoach mascot">
+                <img class="wizcoach-mascot-dark" src="wizcoach-mascot.png" alt="" aria-hidden="true">
+            </div>
+            AI Suggestions
+        </div>
+        <button class="close-window" onclick="closeWindow()">×</button>
+    </div>
+    <div class="ai-suggestions">
+        <div class="ai-text-bubble" id="aiSuggestionText">
+            <p>Click the button below to get personalized nutrition suggestions based on your daily intake and goals.</p>
+        </div>
+        <button class="btn-primary" id="getSuggestionBtn" style="width: 100%; padding: 12px;">Get AI Suggestion</button>
+    </div>
+</div>
+
+<!-- Daily Journal Window -->
+<div class="floating-window" id="window-journal">
+    <div class="floating-window-header">
+        <div class="floating-window-title">
+            <span>📝</span>
+            Daily Journal
+
+            <span class="journal-date" id="journalDate">-</span>
+        </div>
+
+        <button class="close-window" onclick="closeWindow()">×</button>
+    </div>
+    <textarea id="journalInput" class="journal-input" placeholder="How was your day? Write your thoughts here..."></textarea>
+    <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <span id="journalStatus" style="font-size: 13px; color: var(--muted);"></span>
+        <button class="btn-primary" id="saveJournalBtn">Save Journal</button>
+    </div>
+</div>
+
+<button onclick="toggleTheme()" class="theme-btn" title="Toggle Dark Mode">🌓</button>
+
+<script>
+    // Notification System
+    const NotificationSystem = {
+        container: null,
+        notifications: [],
+
+        init() {
+            this.container = document.getElementById('notificationContainer');
+        },
+
+        show(message, type = 'info', duration = 3000) {
+            const notification = this.createNotification(message, type);
+            this.container.appendChild(notification);
+            this.notifications.push(notification);
+
+            // Auto remove after duration
+            if (duration > 0) {
+                setTimeout(() => {
+                    this.hide(notification);
+                }, duration);
+            }
+
+            return notification;
+        },
+
+        createNotification(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `notification-toast ${type}`;
+
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+
+            toast.innerHTML = `
+                <span class="notification-icon">${icons[type] || icons.info}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="NotificationSystem.hide(this.parentElement)">×</button>
+            `;
+
+            return toast;
+        },
+
+        hide(notification) {
+            if (!notification || !notification.parentElement) return;
+
+            notification.classList.add('hiding');
+
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                    const index = this.notifications.indexOf(notification);
+                    if (index > -1) {
+                        this.notifications.splice(index, 1);
+                    }
+                }
+            }, 300);
+        },
+
+        success(message, duration = 3000) {
+            return this.show(message, 'success', duration);
+        },
+
+        error(message, duration = 4000) {
+            return this.show(message, 'error', duration);
+        },
+
+        warning(message, duration = 3500) {
+            return this.show(message, 'warning', duration);
+        },
+
+        info(message, duration = 3000) {
+            return this.show(message, 'info', duration);
+        }
+    };
+
+    // Initialize notification system when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        NotificationSystem.init();
+    });
+
+    // Floating Window Management
+    let currentWindow = null;
+
+    function openWindow(windowId) {
+        // Close current window if open
+        if (currentWindow) {
+            closeWindow();
+        }
+
+        // Open new window
+        const overlay = document.getElementById('floatingOverlay');
+        const window = document.getElementById(`window-${windowId}`);
+
+        if (window) {
+            overlay.classList.add('active');
+            window.classList.add('active');
+            currentWindow = windowId;
+
+            // Update button states
+            document.querySelectorAll('.floating-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.window === windowId) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+    }
+
+    function closeWindow() {
+        const overlay = document.getElementById('floatingOverlay');
+
+        if (currentWindow) {
+            const window = document.getElementById(`window-${currentWindow}`);
+            if (window) {
+                window.classList.remove('active');
+            }
+            currentWindow = null;
+        }
+
+        overlay.classList.remove('active');
+
+        // Remove active state from all buttons
+        document.querySelectorAll('.floating-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+    }
+
+    // Event listeners for floating buttons
+    document.querySelectorAll('.floating-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const windowId = btn.dataset.window;
+            if (currentWindow === windowId) {
+                closeWindow();
+            } else {
+                openWindow(windowId);
+            }
+        });
+    });
+
+    // Close window when clicking overlay
+    document.getElementById('floatingOverlay').addEventListener('click', closeWindow);
+
+    // Close window with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && currentWindow) {
+            closeWindow();
+        }
+    });
+
+    // Theme toggle (placeholder)
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('wizcoach-theme', newTheme);
+    }
+
+
+    // Placeholder functions
+    function handleSignOut() {
+        console.log('Sign out clicked');
+    }
+</script>
+</body>
+</html>
