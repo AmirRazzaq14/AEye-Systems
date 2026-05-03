@@ -11,17 +11,18 @@ const NutritionEvents = {
         this.bindChartTabEvents();
         this.bindSuggestionsEvents();
         this.bindVisibilityEvents();
+        this.bindBarcodeEvents();
     },
 
     bindManualEntryEvents() {
-        const addBtn = document.getElementById('addFoodBtn');
-        const form = document.getElementById('manualEntryForm');
+////        const addBtn = document.getElementById('addFoodBtn');
+//        const form = document.getElementById('manualEntryForm');
         const saveBtn = document.getElementById('saveManualBtn');
 
-        addBtn.addEventListener('click', () => {
-            form.classList.toggle('hidden');
-            addBtn.textContent = form.classList.contains('hidden') ? '+' : '−';
-        });
+//        addBtn.addEventListener('click', () => {
+//            form.classList.toggle('hidden');
+//            addBtn.textContent = form.classList.contains('hidden') ? '+' : '−';
+//        });
 
         saveBtn.addEventListener('click', () => this.addManualMeal());
     },
@@ -43,7 +44,10 @@ const NutritionEvents = {
         let timeout;
         const journalInput = document.getElementById('journalInput');
         const status = document.getElementById('journalStatus');
+        const saveBtn = document.getElementById('saveJournalBtn');
         
+        saveBtn.addEventListener('click', () => this.saveJournal());
+
         journalInput.addEventListener('input', () => {
             status.textContent = 'Unsaved...';
             status.style.color = 'var(--warning)';
@@ -79,6 +83,11 @@ const NutritionEvents = {
         });
     },
 
+    bindBarcodeEvents() {
+        // Barcode events are handled by BarcodeScanner module
+        // This is just a placeholder for future extensions
+    },
+
     async addManualMeal() {
         const meal = {
             mealId: 'meal_' + Date.now(),
@@ -92,8 +101,8 @@ const NutritionEvents = {
             await NutritionAPI.addMeal(meal);
             await this.loadData();
             ['foodName', 'foodCals', 'foodProtein', 'foodCarb', 'foodFat'].forEach(id => document.getElementById(id).value = '');
-            document.getElementById('manualEntryForm').classList.add('hidden');
-            document.getElementById('addFoodBtn').textContent = '+';
+//            document.getElementById('manualEntryForm').classList.add('hidden');
+//            document.getElementById('addFoodBtn').textContent = '+';
         } catch (err) {
             alert('Failed to add: ' + err.message);
         }

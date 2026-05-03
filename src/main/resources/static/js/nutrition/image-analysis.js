@@ -4,9 +4,13 @@
  */
 
 const ImageAnalysis = {
+    currentAnalysis: null,
+
     async init() {
         const zone = document.getElementById('uploadZone');
         const input = document.getElementById('fileInput');
+        const addResultBtn = document.getElementById('addImageResultBtn');
+        const cancelResultBtn = document.getElementById('cancelImageResultBtn');
 
         zone.addEventListener('click', () => input.click());
         input.addEventListener('change', (e) => {
@@ -24,46 +28,69 @@ const ImageAnalysis = {
             const file = e.dataTransfer.files[0];
             if (file?.type.startsWith('image/')) this.handleImage(file);
         });
+
+        if (addResultBtn) {
+            addResultBtn.addEventListener('click', () => this.addAnalysisToLog());
+        }
+
+        if (cancelResultBtn) {
+            cancelResultBtn.addEventListener('click', () => this.hideResult());
+        }
     },
 
     async handleImage(file) {
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-            return alert('Please upload JPEG, PNG or WebP');
+            NotificationSystem.warning('Please upload JPEG, PNG or WebP images only');
+            return;
         }
-        if (file.size > 5 * 1024 * 1024) return alert('Image too large (max 5MB)');
+        if (file.size > 5 * 1024 * 1024) {
+            NotificationSystem.error('Image too large. Maximum size is 5MB');
+            return;
+        }
 
         const zone = document.getElementById('uploadZone');
+        const processingMsg = document.getElementById('processingMessage');
 
         // Preview
         const reader = new FileReader();
         reader.onload = (e) => {
-            document.getElementById('previewImg').src = e.target.result;
+            const previewImg = document.getElementById('previewImg');
+            if (previewImg) {
+                previewImg.src = e.target.result;
+            }
             zone.classList.add('has-image');
         };
         reader.readAsDataURL(file);
 
-        // Analyze
+        // Show processing message
+        if (processingMsg) {
+            processingMsg.style.display = 'flex';
+        }
         zone.classList.add('processingMessage');
+
         try {
             const result = await NutritionAPI.analyzeImage(file);
-            await NutritionAPI.addMeal({
-                mealId: result.mealId || 'meal_' + Date.now(),
-                name: result.name || 'Analyzed Food',
-                cals: String(result.cals || 0),
-                protein: String(result.protein || 0),
-                carb: String(result.carb || 0),
-                fat: String(result.fat || 0)
-            });
-            // Notify parent to reload
-            window.dispatchEvent(new Event('nutrition-updated'));
             
-            setTimeout(() => {
-                zone.classList.remove('has-image', 'processingMessage');
-                document.getElementById('previewImg').src = '';
-                document.getElementById('fileInput').value = '';
-            }, 1500);
+            // Store current analysis
+            this.currentAnalysis = {
+                name: result.name || 'Analyzed Food',
+                cals: result.cals || 0,
+                protein: result.protein || 0,
+                carb: result.carb || 0,
+                fat: result.fat || 0
+            };
+
+            // Display result
+            this.displayResult(this.currentAnalysis);
+
+            // Hide processing message
+            if (processingMsg) {
+                processingMsg.style.display = 'none';
+            }
+            zone.classList.remove('processingMessage');
         } catch (err) {
             console.warn('Image analysis failed, using mock data:', err.message);
+            
             // Fallback to mock data
             const mockResults = [
                 { name: 'Grilled Chicken Salad', cals: 450, protein: 35, carb: 20, fat: 25 },
@@ -73,21 +100,87 @@ const ImageAnalysis = {
                 { name: 'Buddha Bowl', cals: 550, protein: 22, carb: 65, fat: 18 }
             ];
             const result = mockResults[Math.floor(Math.random() * mockResults.length)];
+            
+            // Store current analysis
+            this.currentAnalysis = result;
+
+            // Display result
+            this.displayResult(this.currentAnalysis);
+
+            // Hide processing message
+            if (processingMsg) {
+                processingMsg.style.display = 'none';
+            }
+            zone.classList.remove('processingMessage');
+        }
+    },
+
+    displayResult(result) {
+        const container = document.getElementById('imageResultContainer');
+        const nameEl = document.getElementById('imageResultName');
+        const calsEl = document.getElementById('imageResultCals');
+        const proteinEl = document.getElementById('imageResultProtein');
+        const carbEl = document.getElementById('imageResultCarb');
+        const fatEl = document.getElementById('imageResultFat');
+
+        if (!container) return;
+
+        if (nameEl) nameEl.textContent = result.name;
+        if (calsEl) calsEl.textContent = `${Math.round(result.cals)} kcal`;
+        if (proteinEl) proteinEl.textContent = `${Math.round(result.protein * 10) / 10} g`;
+        if (carbEl) carbEl.textContent = `${Math.round(result.carb * 10) / 10} g`;
+        if (fatEl) fatEl.textContent = `${Math.round(result.fat * 10) / 10} g`;
+
+        container.classList.add('show');
+    },
+
+    hideResult() {
+        const container = document.getElementById('imageResultContainer');
+        if (container) {
+            container.classList.remove('show');
+        }
+        this.currentAnalysis = null;
+        
+        // Reset upload zone
+        const zone = document.getElementById('uploadZone');
+        if (zone) {
+            zone.classList.remove('has-image');
+        }
+        const previewImg = document.getElementById('previewImg');
+        if (previewImg) {
+            previewImg.src = '';
+        }
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    },
+
+    async addAnalysisToLog() {
+        if (!this.currentAnalysis) {
+            NotificationSystem.warning('No analysis result to add');
+            return;
+        }
+
+        try {
             await NutritionAPI.addMeal({
                 mealId: 'meal_' + Date.now(),
-                name: result.name,
-                cals: String(result.cals),
-                protein: String(result.protein),
-                carb: String(result.carb),
-                fat: String(result.fat)
+                name: this.currentAnalysis.name,
+                cals: String(Math.round(this.currentAnalysis.cals)),
+                protein: String(Math.round(this.currentAnalysis.protein * 10) / 10),
+                carb: String(Math.round(this.currentAnalysis.carb * 10) / 10),
+                fat: String(Math.round(this.currentAnalysis.fat * 10) / 10)
             });
+
             window.dispatchEvent(new Event('nutrition-updated'));
             
-            setTimeout(() => {
-                zone.classList.remove('has-image', 'processingMessage');
-                document.getElementById('previewImg').src = '';
-                document.getElementById('fileInput').value = '';
-            }, 1500);
+            // Hide result and reset
+            this.hideResult();
+
+            NotificationSystem.success(`${this.currentAnalysis.name} added to log!`);
+        } catch (err) {
+            console.error('Error adding food:', err);
+            NotificationSystem.error('Failed to add food. Please try again.');
         }
     }
 };
