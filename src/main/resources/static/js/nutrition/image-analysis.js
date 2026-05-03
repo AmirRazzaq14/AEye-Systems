@@ -163,6 +163,13 @@ const ImageAnalysis = {
         }
 
         try {
+            // Validate currentAnalysis has required fields
+            if (!this.currentAnalysis.name) {
+                NotificationSystem.error('Invalid analysis data');
+                this.hideResult();
+                return;
+            }
+
             await NutritionAPI.addMeal({
                 mealId: 'meal_' + Date.now(),
                 name: this.currentAnalysis.name,
@@ -174,10 +181,13 @@ const ImageAnalysis = {
 
             window.dispatchEvent(new Event('nutrition-updated'));
             
+            // Store food name before hiding result
+            const foodName = this.currentAnalysis.name;
+            
             // Hide result and reset
             this.hideResult();
 
-            NotificationSystem.success(`${this.currentAnalysis.name} added to log!`);
+            NotificationSystem.success(`${foodName} added to log!`);
         } catch (err) {
             console.error('Error adding food:', err);
             NotificationSystem.error('Failed to add food. Please try again.');

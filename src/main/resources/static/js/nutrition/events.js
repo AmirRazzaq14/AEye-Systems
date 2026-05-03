@@ -97,14 +97,23 @@ const NutritionEvents = {
             carb: document.getElementById('foodCarb').value || '0',
             fat: document.getElementById('foodFat').value || '0'
         };
+        
+        // Validate input
+        if (!meal.name || meal.name === 'Manual Entry') {
+            NotificationSystem.warning('Please enter a food name');
+            return;
+        }
+        
         try {
             await NutritionAPI.addMeal(meal);
             await this.loadData();
             ['foodName', 'foodCals', 'foodProtein', 'foodCarb', 'foodFat'].forEach(id => document.getElementById(id).value = '');
 //            document.getElementById('manualEntryForm').classList.add('hidden');
 //            document.getElementById('addFoodBtn').textContent = '+';
+            NotificationSystem.success(`${meal.name} added to food log!`);
         } catch (err) {
-            alert('Failed to add: ' + err.message);
+            console.error('Failed to add meal:', err);
+            NotificationSystem.error('Failed to add meal. Please try again.');
         }
     },
 
@@ -113,8 +122,10 @@ const NutritionEvents = {
         try {
             await NutritionAPI.deleteMeal(mealId);
             await this.loadData();
+            NotificationSystem.success('Meal deleted successfully');
         } catch (err) {
-            alert('Failed to delete');
+            console.error('Failed to delete meal:', err);
+            NotificationSystem.error('Failed to delete meal. Please try again.');
         }
     },
 
@@ -126,21 +137,40 @@ const NutritionEvents = {
             await NutritionAPI.saveNotes(notes);
             status.textContent = 'Saved!';
             status.style.color = 'var(--success)';
+            NotificationSystem.success('Journal saved successfully');
             setTimeout(() => status.textContent = '', 2000);
         } catch (err) {
+            console.error('Failed to save journal:', err);
             status.textContent = 'Failed';
             status.style.color = 'var(--danger)';
+            NotificationSystem.error('Failed to save journal. Please try again.');
         }
     },
 
     async getSuggestions() {
+        const btn = document.getElementById('getSuggestionBtn');
+        const originalText = btn.textContent;
+        
         try {
+            btn.textContent = 'Getting suggestions...';
+            btn.disabled = true;
+            
             const suggestions = await NutritionAPI.getSuggestions();
             NutritionUI.suggestions = suggestions;
             console.log('Received AI suggestions:', NutritionUI.suggestions);
             NutritionUI.renderAISuggestions();
+            
+            if (suggestions && suggestions.length > 0) {
+                NotificationSystem.success('AI suggestions updated!');
+            } else {
+                NotificationSystem.info('No new suggestions available');
+            }
         } catch (err) {
-            alert('Failed to get suggestions: ' + err.message);
+            console.error('Failed to get suggestions:', err);
+            NotificationSystem.error('Failed to get suggestions. Please try again.');
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
         }
     },
 

@@ -102,7 +102,7 @@ const BarcodeScanner = {
             console.log('Scanner started');
         } catch (err) {
             console.error('Failed to start scanner:', err);
-            alert('Camera access failed. Please check permissions or enter barcode manually.');
+            NotificationSystem.error('Camera access failed. Please check permissions or enter barcode manually.');
             scannerContainer.classList.add('hidden');
             
             // Update status to error
