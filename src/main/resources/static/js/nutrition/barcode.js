@@ -64,17 +64,17 @@ const BarcodeScanner = {
     },
 
     async startScanner() {
-        const scannerContainer = document.getElementById('scanner-container');
+        // const scannerContainer = document.getElementById('scanner-container');
         const reader = document.getElementById('reader');
-        const statusEl = document.getElementById('scannerStatus');
+        // const statusEl = document.getElementById('scannerStatus');
 
-        if (!scannerContainer || !reader) {
+        if (!reader) {
             console.error('Scanner elements not found');
             return;
         }
 
         try {
-            scannerContainer.classList.remove('hidden');
+            // scannerContainer.classList.remove('hidden');
             
             this.html5QrCode = new Html5Qrcode("reader");
             
@@ -92,30 +92,31 @@ const BarcodeScanner = {
             );
 
             this.isScanning = true;
+            NotificationSystem.info('Camera access granted. Point your camera at a barcode.');
             
-            // Update status to scanning
-            if (statusEl) {
-                statusEl.textContent = 'Scanning... Align barcode within the frame';
-                statusEl.className = 'scanner-status scanning';
-            }
+            // // Update status to scanning
+            // if (statusEl) {
+            //     statusEl.textContent = 'Scanning... Align barcode within the frame';
+            //     statusEl.className = 'scanner-status scanning';
+            // }
             
             console.log('Scanner started');
         } catch (err) {
             console.error('Failed to start scanner:', err);
             NotificationSystem.error('Camera access failed. Please check permissions or enter barcode manually.');
-            scannerContainer.classList.add('hidden');
+            // scannerContainer.classList.add('hidden');
             
-            // Update status to error
-            if (statusEl) {
-                statusEl.textContent = 'Camera access failed';
-                statusEl.className = 'scanner-status error';
-            }
+            // // Update status to error
+            // if (statusEl) {
+            //     statusEl.textContent = 'Camera access failed';
+            //     statusEl.className = 'scanner-status error';
+            // }
         }
     },
 
     async stopScanner() {
-        const scannerContainer = document.getElementById('scanner-container');
-        const statusEl = document.getElementById('scannerStatus');
+        // const scannerContainer = document.getElementById('scanner-container');
+        // const statusEl = document.getElementById('scannerStatus');
 
         if (this.html5QrCode && this.isScanning) {
             try {
@@ -129,29 +130,31 @@ const BarcodeScanner = {
 
         this.isScanning = false;
         
-        if (scannerContainer) {
-            scannerContainer.classList.add('hidden');
-        }
-
-        // Reset status
-        if (statusEl) {
-            statusEl.textContent = 'Ready to scan';
-            statusEl.className = 'scanner-status';
-        }
-
+        // if (scannerContainer) {
+        //     scannerContainer.classList.add('hidden');
+        // }
         console.log('Scanner stopped');
+        NotificationSystem.info('Scanner stopped');
+        // // Reset status
+        // if (statusEl) {
+        //     statusEl.textContent = 'Ready to scan';
+        //     statusEl.className = 'scanner-status';
+        // }
+
+        
     },
 
     onScanSuccess(decodedText) {
         console.log('Barcode scanned:', decodedText);
+        NotificationSystem.success('Barcode detected! Looking up product...');
         
-        const statusEl = document.getElementById('scannerStatus');
+        // const statusEl = document.getElementById('scannerStatus');
         
-        // Update status to success
-        if (statusEl) {
-            statusEl.textContent = 'Barcode detected! Looking up product...';
-            statusEl.className = 'scanner-status success';
-        }
+        // // Update status to success
+        // if (statusEl) {
+        //     statusEl.textContent = 'Barcode detected! Looking up product...';
+        //     statusEl.className = 'scanner-status success';
+        // }
         
         // Stop scanner after successful scan
         this.stopScanner();
@@ -170,6 +173,7 @@ const BarcodeScanner = {
         // Ignore common scanning errors (no barcode detected)
         if (errorMessage !== 'QR Code parse error') {
             console.debug('Scan error:', errorMessage);
+            NotificationSystem.warning('Scanning... Align barcode within the frame');
         }
     },
 
@@ -177,21 +181,23 @@ const BarcodeScanner = {
         if (!barcode) {
             NotificationSystem.warning('Please enter or scan a barcode');
             
-            const statusEl = document.getElementById('scannerStatus');
-            if (statusEl) {
-                statusEl.textContent = 'Please enter or scan a barcode';
-                statusEl.className = 'scanner-status error';
-            }
+            // const statusEl = document.getElementById('scannerStatus');
+            // if (statusEl) {
+            //     statusEl.textContent = 'Please enter or scan a barcode';
+            //     statusEl.className = 'scanner-status error';
+            // }
             return;
         }
 
         console.log('Looking up barcode:', barcode);
-        
-        const statusEl = document.getElementById('scannerStatus');
-        if (statusEl) {
-            statusEl.textContent = 'Looking up product information...';
-            statusEl.className = 'scanner-status scanning';
-        }
+
+        NotificationSystem.info('Looking up product information...');
+
+        // const statusEl = document.getElementById('scannerStatus');
+        // if (statusEl) {
+        //     statusEl.textContent = 'Looking up product information...';
+        //     statusEl.className = 'scanner-status scanning';
+        // }
 
         try {
             // Show loading state
@@ -225,30 +231,31 @@ const BarcodeScanner = {
                 console.log('Product found:', product.product_name);
                 NotificationSystem.success('Product found! Review and add to log.');
                 
-                // Update status to success
-                if (statusEl) {
-                    statusEl.textContent = 'Product found! Review below';
-                    statusEl.className = 'scanner-status success';
-                }
+                // // Update status to success
+                // if (statusEl) {
+                //     statusEl.textContent = 'Product found! Review below';
+                //     statusEl.className = 'scanner-status success';
+                // }
             } else {
                 // Product not found in database
-                NotificationSystem.error('Product not found. Please try another barcode.');
+                NotificationSystem.warn('Product not found. Please try another barcode.');
+                console.warn('Product not found for barcode:', barcode);
                 
-                // Update status to error
-                if (statusEl) {
-                    statusEl.textContent = 'Product not found. Try another barcode.';
-                    statusEl.className = 'scanner-status error';
-                }
+                // // Update status to error
+                // if (statusEl) {
+                //     statusEl.textContent = 'Product not found. Try another barcode.';
+                //     statusEl.className = 'scanner-status error';
+                // }
             }
         } catch (err) {
             console.error('Error looking up barcode:', err);
             NotificationSystem.error('Failed to lookup barcode. Please try again.');
             
-            // Update status to error
-            if (statusEl) {
-                statusEl.textContent = 'Lookup failed. Please try again.';
-                statusEl.className = 'scanner-status error';
-            }
+            // // Update status to error
+            // if (statusEl) {
+            //     statusEl.textContent = 'Lookup failed. Please try again.';
+            //     statusEl.className = 'scanner-status error';
+            // }
         }
     },
 
@@ -325,14 +332,14 @@ const BarcodeScanner = {
         const nutrition = product.nutriments || {};
         
         // Get serving size info
-        const servingSize = product.serving_size_g || 100; // Default to 100g
-        
+        const servingSize = product.serving_size_g || 100; // Default to 1 serving = 100g if not specified
+
+     
         return {
             calories: nutrition['energy-kcal_100g'] || nutrition['energy-kcal'] || null,
             protein: nutrition.protein_100g || nutrition.protein || null,
             carbs: nutrition.carbohydrates_100g || nutrition.carbohydrates || null,
             fat: nutrition.fat_100g || nutrition.fat || null,
-            servingSize: servingSize
         };
     },
 

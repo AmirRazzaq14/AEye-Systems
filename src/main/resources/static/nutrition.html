@@ -2007,29 +2007,18 @@
         <button class="close-window" onclick="closeWindow()">×</button>
     </div>
     <div class="barcode-scanner-section">
-
-        <button class="btn-scan" id="scanBarcodeBtn">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-                <path d="M3 5v4h2V5h4V3H5a2 2 0 0 0-2 2zm2 10H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 4h-4v2h4a2 2 0 0 0 2-2v-4h-2v4zm0-16h-4v2h4v4h2V5a2 2 0 0 0-2-2z"/>
-            </svg>
-            <span id="scanButtonText">Start Camera Scanner</span>
-        </button>
+        
+<!--        <button class="btn-scan" id="scanBarcodeBtn">-->
+<!--            <svg viewBox="0 0 24 24" width="20" height="20">-->
+<!--                <path d="M3 5v4h2V5h4V3H5a2 2 0 0 0-2 2zm2 10H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 4h-4v2h4a2 2 0 0 0 2-2v-4h-2v4zm0-16h-4v2h4v4h2V5a2 2 0 0 0-2-2z"/>-->
+<!--            </svg>-->
+<!--            <span id="scanButtonText">Start Camera Scanner</span>-->
+<!--        </button>-->
         <div class="barcode-input-group">
             <input type="text" id="barcodeInput" placeholder="Or enter barcode manually" class="barcode-input">
             <button class="btn-enter" id="enterBarcodeBtn">Lookup</button>
         </div>
         <div id="scanner-container" class="scanner-container" style="display: none; margin-top: 12px; padding: 12px; background: var(--card-bg); border-radius: 8px; border: 2px solid var(--blue);">
-            <!-- Local Camera View -->
-            <div id="localCameraView">
-                <div id="reader"></div>
-                <div class="scanner-overlay">
-                    <div class="scan-frame">
-                        <div class="scan-line"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="scanner-status" id="scannerStatus">Ready to scan</div>
             <button class="btn-close-scanner" id="closeScannerBtn" style="width: 100%; margin-top: 12px; padding: 8px; background: var(--danger); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">✕ Close Scanner</button>
         </div>
 
