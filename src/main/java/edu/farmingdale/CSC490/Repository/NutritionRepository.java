@@ -220,6 +220,29 @@ public class NutritionRepository {
         }
     }
 
+    public void updateMeal(String uid, String date, String mealId, Nutrition_log.Meal updatedMeal) throws Exception {
+        Nutrition_log existingLog = getByDate(uid, date);
+        if (existingLog != null && existingLog.getMeals() != null) {
+            for (Nutrition_log.Meal meal : existingLog.getMeals()) {
+                if (meal.getMealId() != null && meal.getMealId().equals(mealId)) {
+                    meal.setName(updatedMeal.getName());
+                    meal.setCals(updatedMeal.getCals());
+                    meal.setProtein(updatedMeal.getProtein());
+                    meal.setCarb(updatedMeal.getCarb());
+                    meal.setFat(updatedMeal.getFat());
+                    break;
+                }
+            }
+            nutritionCalculationService.calculateTotalNutrition(existingLog);
+            existingLog.setUpdatedAt(Instant.now().toString());
+            docRef(uid, existingLog.getId()).set(existingLog).get();
+            log.info("Meal updated successfully for log {}", date);
+        }else {
+            log.error("Nutrition log for date {} does not exist or has no meals, can't not update this meal", date);
+        }
+    }
+
+
     public void saveNotes(String uid, String dateKey, String note) throws Exception {
         Nutrition_log existingLog = getByDate(uid, dateKey);
         if (existingLog != null) {

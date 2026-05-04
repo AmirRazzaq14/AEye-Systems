@@ -60,6 +60,13 @@ const NutritionAPI = {
         });
     },
 
+    updateMeal(mealId, meal) {
+        return this.fetch(`/meals/${this.getToday()}/${mealId}`, {
+            method: 'PUT',
+            body: JSON.stringify(meal)
+        });
+    },
+
     saveNotes(notes) {
         return this.fetch(`/notes/${this.getToday()}`, {
             method: 'POST',

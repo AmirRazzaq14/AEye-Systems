@@ -142,6 +142,7 @@ const NutritionUI = {
                         </div>
                     </div>
                     <div class="food-actions">
+                        <button class="icon-btn edit" data-action="edit" title="Edit">✏️</button>
                         <button class="icon-btn delete" data-action="delete" title="Delete">🗑️</button>
                     </div>
                 </div>

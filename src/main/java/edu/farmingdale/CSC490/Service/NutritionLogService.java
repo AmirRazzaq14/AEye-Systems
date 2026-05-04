@@ -41,6 +41,10 @@ public class NutritionLogService {
         repo.deleteMeal(uid, date, id);
     }
 
+    public void updateMeal(String uid, String date, String id, Nutrition_log.Meal meal) throws Exception {
+        repo.updateMeal(uid, date, id, meal);
+    }
+
     public void saveNotes(String uid, String dateKey, String notes) throws Exception {
         repo.saveNotes(uid, dateKey,notes);
     }
