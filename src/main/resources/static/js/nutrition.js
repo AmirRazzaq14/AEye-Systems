@@ -34,6 +34,7 @@ async function initNutrition() {
 function startApp() {
     // Initialize all modules
     ImageAnalysis.init();
+    BarcodeScanner.init();
     NutritionEvents.init();
     
     // Load initial data
