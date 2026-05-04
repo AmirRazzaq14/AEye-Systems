@@ -29,6 +29,11 @@
         if (!res.ok) throw new Error(`Config fetch failed: ${res.status}`);
         const config = await res.json();
         firebase.initializeApp(config);
+        firebase.auth().onAuthStateChanged(user => {
+            if (user && typeof window.loadAvatar === 'function') {
+                window.loadAvatar(user);
+            }
+        });
       } catch (err) {
         console.error('initApp failed:', err);
         // Un-stick the loading overlay so the page is not frozen
@@ -793,7 +798,7 @@
 </div>
 
 <button type="button" onclick="toggleTheme()" class="theme-btn" title="Toggle dark mode">🌓</button>
-<a href="#" class="help-btn">?</a>
+<a href="help.html" class="help-btn" aria-label="Help">?</a>
 
 <!-- EXERCISE ADD MODAL -->
 <div class="modal-overlay" id="exAddModal">

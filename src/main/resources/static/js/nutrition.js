@@ -4,7 +4,7 @@
  */
 
 async function handleSignOut() {
-    localStorage.removeItem('wizcoach-avatar');
+    // localStorage.removeItem('wizcoach-avatar'); // No longer needed as handled by theme.js
     try {
         if (firebase.apps.length) {
             await firebase.auth().signOut();
@@ -22,6 +22,7 @@ async function initNutrition() {
         firebase.initializeApp(config);
         firebase.auth().onAuthStateChanged(user => {
             if (!user) return window.location.href = 'login.html';
+            if (typeof window.loadAvatar === 'function') window.loadAvatar(user);
             startApp();
         });
     } catch (err) {
@@ -42,12 +43,4 @@ function startApp() {
 
 document.addEventListener('DOMContentLoaded', initNutrition);
 
-// Load avatar from localStorage
-(function loadLocalAvatar() {
-    const saved = localStorage.getItem('wizcoach-avatar');
-    if(saved) {
-        const img = document.getElementById('navAvatarImg');
-        const txt = document.getElementById('navAvatarText');
-        if(img && txt) { img.src = saved; img.style.display = 'block'; txt.style.display = 'none'; }
-    }
-})();
+// Avatar is handled in onAuthStateChanged
