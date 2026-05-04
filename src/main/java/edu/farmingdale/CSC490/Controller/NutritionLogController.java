@@ -3,12 +3,10 @@ package edu.farmingdale.CSC490.Controller;
 import edu.farmingdale.CSC490.Config.FirebaseTokenFilter;
 import edu.farmingdale.CSC490.Entity.Motion_log;
 import edu.farmingdale.CSC490.Entity.Nutrition_log;
-import edu.farmingdale.CSC490.Entity.User;
 import edu.farmingdale.CSC490.Food.AISuggestionService;
 import edu.farmingdale.CSC490.Food.FoodAnalyzeService;
 import edu.farmingdale.CSC490.Service.MotionLogService;
 import edu.farmingdale.CSC490.Service.NutritionLogService;
-import edu.farmingdale.CSC490.Service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -203,6 +201,23 @@ public class NutritionLogController {
             return ResponseEntity.ok("{\"message\":\"Deleted\"}");
         } catch (Exception e) {
             log.error("Error to delete Meal on log {} : {}", date, e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/meals/{date}/{mealId}")
+    public ResponseEntity<?> updateMeal(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String date,
+            @PathVariable String mealId,
+            @RequestBody Nutrition_log.Meal meal) {
+        try {
+            String uid = tokenFilter.verifyAndGetUid(authHeader);
+            service.updateMeal(uid, date, mealId, meal);
+            log.info("Successfully update Meal on {} with meal id {}", date, mealId);
+            return ResponseEntity.ok("{\"message\":\"Updated\"}");
+        } catch (Exception e) {
+            log.error("Error to update Meal on log {} : {}", date, e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

@@ -15,15 +15,7 @@ const NutritionEvents = {
     },
 
     bindManualEntryEvents() {
-////        const addBtn = document.getElementById('addFoodBtn');
-//        const form = document.getElementById('manualEntryForm');
         const saveBtn = document.getElementById('saveManualBtn');
-
-//        addBtn.addEventListener('click', () => {
-//            form.classList.toggle('hidden');
-//            addBtn.textContent = form.classList.contains('hidden') ? '+' : '−';
-//        });
-
         saveBtn.addEventListener('click', () => this.addManualMeal());
     },
 
@@ -35,6 +27,16 @@ const NutritionEvents = {
                 if (foodItem) {
                     const mealId = foodItem.getAttribute('data-id');
                     if (mealId) this.deleteMeal(mealId);
+                }
+            }
+            const editBtn = e.target.closest('button[data-action="edit"]');
+            if (editBtn) {
+                const foodItem = editBtn.closest('.food-item');
+                if (foodItem) {
+                    const mealId = foodItem.getAttribute('data-id');
+                    if (mealId) {
+                        this.editMeal(mealId);
+                    }
                 }
             }
         });
@@ -89,6 +91,10 @@ const NutritionEvents = {
     },
 
     async addManualMeal() {
+        const saveBtn = document.getElementById('saveManualBtn');
+        const isEditMode = saveBtn.dataset.editMode === 'true';
+        const editMealId = saveBtn.dataset.editMealId;
+
         const meal = {
             mealId: 'meal_' + Date.now(),
             name: document.getElementById('foodName').value.trim() || 'Manual Entry',
@@ -105,12 +111,21 @@ const NutritionEvents = {
         }
         
         try {
-            await NutritionAPI.addMeal(meal);
+            if (isEditMode) {
+                await NutritionAPI.updateMeal(editMealId, meal);
+                NotificationSystem.success(`${meal.name} updated successfully!`);
+            } else {
+                await NutritionAPI.addMeal(meal);
+                NotificationSystem.success(`${meal.name} added to food log!`);
+            }
             await this.loadData();
             ['foodName', 'foodCals', 'foodProtein', 'foodCarb', 'foodFat'].forEach(id => document.getElementById(id).value = '');
-//            document.getElementById('manualEntryForm').classList.add('hidden');
-//            document.getElementById('addFoodBtn').textContent = '+';
-            NotificationSystem.success(`${meal.name} added to food log!`);
+
+            saveBtn.textContent = 'Add to Log';
+            delete saveBtn.dataset.editMode;
+            delete saveBtn.dataset.editMealId;
+
+            closeWindow();
         } catch (err) {
             console.error('Failed to add meal:', err);
             NotificationSystem.error('Failed to add meal. Please try again.');
@@ -127,6 +142,28 @@ const NutritionEvents = {
             console.error('Failed to delete meal:', err);
             NotificationSystem.error('Failed to delete meal. Please try again.');
         }
+    },
+
+    async editMeal(mealId) {
+        const meal = NutritionUI.data.meals.find(m => m.mealId === mealId);
+        if (!meal) {
+            NotificationSystem.error('Meal not found');
+            return;
+        }
+
+        document.getElementById('foodName').value = meal.name || '';
+        document.getElementById('foodCals').value = meal.cals || '0';
+        document.getElementById('foodProtein').value = meal.protein || '0';
+        document.getElementById('foodCarb').value = meal.carb || '0';
+        document.getElementById('foodFat').value = meal.fat || '0';
+
+        const saveBtn = document.getElementById('saveManualBtn');
+        saveBtn.textContent = 'Update Meal';
+        saveBtn.dataset.editMode = 'true';
+        saveBtn.dataset.editMealId = mealId;
+
+        openWindow('manual');
+        NotificationSystem.info('Editing meal. Make changes and click Update.');
     },
 
     async saveJournal() {
