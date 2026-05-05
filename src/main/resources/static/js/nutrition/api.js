@@ -18,7 +18,23 @@ function normalizeBurnedCalories(raw) {
 }
 
 const NutritionAPI = {
+    useMock: false,
+
+    toggleMock() {
+        this.useMock = !this.useMock;
+        console.log(`Nutrition API Mock Mode: ${this.useMock ? 'ENABLED ✅' : 'DISABLED ❌'}`);
+        if (this.useMock) {
+            console.warn('⚠️ Using MOCK DATA - All API calls will return simulated data');
+        }
+        return this.useMock;
+    },
+
     async fetch(path, options = {}) {
+        if (this.useMock) {
+            console.log('[MOCK API]', options.method || 'GET', path);
+            return this.mockFetch(path, options);
+        }
+
         const user = firebase.auth().currentUser;
         if (!user) throw new Error('Not logged in');
         const token = await user.getIdToken();
@@ -32,6 +48,52 @@ const NutritionAPI = {
         });
         if (!res.ok) throw new Error(`API Error: ${res.status}`);
         return res.json();
+    },
+
+    async mockFetch(path, options = {}) {
+        const method = options.method || 'GET';
+
+        if (method === 'GET' && path.includes('/week/')) {
+            return NutritionMock.getMockWeekData();
+        }
+
+        if (method === 'GET' && path.match(/\/\d{4}-\d{2}-\d{2}$/)) {
+            return NutritionMock.getMockData();
+        }
+
+        if (method === 'GET' && path.includes('/burnedCalories/')) {
+            return NutritionMock.getMockBurned();
+        }
+
+        if (method === 'GET' && path.includes('/suggestions/')) {
+            return { suggestion: "This is a mock AI suggestion for testing purposes." };
+        }
+
+        if (method === 'POST' && path.includes('/meals/')) {
+            const meal = JSON.parse(options.body);
+            console.log('[MOCK] Added meal:', meal);
+            return { success: true, mealId: meal.mealId || 'mock_' + Date.now() };
+        }
+
+        if (method === 'DELETE' && path.includes('/meals/')) {
+            console.log('[MOCK] Deleted meal');
+            return { success: true };
+        }
+
+        if (method === 'PUT' && path.includes('/meals/')) {
+            const meal = JSON.parse(options.body);
+            console.log('[MOCK] Updated meal:', meal);
+            return { success: true };
+        }
+
+        if (method === 'POST' && path.includes('/notes/')) {
+            const data = JSON.parse(options.body);
+            console.log('[MOCK] Saved notes:', data.notes);
+            return { success: true };
+        }
+
+        console.warn('[MOCK] Unhandled path:', path);
+        return {};
     },
 
     getToday() {

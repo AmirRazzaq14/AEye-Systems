@@ -40,6 +40,30 @@ function startApp() {
 
     // Load initial data
     NutritionEvents.loadData();
+
+    // Mock mode
+    toggleMockMode();
+}
+
+function toggleMockMode() {
+  // Expose dev tools to window for easy access
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        window.DevTools = {
+            enableMock: () => {
+                NutritionAPI.toggleMock();
+                console.log('Mock mode enabled. Refresh page to see mock data.');
+            },
+            disableMock: () => {
+                NutritionAPI.useMock = false;
+                console.log('Mock mode disabled. Refresh page to use real API.');
+            },
+            status: () => {
+                console.log(`Current mode: ${NutritionAPI.useMock ? '🟡 MOCK' : '🔵 REAL API'}`);
+            }
+        };
+        console.log('🛠️ Dev Tools available: window.DevTools.enableMock(), .disableMock(), .status()');
+    }
+
 }
 
 document.addEventListener('DOMContentLoaded', initNutrition);

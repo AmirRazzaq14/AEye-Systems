@@ -255,12 +255,6 @@ const NutritionEvents = {
             NutritionUI.renderAll();
         } catch (err) {
             console.error('Failed to load:', err);
-            console.log('Using mock data for demo');
-            // Use mock data for demo
-            NutritionUI.data = NutritionMock.getMockData();
-            NutritionUI.weekData = NutritionMock.getMockWeekData();
-            NutritionUI.burned = NutritionMock.getMockBurned();
-            NutritionUI.renderAll();
         }
     }
 };
