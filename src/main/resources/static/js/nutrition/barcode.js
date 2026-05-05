@@ -278,14 +278,13 @@ const BarcodeScanner = {
         const nutrition = product.nutriments || {};
         
         // Get serving size info
-        const servingSize = product.serving_size_g || 100; // Default to 1 serving = 100g if not specified
-
+        const servingSize = product.serving_size_g || 1; // Default to 1 serving = 100g if not specified
      
         return {
-            calories: nutrition['energy-kcal_100g'] || nutrition['energy-kcal'] || null,
-            protein: nutrition.protein_100g || nutrition.protein || null,
-            carbs: nutrition.carbohydrates_100g || nutrition.carbohydrates || null,
-            fat: nutrition.fat_100g || nutrition.fat || null,
+            calories: nutrition['energy-kcal_serving']||nutrition['energy-kcal_100g']|| 0,
+            protein: nutrition['proteins_serving']||nutrition.proteins_100g || 0,
+            carbs: nutrition['carbohydrates_serving']||nutrition.carbohydrates_100g || 0,
+            fat: nutrition['fat_serving']||nutrition.fat_100g || 0,
         };
     },
 
