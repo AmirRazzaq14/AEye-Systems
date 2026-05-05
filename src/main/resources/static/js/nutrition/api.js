@@ -18,7 +18,7 @@ function normalizeBurnedCalories(raw) {
 }
 
 const NutritionAPI = {
-    useMock: true,
+    useMock: false,
 
     toggleMock() {
         this.useMock = !this.useMock;
