@@ -1,9 +1,14 @@
 /**
- * Mock data for nutrition app
+ * Mock Data Provider for Nutrition API
+ *
+ * This module provides mock data for testing.
+ * It should ONLY be called by NutritionAPI when useMock is enabled.
+ *
+ * DO NOT call these methods directly from UI components.
  */
 
-
 const NutritionMock = {
+
     getMockData() {
         return {
             totalNutrition: {
@@ -91,5 +96,18 @@ const NutritionMock = {
     getMockBurned() {
         return 300;
     },
+
+    getMockMeal(){
+     console.warn('Using Mock date');
+        // Fallback to mock data
+        const mockResults = [
+            { name: 'Grilled Chicken Salad', cals: 450, protein: 35, carb: 20, fat: 25 },
+            { name: 'Pasta Carbonara', cals: 650, protein: 28, carb: 75, fat: 32 },
+            { name: 'Sushi Roll Set', cals: 380, protein: 15, carb: 50, fat: 12 },
+            { name: 'Burger with Fries', cals: 850, protein: 35, carb: 90, fat: 40 },
+            { name: 'Buddha Bowl', cals: 550, protein: 22, carb: 65, fat: 18 }
+        ];
+        return mockResults[Math.floor(Math.random() * mockResults.length)];
+    }
 
 }

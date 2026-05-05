@@ -1078,18 +1078,18 @@
     }
 
 
-    /* Add from incoming */
-    .ai-text-bubble::before {
-        content: '';
-        position: absolute;
-        left: -8px;
-        top: 20px;
-        width: 0;
-        height: 0;
-        border-top: 8px solid transparent;
-        border-bottom: 8px solid transparent;
-        border-right: 8px solid var(--border);
-    }
+<!--    /* Add from incoming */-->
+<!--    .ai-text-bubble::before {-->
+<!--        content: '';-->
+<!--        position: absolute;-->
+<!--        left: -8px;-->
+<!--        top: 20px;-->
+<!--        width: 0;-->
+<!--        height: 0;-->
+<!--        border-top: 8px solid transparent;-->
+<!--        border-bottom: 8px solid transparent;-->
+<!--        border-right: 8px solid var(&#45;&#45;border);-->
+<!--    }-->
 
     /* Barcode Scanner Styles */
     .barcode-scanner-section {
@@ -1185,6 +1185,9 @@
         border-radius: 8px;
         border: 2px solid var(--blue);
         position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .scanner-container.hidden {
@@ -1196,6 +1199,14 @@
         max-width: 400px;
         margin: 0 auto;
         position: relative;
+        overflow: hidden;
+    }
+
+    #reader video {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: cover;
+        border-radius: 8px;
     }
 
     /* Scanner overlay with scanning frame */
@@ -1207,19 +1218,71 @@
         height: 100%;
         pointer-events: none;
         z-index: 10;
+        display: none;
+    }
+
+    .scanner-container:not(.hidden) .scanner-overlay {
+        display: block;
     }
 
     .scan-frame {
         position: absolute;
-        top: 50%;
+        top: 45%;
         left: 50%;
         transform: translate(-50%, -50%);
         width: 250px;
         height: 250px;
         border: 3px solid var(--blue);
         border-radius: 12px;
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-        animation: pulse 2s infinite;
+<!--        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);-->
+<!--        animation: pulse 2s infinite;-->
+    }
+    /* Corner accents for scan frame */
+    .scan-frame::before,
+    .scan-frame::after {
+        content: '';
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border-color: var(--blue);
+        border-style: solid;
+    }
+
+    .scan-frame::before {
+        top: -3px;
+        left: -3px;
+        border-width: 4px 0 0 4px;
+        border-radius: 4px 0 0 0;
+    }
+
+    .scan-frame::after {
+        top: -3px;
+        right: -3px;
+        border-width: 4px 4px 0 0;
+        border-radius: 0 4px 0 0;
+    }
+
+    .scan-frame-corner-bottom-left,
+    .scan-frame-corner-bottom-right {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border-color: var(--blue);
+        border-style: solid;
+    }
+
+    .scan-frame-corner-bottom-left {
+        bottom: -3px;
+        left: -3px;
+        border-width: 0 0 4px 4px;
+        border-radius: 0 0 0 4px;
+    }
+
+    .scan-frame-corner-bottom-right {
+        bottom: -3px;
+        right: -3px;
+        border-width: 0 4px 4px 0;
+        border-radius: 0 0 4px 0;
     }
 
     @keyframes pulse {
@@ -1253,31 +1316,6 @@
         }
     }
 
-    .scanner-status {
-        text-align: center;
-        margin-top: 12px;
-        padding: 8px 12px;
-        background: rgba(59, 130, 246, 0.1);
-        border-radius: 6px;
-        font-size: 14px;
-        color: var(--blue);
-        font-weight: 500;
-    }
-
-    .scanner-status.scanning {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--blue);
-    }
-
-    .scanner-status.success {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-    }
-
-    .scanner-status.error {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-    }
 
     .btn-camera-option {
         transition: all 0.2s;
@@ -1549,9 +1587,9 @@
         .floating-window {
             position: fixed;
             inset: 0.75rem;
+            margin: auto;
             width: auto;
-            max-width: calc(100vw - 1.5rem);
-            max-height: calc(100vh - 1rem);
+            height: fit-content;
             padding: 1.25rem;
             border-radius: 18px;
             transform: none;
@@ -2068,6 +2106,13 @@
         </div>
         <div id="scanner-container" class="scanner-container hidden" style="margin-top: 12px; padding: 12px; background: var(--card-bg); border-radius: 8px; border: 2px solid var(--blue);">
             <div id="reader" style="width: 100%;"></div>
+            <div class="scanner-overlay">
+                <div class="scan-frame">
+                    <div class="scan-line"></div>
+                    <div class="scan-frame-corner-bottom-left"></div>
+                    <div class="scan-frame-corner-bottom-right"></div>
+                </div>
+            </div>
             <button class="btn-close-scanner" id="closeScannerBtn" style="width: 100%; margin-top: 12px; padding: 8px; background: var(--danger); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">✕ Close Scanner</button>
         </div>
 

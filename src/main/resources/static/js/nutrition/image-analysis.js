@@ -89,25 +89,8 @@ const ImageAnalysis = {
             }
             zone.classList.remove('processingMessage');
         } catch (err) {
-            console.warn('Image analysis failed, using mock data:', err.message);
-            
-            // Fallback to mock data
-            const mockResults = [
-                { name: 'Grilled Chicken Salad', cals: 450, protein: 35, carb: 20, fat: 25 },
-                { name: 'Pasta Carbonara', cals: 650, protein: 28, carb: 75, fat: 32 },
-                { name: 'Sushi Roll Set', cals: 380, protein: 15, carb: 50, fat: 12 },
-                { name: 'Burger with Fries', cals: 850, protein: 35, carb: 90, fat: 40 },
-                { name: 'Buddha Bowl', cals: 550, protein: 22, carb: 65, fat: 18 }
-            ];
-            const result = mockResults[Math.floor(Math.random() * mockResults.length)];
-            
-            // Store current analysis
-            this.currentAnalysis = result;
-
-            // Display result
-            this.displayResult(this.currentAnalysis);
-
-            // Hide processing message
+            console.warn('Image analysis failed:', err.message);
+            NotificationSystem.error('Image analysis failed,try again later');
             if (processingMsg) {
                 processingMsg.style.display = 'none';
             }
