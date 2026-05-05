@@ -36,7 +36,8 @@ function startApp() {
     ImageAnalysis.init();
     BarcodeScanner.init();
     NutritionEvents.init();
-    
+    NutritionFavorites.init();
+
     // Load initial data
     NutritionEvents.loadData();
 }

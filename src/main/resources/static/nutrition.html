@@ -31,6 +31,8 @@
     <script src="js/nutrition/image-analysis.js" defer></script>
     <script src="js/nutrition/barcode.js" defer></script>
     <script src="js/nutrition/events.js" defer></script>
+    <script src="js/nutrition/favorites.js" defer></script>
+    <script src="js/nutrition/mock.js" defer></script>
     <script src="js/nutrition.js" defer></script>
 
     <style>
@@ -1910,6 +1912,12 @@
         </div>
         <button class="close-window" onclick="closeWindow()">×</button>
     </div>
+    <!-- Favorite Meals Section -->
+    <div id="favoriteMealsSection" style="margin-bottom: 1.5rem; display: none;">
+        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text);">⭐ Favorite Meals</h4>
+        <div id="favoriteMealsList" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
     <div class="manual-entry">
         <input class="meals-input" type="text" id="foodName" placeholder="Food name">
         <div class="nutrition-grid">

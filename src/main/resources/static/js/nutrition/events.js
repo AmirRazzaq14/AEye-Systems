@@ -39,6 +39,18 @@ const NutritionEvents = {
                     }
                 }
             }
+
+            const favBtn = e.target.closest('button[data-action="favorite"]');
+            if (favBtn) {
+                const foodItem = favBtn.closest('.food-item');
+                if (foodItem) {
+                    const mealId = foodItem.getAttribute('data-id');
+                    const meal = NutritionUI.data.meals.find(m => m.mealId === mealId);
+                    if (meal) {
+                        NutritionFavorites.addFavorite(meal);
+                    }
+                }
+            }
         });
     },
 
@@ -245,9 +257,9 @@ const NutritionEvents = {
             console.error('Failed to load:', err);
             console.log('Using mock data for demo');
             // Use mock data for demo
-            NutritionUI.data = NutritionUI.getMockData();
-            NutritionUI.weekData = NutritionUI.getMockWeekData();
-            NutritionUI.burned = NutritionUI.getMockBurned();
+            NutritionUI.data = NutritionMock.getMockData();
+            NutritionUI.weekData = NutritionMock.getMockWeekData();
+            NutritionUI.burned = NutritionMock.getMockBurned();
             NutritionUI.renderAll();
         }
     }
