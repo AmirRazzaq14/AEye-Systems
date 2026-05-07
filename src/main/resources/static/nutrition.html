@@ -21,15 +21,16 @@
     <title>WizCoach – Nutrition</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
     <!-- Nutrition modules -->
     <script src="js/nutrition/api.js" defer></script>
     <script src="js/nutrition/chart.js" defer></script>
     <script src="js/nutrition/ui.js" defer></script>
     <script src="js/nutrition/image-analysis.js" defer></script>
-    <script src="js/nutrition/barcode.js" defer></script>
+    <script src="js/nutrition/barcode-quagga.js" defer></script>
+<!--    <script src="js/nutrition/barcode-html5.js" defer></script>-->
     <script src="js/nutrition/events.js" defer></script>
     <script src="js/nutrition/favorites.js" defer></script>
     <script src="js/nutrition/mock.js" defer></script>
@@ -654,21 +655,21 @@
         display: block;
     }
 
-    .processing-message {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(248, 249, 255, 0.95);
-        border-radius: 14px;
-        z-index: 10;
-    }
+<!--    .processing-message {-->
+<!--        display: none;-->
+<!--        flex-direction: column;-->
+<!--        align-items: center;-->
+<!--        justify-content: center;-->
+<!--        gap: 1rem;-->
+<!--        position: absolute;-->
+<!--        top: 0;-->
+<!--        left: 0;-->
+<!--        width: 100%;-->
+<!--        height: 100%;-->
+<!--        background: rgba(248, 249, 255, 0.95);-->
+<!--        border-radius: 14px;-->
+<!--        z-index: 10;-->
+<!--    }-->
 
 
     .spinner {
@@ -1183,6 +1184,20 @@
         transform: translateY(0);
     }
 
+    /* Scanner Styles */
+    .scan-status {
+        margin-top: 8px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+        transition: color 0.3s ease;
+    }
+
+    .scan-status.detected {
+        color: var(--success);
+        font-weight: 500;
+    }
+
     .scanner-container {
         margin-top: 12px;
         padding: 12px;
@@ -1195,9 +1210,15 @@
         align-items: center;
     }
 
-    .scanner-container.hidden {
+    .scanner-container hidden {
         display: none;
+        margin-top: 12px;
+        padding: 12px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        border: 2px solid var(--blue);
     }
+
 
     #reader {
         width: 100%;
@@ -1206,6 +1227,11 @@
         position: relative;
         overflow: hidden;
     }
+
+    #reader canvas {
+        display: none !important;
+    }
+
 
     #reader video {
         width: 100% !important;
@@ -1232,11 +1258,11 @@
 
     .scan-frame {
         position: absolute;
-        top: 45%;
+        top: 43%;
         left: 50%;
         transform: translate(-50%, -50%);
         width: 250px;
-        height: 250px;
+        height: 150px;
         border: 3px solid var(--blue);
         border-radius: 12px;
 <!--        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);-->
@@ -2067,10 +2093,6 @@
         <div class="preview-img-container">
             <img id="previewImg" src="" alt="Preview">
         </div>
-        <div class="processing-message" id="processingMessage">
-            <div class="spinner"></div>
-            <p>Analyzing your food...</p>
-        </div>
     </div>
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
 
@@ -2118,25 +2140,44 @@
         <button class="close-window" onclick="closeWindow()">×</button>
     </div>
     <div class="barcode-scanner-section">
-        
-        <button class="btn-scan" id="scanBarcodeBtn">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-                <path d="M3 5v4h2V5h4V3H5a2 2 0 0 0-2 2zm2 10H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 4h-4v2h4a2 2 0 0 0 2-2v-4h-2v4zm0-16h-4v2h4v4h2V5a2 2 0 0 0-2-2z"/>
-            </svg>
-            <span id="scanButtonText">Start Camera Scanner</span>
-        </button>
+
+        <div class="barcode-input-group">
+            <button class="btn-scan" id="scanBarcodeBtn">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path d="M3 5v4h2V5h4V3H5a2 2 0 0 0-2 2zm2 10H3v4a2 2 0 0 0 2 2h4v-2H5v-4zm14 4h-4v2h4a2 2 0 0 0 2-2v-4h-2v4zm0-16h-4v2h4v4h2V5a2 2 0 0 0-2-2z"/>
+                </svg>
+                <span id="scanButtonText">Start Camera Scanner</span>
+            </button>
+
+            <button class="btn-scan" id="uploadBarcodeBtn" style="background: var(--purple);">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                </svg>
+                <span>Upload Barcode Image</span>
+            </button>
+            <input type="file" id="barcodeFileInput" accept="image/*" style="display: none;">
+        </div>
         <div class="barcode-input-group">
             <input type="text" id="barcodeInput" placeholder="enter barcode manually" class="barcode-input">
             <button class="btn-enter" id="enterBarcodeBtn">Lookup</button>
         </div>
-        <div id="scanner-container" class="scanner-container hidden" style="margin-top: 12px; padding: 12px; background: var(--card-bg); border-radius: 8px; border: 2px solid var(--blue);">
-            <div id="reader" style="width: 100%;"></div>
+        <div id="scanner-container" class="scanner-container hidden">
+            <div id="reader" style="width: 100%; position: relative;">
+                <video id="zxing-video" style="width: 100%; height: auto;"
+                       playsinline
+                       autoplay
+                       muted>
+                </video>
+            </div>
             <div class="scanner-overlay">
                 <div class="scan-frame">
                     <div class="scan-line"></div>
                     <div class="scan-frame-corner-bottom-left"></div>
                     <div class="scan-frame-corner-bottom-right"></div>
                 </div>
+            </div>
+            <div id="scanStatus" class="scan-status" style="margin-top: 8px; text-align: center; font-size: 12px; color: var(--muted);">
+                Looking for barcode...
             </div>
             <button class="btn-close-scanner" id="closeScannerBtn" style="width: 100%; margin-top: 12px; padding: 8px; background: var(--danger); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">✕ Close Scanner</button>
         </div>
@@ -2227,7 +2268,7 @@
             this.container = document.getElementById('notificationContainer');
         },
 
-        show(message, type = 'info', duration = 3000) {
+        show(message, type = 'info', duration = 5000) {
             const notification = this.createNotification(message, type);
             this.container.appendChild(notification);
             this.notifications.push(notification);
