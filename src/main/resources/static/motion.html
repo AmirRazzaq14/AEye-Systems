@@ -1591,8 +1591,13 @@
   /** EMA of nose Y while standing (knees straight); used for squat head-lowering check. */
   let squatHeadBaselineY = null;
 
-  /** Pushup (face camera): smoothed average elbow angle; dampens jitter that caused multi-counts. */
-  let pushupSmoothedAvgElbowDeg = null;
+  /** Pushup: per-arm smoothed elbow angle (camera-facing plank). */
+  let pushupSmoothedLeftElbowDeg = null;
+  let pushupSmoothedRightElbowDeg = null;
+  /** Pushup: hysteresis “in bottom stroke” latch from smoothed angle (fewer jitter flips). */
+  let pushupHystInsideDown = false;
+  /** Pushup: true after a real bottom phase until the next rep counts (gates top transition→up reads). */
+  let pushupArmedSinceBottom = false;
   /** Pushup: ignore repeat counts within this window after a rep (ms). */
   let pushupRepCooldownUntilMs = 0;
 
@@ -1804,8 +1809,9 @@
   }
 
   /**
-   * Pushups while facing the camera: both arms must track; average elbow angle is EMA-smoothed.
-   * Rejects narrow profile (not facing), mismatched arms, and non-plank poses to reduce burst false reps.
+   * Pushups (face camera): per-arm elbow EMA, averaged; hysteresis on “bottom” avoids phase flicker.
+   * Rep logic arms after a visible bottom (`pushupArmedSinceBottom`) and allows down→transitioning→up paths.
+   * Rejects narrow profile, loosely symmetric arms (~58°), and non-plank poses to limit false positives.
    */
   function detectPushup(pose) {
     const lSh = getKeypoint(pose, 'left_shoulder');
@@ -1865,20 +1871,22 @@
     const ra = angle(rSh, rEl, rWr);
     if (la <= 0 || ra <= 0) return { phase: 'unknown', confidence: 0 };
 
-    if (Math.abs(la - ra) > 52) {
+    if (Math.abs(la - ra) > 58) {
       return { phase: 'unknown', confidence: 0 };
     }
 
-    const rawAvg = (la + ra) / 2;
-    const emaAlpha = 0.36;
-    if (pushupSmoothedAvgElbowDeg == null) {
-      pushupSmoothedAvgElbowDeg = rawAvg;
+    const emaAlpha = 0.46;
+    if (pushupSmoothedLeftElbowDeg == null || pushupSmoothedRightElbowDeg == null) {
+      pushupSmoothedLeftElbowDeg = la;
+      pushupSmoothedRightElbowDeg = ra;
     } else {
-      pushupSmoothedAvgElbowDeg =
-        pushupSmoothedAvgElbowDeg * (1 - emaAlpha) + rawAvg * emaAlpha;
+      pushupSmoothedLeftElbowDeg =
+        pushupSmoothedLeftElbowDeg * (1 - emaAlpha) + la * emaAlpha;
+      pushupSmoothedRightElbowDeg =
+        pushupSmoothedRightElbowDeg * (1 - emaAlpha) + ra * emaAlpha;
     }
 
-    const a = pushupSmoothedAvgElbowDeg;
+    const a = (pushupSmoothedLeftElbowDeg + pushupSmoothedRightElbowDeg) / 2;
     const conf = Math.min(
       lSh.score || 0,
       lEl.score || 0,
@@ -1888,9 +1896,25 @@
       rWr.score || 0
     );
 
-    if (a < 104) return { phase: 'down', confidence: conf };
-    if (a > 152) return { phase: 'up', confidence: conf };
-    return { phase: 'transitioning', confidence: conf * 0.82 };
+    const DOWN_ENTER = 118;
+    const DOWN_LEAVE = 132;
+    const UP_EXTENDED = 150;
+
+    if (!pushupHystInsideDown && a <= DOWN_ENTER) pushupHystInsideDown = true;
+    else if (pushupHystInsideDown && a >= DOWN_LEAVE) pushupHystInsideDown = false;
+
+    let phase;
+    if (pushupHystInsideDown) {
+      phase = 'down';
+    } else if (a >= UP_EXTENDED) {
+      phase = 'up';
+    } else {
+      phase = 'transitioning';
+    }
+    return {
+      phase,
+      confidence: phase === 'transitioning' ? conf * 0.84 : conf
+    };
   }
 
   function detectArmRaise(pose) {
@@ -2262,7 +2286,7 @@
     pushup: [
       'Face the camera with your chest toward it; both arms and hands must stay visible — counting uses both elbows together.',
       'Hands should be clearly below shoulder level in frame (plank position). Turn wider if the coach says you are not facing enough.',
-      'Move at a controlled pace — very fast reps are harder for the camera to separate.',
+      'Use a distinct bottom (chest nearer the floor) each rep — the counter needs one clear bend before locking out.',
       'Keep hips from drifting too high (pike) so the model keeps a consistent plank read.'
     ],
     arm_raise: [
@@ -2447,7 +2471,10 @@
     selectedWorkout = newType;
     if (newType === 'squat' && prev !== 'squat') squatHeadBaselineY = null;
     if (prev === 'pushup' || newType === 'pushup') {
-      pushupSmoothedAvgElbowDeg = null;
+      pushupSmoothedLeftElbowDeg = null;
+      pushupSmoothedRightElbowDeg = null;
+      pushupHystInsideDown = false;
+      pushupArmedSinceBottom = false;
       pushupRepCooldownUntilMs = 0;
     }
     if (prev === 'jumping_jack' || newType === 'jumping_jack') {
@@ -2503,7 +2530,10 @@
       setCameraStatus(CameraStatus.READY);
       if (selectedWorkout === 'squat') squatHeadBaselineY = null;
       if (selectedWorkout === 'pushup') {
-        pushupSmoothedAvgElbowDeg = null;
+        pushupSmoothedLeftElbowDeg = null;
+        pushupSmoothedRightElbowDeg = null;
+        pushupHystInsideDown = false;
+        pushupArmedSinceBottom = false;
         pushupRepCooldownUntilMs = 0;
       }
       if (selectedWorkout === 'jumping_jack') {
@@ -2729,9 +2759,15 @@
                 exerciseState.phase = det.phase;
                 exerciseState.confidence = det.confidence;
 
+                if (selectedWorkout === 'pushup' && det.phase === 'down' && det.confidence > 0.07) {
+                  pushupArmedSinceBottom = true;
+                }
+
                 const pushupRepOk =
                   selectedWorkout !== 'pushup' ||
-                  (exerciseState.lastPhase === 'down' && now >= pushupRepCooldownUntilMs);
+                  (pushupArmedSinceBottom &&
+                    ['down', 'transitioning'].includes(exerciseState.lastPhase) &&
+                    now >= pushupRepCooldownUntilMs);
 
                 const jackRepOk =
                   selectedWorkout !== 'jumping_jack' ||
@@ -2756,7 +2792,8 @@
                   if (selectedWorkout === 'squat') squatCount = exerciseState.count;
                   if (selectedWorkout === 'pushup') {
                     pushupCount = exerciseState.count;
-                    pushupRepCooldownUntilMs = now + 650;
+                    pushupArmedSinceBottom = false;
+                    pushupRepCooldownUntilMs = now + 520;
                   }
                   if (selectedWorkout === 'arm_raise') {
                     armRaiseCount = exerciseState.count;
